@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: blog
+  profiles:
+    active: "@profile.active@"
+  mvc:
+    path-match:
+      matching-strategy: ant-path-matcher
+    servlet:
+      load-on-startup: 1
+  datasource:
+    url: "jdbc:mysql://127.0.0.1:3306/blog?allowMultiQueries=true&useAffectedRows=true&serverTimezone=Asia/Shanghai"
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      async-init: true
+      initial-size: 5   #初始化连接池数量
+      min-idle: 5       #最小连接池数量
+      max-active: 20    #最大连接池数量
+      max-wait: 6000    #取连接的超时等待时间(ms)
+      min-evictable-idle-time-millis: 300000
+      validation-query: SELECT 1
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      filters: mergeStat
+      web-stat-filter:
+        enabled: true
+        url-pattern: /*
+        exclusions: "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*"
+        session-stat-enable: true
+        session-stat-max-count: 1000
+      stat-view-servlet:
+        enabled: true
+        url-pattern: /druid/*
+        reset-enable: false

@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    username: root
+    password: toor
+    druid:
+      stat-view-servlet:
+        login-username: root
+        login-password: toor
+logging:
+  level:
+    top.yinzsw.blog.mapper: debug
