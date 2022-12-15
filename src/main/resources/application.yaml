@@ -34,3 +34,5 @@ spring:
         enabled: true
         url-pattern: /druid/*
         reset-enable: false
+knife4j:
+  enable: true

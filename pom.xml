@@ -39,6 +39,8 @@
         <mapstruct.version>1.5.3.Final</mapstruct.version>
         <druid.version>1.2.15</druid.version>
         <mybatis.version>3.5.2</mybatis.version>
+        <swagger.version>3.0.0</swagger.version>
+        <swagger-ui.version>3.0.3</swagger-ui.version>
     </properties>
 
     <dependencies>
@@ -107,6 +109,18 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <!--swagger springfox-->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-boot-starter</artifactId>
+            <version>${swagger.version}</version>
+        </dependency>
+        <!--swagger knife4j-ui-->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-spring-boot-starter</artifactId>
+            <version>${swagger-ui.version}</version>
         </dependency>
 
         <!--BOOT EXTENSION-->

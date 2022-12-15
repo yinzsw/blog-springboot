@@ -9,3 +9,14 @@ spring:
 logging:
   level:
     top.yinzsw.blog.mapper: debug
+swagger:
+  enable: true
+  title: "博客API文档"
+  version: "@project.version@"
+  description: "一个基于SpringBoot + Vue3的博客项目"
+  service-url: "https://api.yinzsw.top/blog/"
+  contact-name: "yinzsW"
+  contact-url: "https://github.com/yinzsw"
+  contact-email: "yinzsW@qq.com"
+knife4j:
+  production: false
