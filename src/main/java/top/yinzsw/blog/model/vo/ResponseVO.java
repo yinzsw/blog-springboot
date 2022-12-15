@@ -1,6 +1,7 @@
 package top.yinzsw.blog.model.vo;
 
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,14 +23,17 @@ public class ResponseVO<T> {
     /**
      * 状态码
      */
+    @ApiModelProperty("状态码")
     private Integer code;
     /**
      * 数据
      */
+    @ApiModelProperty("数据")
     private T data;
     /**
      * 信息
      */
+    @ApiModelProperty("信息")
     private String msg;
 
     public static <T> ResponseVO<T> success() {

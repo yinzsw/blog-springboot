@@ -15,6 +15,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>blog</name>
     <description>blog API</description>
+    <packaging>jar</packaging>
 
     <profiles>
         <profile>
@@ -36,6 +37,7 @@
 
     <properties>
         <java.version>11</java.version>
+        <spring-cloud.version>2021.0.5</spring-cloud.version>
         <mapstruct.version>1.5.3.Final</mapstruct.version>
         <druid.version>1.2.15</druid.version>
         <mybatis.version>3.5.2</mybatis.version>
@@ -69,6 +71,23 @@
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <!--commons-pool2-->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+        </dependency>
+        <!--feign httpclient-->
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-httpclient</artifactId>
+        </dependency>
+
+        <!--CLOUD-->
+        <!--cloud openfeign-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
 
         <!--BOOT-->
         <!--web-->
@@ -81,6 +100,11 @@
                     <artifactId>spring-boot-starter-logging</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <!--security-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         <!--Bean Validation-->
         <dependency>
@@ -98,6 +122,11 @@
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
             <version>${mybatis.version}</version>
+        </dependency>
+        <!--redis-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
         <!--log4j2-->
         <dependency>
@@ -137,6 +166,23 @@
             <optional>true</optional>
         </dependency>
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>1.33</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <finalName>app</finalName>

@@ -34,5 +34,25 @@ spring:
         enabled: true
         url-pattern: /druid/*
         reset-enable: false
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password: ""
+    database: 0
+    lettuce:
+      pool:
+        enabled: true
+        min-idle: 2
+        max-wait: 3000ms
+        time-between-eviction-runs: 1s
+feign:
+  httpclient:
+    enabled: true
+  client:
+    config:
+      default:
+        read-timeout: 5000
+        connect-timeout: 5000
+        logger-level: BASIC
 knife4j:
   enable: true
