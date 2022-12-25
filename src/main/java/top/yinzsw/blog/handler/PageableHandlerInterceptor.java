@@ -1,7 +1,6 @@
 package top.yinzsw.blog.handler;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -19,7 +18,6 @@ import java.util.Optional;
  * @since 2022/12/15
  **/
 @Component
-@AllArgsConstructor
 public class PageableHandlerInterceptor implements HandlerInterceptor {
 
     @Override

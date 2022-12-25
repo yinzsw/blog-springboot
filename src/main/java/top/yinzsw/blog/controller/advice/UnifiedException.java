@@ -3,6 +3,7 @@ package top.yinzsw.blog.controller.advice;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -34,7 +35,7 @@ public class UnifiedException {
     @ExceptionHandler(Exception.class)
     public ResponseVO<?> exceptionHandler(Exception e) {
         log.error("Controller Exception", e);
-        return ResponseVO.fail(ResponseCodeEnum.SYSTEM_ERROR, e.getMessage());
+        return Objects.isNull(e.getMessage()) ? ResponseVO.fail(ResponseCodeEnum.SYSTEM_ERROR) : ResponseVO.fail(ResponseCodeEnum.SYSTEM_ERROR, e.getMessage());
     }
 
     /**
@@ -72,6 +73,17 @@ public class UnifiedException {
     public ResponseVO<?> exceptionHandler(MethodArgumentNotValidException e) {
         var fieldError = e.getBindingResult().getFieldError();
         return Objects.isNull(fieldError) ? ResponseVO.fail(ResponseCodeEnum.NOT_VALID_PARAMS) : ResponseVO.fail(ResponseCodeEnum.NOT_VALID_PARAMS, fieldError.getDefaultMessage());
+    }
+
+    /**
+     * 用户认证异常
+     *
+     * @param e 错误凭据异常
+     * @return 登录失败信息
+     */
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseVO<?> exceptionHandler(BadCredentialsException e) {
+        return ResponseVO.fail(ResponseCodeEnum.LOGIN_ERROR, e.getMessage());
     }
 
     /**

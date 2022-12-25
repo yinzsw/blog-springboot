@@ -2,7 +2,7 @@ package top.yinzsw.blog.controller.advice;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.MethodParameter;
@@ -25,7 +25,7 @@ import top.yinzsw.blog.model.vo.ResponseVO;
  * @since 22/12/15
  */
 @RestControllerAdvice(basePackages = "top.yinzsw.blog.controller")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UnifiedResponse implements ResponseBodyAdvice<Object> {
     private final ObjectMapper objectMapper;
 

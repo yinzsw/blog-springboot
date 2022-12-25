@@ -1,20 +1,30 @@
 package top.yinzsw.blog.service;
 
-import org.springframework.security.core.userdetails.UserDetailsService;
-import top.yinzsw.blog.model.po.UserPO;
 import com.baomidou.mybatisplus.extension.service.IService;
+import top.yinzsw.blog.model.po.UserPO;
+import top.yinzsw.blog.model.request.UserInfoRequest;
 
 /**
  * @author yinzsW
  * @description 针对表【user(用户表)】的数据库操作Service
  * @createDate 2022-12-15 14:14:31
  */
-public interface UserService extends IService<UserPO>, UserDetailsService {
+public interface UserService extends IService<UserPO> {
 
     /**
-     * 更新登录信息
+     * 格局用户名或邮箱查询用户
      *
-     * @param userPO 用户信息
+     * @param keyword 关键词
+     * @return 用户
      */
-    void updateLoginInfo(UserPO userPO);
+    UserPO getUserByNameOrEmail(String keyword);
+
+
+    /**
+     * 更新用户信息
+     *
+     * @param userInfoRequest 用户信息
+     * @return 是否更新成功
+     */
+    Boolean updateUserInfo(UserInfoRequest userInfoRequest);
 }

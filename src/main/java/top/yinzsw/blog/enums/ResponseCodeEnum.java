@@ -26,17 +26,27 @@ public enum ResponseCodeEnum {
     /**
      * 身份未认证
      */
-    AUTHENTICATED_ERROR(32000, "身份认证失败"),
+    UNAUTHENTICATED(32000, "身份未认证"),
 
     /**
      * 操作未授权
      */
-    UNAUTHORIZED(33000, "操作未授权"),
+    UNAUTHORIZED(33000, "授权未操作"),
+
+    /**
+     * token过期
+     */
+    TOKEN_EXPIRED(34000, "token信息过期"),
+
+    /**
+     * token校验失败
+     */
+    TOKEN_ERROR(35000, "token校验失败"),
 
     /**
      * 无效参数异常
      */
-    NOT_VALID_PARAMS(40000, "无效参数异常"),
+    NOT_VALID_PARAMS(40000, "无效的请求参数"),
 
     /**
      * 操作失败

@@ -1,8 +1,8 @@
 package top.yinzsw.blog.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.CacheNamespace;
 import top.yinzsw.blog.model.po.ResourcePO;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
  * @author yinzsW

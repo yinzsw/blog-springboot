@@ -1,11 +1,10 @@
 package top.yinzsw.blog.model.po;
 
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-
-import lombok.Data;
 
 /**
  * 资源表
@@ -29,7 +28,7 @@ public class ResourcePO implements Serializable {
     /**
      * 权限路径
      */
-    private String url;
+    private String uri;
 
     /**
      * 请求方式

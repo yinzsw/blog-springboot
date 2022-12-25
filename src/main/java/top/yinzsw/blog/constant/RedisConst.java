@@ -7,6 +7,7 @@ package top.yinzsw.blog.constant;
  * @since 22/12/15
  */
 public class RedisConst {
+
     /**
      * 用户点赞过的文章
      */
@@ -21,7 +22,7 @@ public class RedisConst {
      * 用户点赞过的说说
      */
     public static final String USER_LIKED_TALKS_PREFIX = "blog:user:liked_talks:";
-    
+
     /**
      * 文章点击量
      */

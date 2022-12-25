@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -26,6 +27,13 @@ public class IpInfoVO {
     private String cacheTime;
 
     private List<Detail> data;
+
+    public String getFirstLocation() {
+        if (CollectionUtils.isEmpty(this.data)) {
+            return null;
+        }
+        return this.data.get(0).location;
+    }
 
     @Data
     @NoArgsConstructor

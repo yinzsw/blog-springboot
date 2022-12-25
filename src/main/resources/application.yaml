@@ -3,11 +3,6 @@ spring:
     name: blog
   profiles:
     active: "@profile.active@"
-  mvc:
-    path-match:
-      matching-strategy: ant-path-matcher
-    servlet:
-      load-on-startup: 1
   datasource:
     url: "jdbc:mysql://127.0.0.1:3306/blog?allowMultiQueries=true&useAffectedRows=true&serverTimezone=Asia/Shanghai"
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -54,5 +49,5 @@ feign:
         read-timeout: 5000
         connect-timeout: 5000
         logger-level: BASIC
-knife4j:
-  enable: true
+jwt:
+  key: "zl74fc0c9a9ae0tce604743367c9646b"

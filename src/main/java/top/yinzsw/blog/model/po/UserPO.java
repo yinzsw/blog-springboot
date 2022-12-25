@@ -1,12 +1,11 @@
 package top.yinzsw.blog.model.po;
 
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
+import top.yinzsw.blog.enums.LoginTypeEnum;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-
-import lombok.Data;
-import top.yinzsw.blog.enums.LoginTypeEnum;
 
 /**
  * 用户表

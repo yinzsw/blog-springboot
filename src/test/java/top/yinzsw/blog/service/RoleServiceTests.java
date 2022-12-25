@@ -3,10 +3,13 @@ package top.yinzsw.blog.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.core.Authentication;
 import top.yinzsw.blog.model.po.RolePO;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -20,6 +23,13 @@ import java.util.List;
 public class RoleServiceTests {
     @Autowired
     private RoleService roleService;
+    @Autowired
+    private HttpServletRequest request;
+
+    @Test
+    void authenticationTest() {
+        System.out.println(request);
+    }
 
     @RepeatedTest(5)
     void getRolesByUserIdTest() {

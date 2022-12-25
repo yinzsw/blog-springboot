@@ -6,7 +6,8 @@ spring:
       stat-view-servlet:
         login-username: root
         login-password: toor
-swagger:
-  enable: false
-knife4j:
-  production: true
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
