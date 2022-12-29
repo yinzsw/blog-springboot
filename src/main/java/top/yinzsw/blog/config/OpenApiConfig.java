@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import top.yinzsw.blog.enums.ResponseCodeEnum;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -52,10 +53,10 @@ public class OpenApiConfig {
     }
 
     private Schema<?> wrapperSchema(final Schema<?> schema) {
-        Schema<?> wrapperSchema = new Schema<>();
-        wrapperSchema.addProperty("code", new IntegerSchema()._default(ResponseCodeEnum.SUCCESS.getCode()).title("状态码"));
-        wrapperSchema.addProperty("msg", new StringSchema()._default(ResponseCodeEnum.SUCCESS.getDesc()).title("信息"));
-        wrapperSchema.addProperty("data", schema._default(null).title("数据"));
-        return wrapperSchema;
+        return new Schema<>()
+                .required(List.of("code", "msg", "data"))
+                .addProperty("code", new IntegerSchema()._default(ResponseCodeEnum.SUCCESS.getCode()).title("状态码"))
+                .addProperty("msg", new StringSchema()._default(ResponseCodeEnum.SUCCESS.getDesc()).title("信息"))
+                .addProperty("data", schema._default(null).title("数据"));
     }
 }

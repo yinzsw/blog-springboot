@@ -5,12 +5,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import top.yinzsw.blog.extension.HttpContext;
 import top.yinzsw.blog.mapper.UserMapper;
 import top.yinzsw.blog.model.converter.UserConverter;
 import top.yinzsw.blog.model.po.UserPO;
 import top.yinzsw.blog.model.request.UserInfoRequest;
 import top.yinzsw.blog.service.UserService;
-import top.yinzsw.blog.util.HttpUtil;
 
 import java.util.regex.Pattern;
 
@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 public class UserServiceImpl extends ServiceImpl<UserMapper, UserPO> implements UserService {
     private static final Pattern EMAIL_REGEXP = Pattern.compile("^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$");
 
-    private final HttpUtil httpUtil;
+    private final HttpContext httpContext;
     private final UserConverter userConverter;
 
     @Override
@@ -43,7 +43,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPO> implements 
 
     @Override
     public Boolean updateUserInfo(UserInfoRequest userInfoRequest) {
-        UserPO userPO = userConverter.toUserPO(userInfoRequest, httpUtil.getCurrentClaimsDTO().getUid());
+        UserPO userPO = userConverter.toUserPO(userInfoRequest, httpContext.getCurrentClaimsDTO().getUid());
         return null;
     }
 }

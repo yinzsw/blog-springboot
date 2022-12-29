@@ -14,8 +14,6 @@ springdoc:
   swagger-ui:
     tags-sorter: ALPHA
     operations-sorter: METHOD
-  cache:
-    disabled: true
 openapi:
   title: "博客API文档"
   version: "@project.version@"
@@ -23,3 +21,5 @@ openapi:
   contact-name: "yinzsW"
   contact-url: "https://github.com/yinzsw"
   contact-email: "yinzsW@qq.com"
+jwt:
+  key: "zl74fc0c9a9ae0tce604743367c9646b"

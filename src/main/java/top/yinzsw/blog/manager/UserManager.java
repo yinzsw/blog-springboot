@@ -1,5 +1,7 @@
 package top.yinzsw.blog.manager;
 
+import java.time.LocalDateTime;
+
 /**
  * 用户通用业务处理层
  *
@@ -14,6 +16,7 @@ public interface UserManager {
      *
      * @param userId        用户id
      * @param userIpAddress 用户ip地址
+     * @param lastLoginTime 登录时间
      */
-    void asyncUpdateUserLoginInfo(Long userId, String userIpAddress);
+    void asyncUpdateUserLoginInfo(Long userId, String userIpAddress, LocalDateTime lastLoginTime);
 }

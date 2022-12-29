@@ -2,6 +2,8 @@ package top.yinzsw.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import top.yinzsw.blog.mapper.ResourceMapper;
 import top.yinzsw.blog.model.po.ResourcePO;
@@ -13,8 +15,10 @@ import top.yinzsw.blog.service.ResourceService;
  * @createDate 2022-12-15 15:00:20
  */
 @Service
+@CacheConfig(cacheNames = "resource")
 public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, ResourcePO> implements ResourceService {
 
+    @Cacheable(key = "#method+' '+#uri")
     @Override
     public ResourcePO getResourceByUriAndMethod(String uri, String method) {
         LambdaQueryWrapper<ResourcePO> queryWrapper = new LambdaQueryWrapper<ResourcePO>()

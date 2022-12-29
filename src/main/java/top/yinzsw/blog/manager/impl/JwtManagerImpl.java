@@ -1,4 +1,4 @@
-package top.yinzsw.blog.util.impl;
+package top.yinzsw.blog.manager.impl;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.jackson.io.JacksonDeserializer;
@@ -13,10 +13,10 @@ import org.springframework.util.DigestUtils;
 import top.yinzsw.blog.enums.ResponseCodeEnum;
 import top.yinzsw.blog.enums.TokenTypeEnum;
 import top.yinzsw.blog.exception.BizException;
+import top.yinzsw.blog.extension.HttpContext;
+import top.yinzsw.blog.manager.JwtManager;
 import top.yinzsw.blog.model.dto.ClaimsDTO;
 import top.yinzsw.blog.model.vo.TokenVO;
-import top.yinzsw.blog.util.HttpUtil;
-import top.yinzsw.blog.util.JwtUtil;
 
 import java.security.Key;
 import java.util.*;
@@ -30,11 +30,11 @@ import java.util.function.Function;
  */
 @Component
 @RequiredArgsConstructor
-public class JwtUtilImpl implements JwtUtil {
+public class JwtManagerImpl implements JwtManager {
     private final static String X_CLAIM = "xcm";
     @Value("${jwt.key}")
     private String jwtKey;
-    private final HttpUtil httpUtil;
+    private final HttpContext httpContext;
 
     @Override
     public TokenVO createTokenVO(Long userId, List<String> roles) {
@@ -55,8 +55,8 @@ public class JwtUtilImpl implements JwtUtil {
     }
 
     private String getSign() {
-        String userAgent = Optional.ofNullable(httpUtil.getUserAgent()).orElse("IP");
-        String userIpAddress = Optional.ofNullable(httpUtil.getUserIpAddress()).orElse("UA");
+        String userAgent = Optional.ofNullable(httpContext.getUserAgent()).orElse("IP");
+        String userIpAddress = Optional.ofNullable(httpContext.getUserIpAddress()).orElse("UA");
 
         byte[] dataBytes = String.join("", userAgent.concat(userIpAddress)).getBytes();
         byte[] keyBytes = Keys.hmacShaKeyFor(jwtKey.getBytes()).getEncoded();

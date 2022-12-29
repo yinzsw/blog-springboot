@@ -7,6 +7,10 @@ package top.yinzsw.blog.constant;
  * @since 22/12/15
  */
 public class RedisConst {
+    /**
+     * 缓存
+     */
+    public static final String CACHE_PREFIX = "blog:cache:";
 
     /**
      * 用户点赞过的文章

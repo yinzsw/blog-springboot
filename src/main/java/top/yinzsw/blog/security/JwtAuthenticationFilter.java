@@ -10,10 +10,10 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import top.yinzsw.blog.enums.TokenTypeEnum;
 import top.yinzsw.blog.exception.BizException;
+import top.yinzsw.blog.extension.HttpContext;
+import top.yinzsw.blog.manager.JwtManager;
 import top.yinzsw.blog.model.dto.ClaimsDTO;
 import top.yinzsw.blog.model.vo.ResponseVO;
-import top.yinzsw.blog.util.HttpUtil;
-import top.yinzsw.blog.util.JwtUtil;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -32,8 +32,8 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String X_TOKEN = "token";
     private static final String REFRESH_URI = "/auth/refresh";
-    private final JwtUtil jwtUtil;
-    private final HttpUtil httpUtil;
+    private final JwtManager jwtManager;
+    private final HttpContext httpContext;
 
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request,
@@ -50,9 +50,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         TokenTypeEnum tokenTypeEnum = REFRESH_URI.equals(uri) ? TokenTypeEnum.REFRESH : TokenTypeEnum.ACCESS;
         ClaimsDTO claimsDTO;
         try {
-            claimsDTO = jwtUtil.parseTokenInfo(token, tokenTypeEnum);
+            claimsDTO = jwtManager.parseTokenInfo(token, tokenTypeEnum);
         } catch (BizException e) {
-            httpUtil.setResponseBody(ResponseVO.fail(e.getCode(), e.getMessage()));
+            httpContext.setResponseBody(ResponseVO.fail(e.getCode(), e.getMessage()));
             return;
         } catch (Exception e) {
             throw new AuthenticationServiceException("用户认证失败");

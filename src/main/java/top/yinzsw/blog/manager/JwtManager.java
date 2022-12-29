@@ -1,4 +1,4 @@
-package top.yinzsw.blog.util;
+package top.yinzsw.blog.manager;
 
 import top.yinzsw.blog.enums.TokenTypeEnum;
 import top.yinzsw.blog.exception.BizException;
@@ -14,7 +14,7 @@ import java.util.List;
  * @since 22/12/21
  */
 
-public interface JwtUtil {
+public interface JwtManager {
 
     /**
      * 根据用户id创建access token 与 refresh token

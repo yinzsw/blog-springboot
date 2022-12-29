@@ -37,7 +37,9 @@ spring:
     lettuce:
       pool:
         enabled: true
-        min-idle: 2
+        min-idle: 5
+        max-idle: 16
+        max-active: 16
         max-wait: 3000ms
         time-between-eviction-runs: 1s
 feign:
@@ -49,5 +51,3 @@ feign:
         read-timeout: 5000
         connect-timeout: 5000
         logger-level: BASIC
-jwt:
-  key: "zl74fc0c9a9ae0tce604743367c9646b"

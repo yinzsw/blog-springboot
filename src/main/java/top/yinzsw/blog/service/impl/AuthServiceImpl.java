@@ -7,6 +7,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import top.yinzsw.blog.exception.BizException;
+import top.yinzsw.blog.extension.HttpContext;
+import top.yinzsw.blog.manager.JwtManager;
 import top.yinzsw.blog.manager.UserManager;
 import top.yinzsw.blog.model.converter.UserConverter;
 import top.yinzsw.blog.model.dto.ClaimsDTO;
@@ -14,8 +16,6 @@ import top.yinzsw.blog.model.dto.UserInfoDTO;
 import top.yinzsw.blog.model.vo.TokenVO;
 import top.yinzsw.blog.security.UserDetailsDTO;
 import top.yinzsw.blog.service.AuthService;
-import top.yinzsw.blog.util.HttpUtil;
-import top.yinzsw.blog.util.JwtUtil;
 
 import java.util.List;
 
@@ -30,8 +30,8 @@ import java.util.List;
 public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserManager userManager;
-    private final JwtUtil jwtUtil;
-    private final HttpUtil httpUtil;
+    private final JwtManager jwtManager;
+    private final HttpContext httpContext;
     private final UserConverter userConverter;
 
     @SneakyThrows
@@ -44,18 +44,18 @@ public class AuthServiceImpl implements AuthService {
         //创建JWT和用户信息模型
         Long userId = userDetailsDTO.getId();
         List<String> roles = userDetailsDTO.getRoleList();
-        TokenVO tokenVO = jwtUtil.createTokenVO(userId, roles);
+        TokenVO tokenVO = jwtManager.createTokenVO(userId, roles);
         UserInfoDTO userInfoDTO = userConverter.toUserInfoDTO(userDetailsDTO, tokenVO);
 
         //更新用户登录信息
-        userManager.asyncUpdateUserLoginInfo(userId, userDetailsDTO.getIpAddress());
+        userManager.asyncUpdateUserLoginInfo(userId, userDetailsDTO.getIpAddress(), userDetailsDTO.getLastLoginTime());
         return userInfoDTO;
     }
 
     @Override
     public TokenVO refreshToken() {
-        ClaimsDTO currentClaimsDTO = httpUtil.getCurrentClaimsDTO();
-        return jwtUtil.createTokenVO(currentClaimsDTO.getUid(), currentClaimsDTO.getRoles());
+        ClaimsDTO currentClaimsDTO = httpContext.getCurrentClaimsDTO();
+        return jwtManager.createTokenVO(currentClaimsDTO.getUid(), currentClaimsDTO.getRoles());
     }
 
     @Override

@@ -28,14 +28,15 @@ public class UserManagerImpl implements UserManager {
 
     @Async
     @Override
-    public void asyncUpdateUserLoginInfo(Long userId, String userIpAddress) {
+    public void asyncUpdateUserLoginInfo(Long userId, String userIpAddress, LocalDateTime lastLoginTime) {
         String ipAddress = Optional.ofNullable(userIpAddress).orElseThrow(() -> new BizException("无效的ip地址"));
         String ipSource = Optional.ofNullable(ipClient.getIpInfo(ipAddress).getFirstLocation()).orElse("");
+        LocalDateTime loginTime = Optional.ofNullable(lastLoginTime).orElse(LocalDateTime.now(ZoneOffset.ofHours(8)));
 
         LambdaUpdateWrapper<UserPO> updateWrapper = new LambdaUpdateWrapper<UserPO>()
                 .set(UserPO::getIpAddress, ipAddress)
                 .set(UserPO::getIpSource, ipSource)
-                .set(UserPO::getLastLoginTime, LocalDateTime.now(ZoneOffset.ofHours(8)))
+                .set(UserPO::getLastLoginTime, loginTime)
                 .eq(UserPO::getId, userId);
 
         userMapper.update(null, updateWrapper);

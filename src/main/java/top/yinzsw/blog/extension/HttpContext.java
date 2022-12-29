@@ -1,4 +1,4 @@
-package top.yinzsw.blog.util.impl;
+package top.yinzsw.blog.extension;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +11,6 @@ import top.yinzsw.blog.enums.ResponseCodeEnum;
 import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.model.dto.ClaimsDTO;
 import top.yinzsw.blog.model.vo.ResponseVO;
-import top.yinzsw.blog.util.HttpUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,7 +27,7 @@ import java.util.function.Predicate;
  */
 @Component
 @RequiredArgsConstructor
-public class HttpUtilImpl implements HttpUtil {
+public class HttpContext {
     private final HttpServletRequest httpServletRequest;
     private final HttpServletResponse httpServletResponse;
     private final ObjectMapper objectMapper;
@@ -48,7 +47,6 @@ public class HttpUtilImpl implements HttpUtil {
      *
      * @return 当没能获取到ip返回 {@code null}
      */
-    @Override
     public String getUserIpAddress() {
 
         Predicate<String> isIp = ip -> StringUtils.hasText(ip) && !"unknown".equalsIgnoreCase(ip);
@@ -96,22 +94,11 @@ public class HttpUtilImpl implements HttpUtil {
         return localHost.getHostAddress();
     }
 
-
-    @SneakyThrows
-    @Override
-    public void setResponseBody(ResponseVO<?> responseBody) {
-        httpServletResponse.setCharacterEncoding("UTF8");
-        httpServletResponse.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        String jsonResponseBody = objectMapper.writeValueAsString(responseBody);
-        httpServletResponse.getWriter().write(jsonResponseBody);
-    }
-
-    @Override
-    public String getUserAgent() {
-        return httpServletRequest.getHeader("User-Agent");
-    }
-
-    @Override
+    /**
+     * 得到当前用户认证信息
+     *
+     * @return 用户认证信息
+     */
     public ClaimsDTO getCurrentClaimsDTO() {
         Principal userPrincipal = httpServletRequest.getUserPrincipal();
         if (userPrincipal instanceof UsernamePasswordAuthenticationToken) {
@@ -122,5 +109,27 @@ public class HttpUtilImpl implements HttpUtil {
             }
         }
         throw new BizException(ResponseCodeEnum.UNAUTHENTICATED);
+    }
+
+    /**
+     * 用户UA
+     *
+     * @return UA字符串
+     */
+    public String getUserAgent() {
+        return httpServletRequest.getHeader("User-Agent");
+    }
+
+    /**
+     * 设置响应体信息
+     *
+     * @param responseBody 响应体内容
+     */
+    @SneakyThrows
+    public void setResponseBody(ResponseVO<?> responseBody) {
+        httpServletResponse.setCharacterEncoding("UTF8");
+        httpServletResponse.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        String jsonResponseBody = objectMapper.writeValueAsString(responseBody);
+        httpServletResponse.getWriter().write(jsonResponseBody);
     }
 }

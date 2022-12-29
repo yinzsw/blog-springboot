@@ -3,6 +3,8 @@ package top.yinzsw.blog.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import top.yinzsw.blog.mapper.RoleMapper;
@@ -23,10 +25,13 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor
+@CacheConfig(cacheNames = "role")
 public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements RoleService {
     private final UserMtmRoleMapper userMtmRoleMapper;
     private final RoleMtmResourceMapper roleMtmResourceMapper;
 
+
+    @Cacheable(key = "'uid '+#userId")
     @Override
     public List<String> getRoleNamesByUserId(Long userId) {
         var roleIds = userMtmRoleMapper
@@ -44,6 +49,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements 
                 .in(RolePO::getId, roleIds), Object::toString);
     }
 
+    @Cacheable(key = "'rid '+#resourceId")
     @Override
     public List<String> getRoleNamesByResourceId(Long resourceId) {
         var roleIds = roleMtmResourceMapper

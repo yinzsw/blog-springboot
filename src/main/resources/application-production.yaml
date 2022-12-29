@@ -11,3 +11,5 @@ springdoc:
     enabled: false
   swagger-ui:
     enabled: false
+jwt:
+  key: "zl74fc0c9a9ae0tce604743367c9646b"
