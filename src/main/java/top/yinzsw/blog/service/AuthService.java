@@ -1,7 +1,7 @@
 package top.yinzsw.blog.service;
 
-import top.yinzsw.blog.model.dto.UserInfoDTO;
 import top.yinzsw.blog.model.vo.TokenVO;
+import top.yinzsw.blog.model.vo.UserInfoVO;
 
 /**
  * 用户认证业务接口
@@ -19,7 +19,7 @@ public interface AuthService {
      * @param password 密码
      * @return 用户信息
      */
-    UserInfoDTO login(String username, String password);
+    UserInfoVO login(String username, String password);
 
     /**
      * 刷新用户token
@@ -31,7 +31,7 @@ public interface AuthService {
     /**
      * 退出登录
      *
-     * @return
+     * @return 是否成功
      */
     Boolean logout();
 }

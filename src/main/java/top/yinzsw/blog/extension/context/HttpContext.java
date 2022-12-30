@@ -1,11 +1,11 @@
-package top.yinzsw.blog.extension;
+package top.yinzsw.blog.extension.context;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import top.yinzsw.blog.enums.ResponseCodeEnum;
 import top.yinzsw.blog.exception.BizException;
@@ -25,7 +25,7 @@ import java.util.function.Predicate;
  * @author yinzsW
  * @since 22/12/15
  */
-@Component
+@Service
 @RequiredArgsConstructor
 public class HttpContext {
     private final HttpServletRequest httpServletRequest;

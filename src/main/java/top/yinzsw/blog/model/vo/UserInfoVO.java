@@ -1,11 +1,10 @@
-package top.yinzsw.blog.model.dto;
+package top.yinzsw.blog.model.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import top.yinzsw.blog.enums.LoginTypeEnum;
-import top.yinzsw.blog.model.vo.TokenVO;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -20,7 +19,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "用户信息")
-public class UserInfoDTO {
+public class UserInfoVO {
 
     /**
      * 用户账号id

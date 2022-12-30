@@ -7,13 +7,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import top.yinzsw.blog.exception.BizException;
-import top.yinzsw.blog.extension.HttpContext;
+import top.yinzsw.blog.extension.context.HttpContext;
 import top.yinzsw.blog.manager.JwtManager;
 import top.yinzsw.blog.manager.UserManager;
 import top.yinzsw.blog.model.converter.UserConverter;
 import top.yinzsw.blog.model.dto.ClaimsDTO;
-import top.yinzsw.blog.model.dto.UserInfoDTO;
 import top.yinzsw.blog.model.vo.TokenVO;
+import top.yinzsw.blog.model.vo.UserInfoVO;
 import top.yinzsw.blog.security.UserDetailsDTO;
 import top.yinzsw.blog.service.AuthService;
 
@@ -36,7 +36,7 @@ public class AuthServiceImpl implements AuthService {
 
     @SneakyThrows
     @Override
-    public UserInfoDTO login(String username, String password) {
+    public UserInfoVO login(String username, String password) {
         var authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
         Authentication authenticate = authenticationManager.authenticate(authenticationToken);
         UserDetailsDTO userDetailsDTO = (UserDetailsDTO) authenticate.getPrincipal();
@@ -45,11 +45,11 @@ public class AuthServiceImpl implements AuthService {
         Long userId = userDetailsDTO.getId();
         List<String> roles = userDetailsDTO.getRoleList();
         TokenVO tokenVO = jwtManager.createTokenVO(userId, roles);
-        UserInfoDTO userInfoDTO = userConverter.toUserInfoDTO(userDetailsDTO, tokenVO);
+        UserInfoVO userInfoVO = userConverter.toUserInfoVO(userDetailsDTO, tokenVO);
 
         //更新用户登录信息
         userManager.asyncUpdateUserLoginInfo(userId, userDetailsDTO.getIpAddress(), userDetailsDTO.getLastLoginTime());
-        return userInfoDTO;
+        return userInfoVO;
     }
 
     @Override

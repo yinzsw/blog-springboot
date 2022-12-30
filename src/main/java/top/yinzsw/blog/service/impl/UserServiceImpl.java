@@ -5,7 +5,10 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import top.yinzsw.blog.extension.HttpContext;
+import org.springframework.web.multipart.MultipartFile;
+import top.yinzsw.blog.enums.FilePathEnum;
+import top.yinzsw.blog.extension.context.HttpContext;
+import top.yinzsw.blog.extension.upload.UploadStrategy;
 import top.yinzsw.blog.mapper.UserMapper;
 import top.yinzsw.blog.model.converter.UserConverter;
 import top.yinzsw.blog.model.po.UserPO;
@@ -25,6 +28,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPO> implements 
     private static final Pattern EMAIL_REGEXP = Pattern.compile("^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$");
 
     private final HttpContext httpContext;
+    private final UploadStrategy uploadStrategy;
     private final UserConverter userConverter;
 
     @Override
@@ -40,11 +44,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPO> implements 
                 .eq(isEmail ? UserPO::getEmail : UserPO::getUsername, keyword));
     }
 
-
     @Override
     public Boolean updateUserInfo(UserInfoRequest userInfoRequest) {
-        UserPO userPO = userConverter.toUserPO(userInfoRequest, httpContext.getCurrentClaimsDTO().getUid());
-        return null;
+        Long uid = httpContext.getCurrentClaimsDTO().getUid();
+        UserPO userPO = userConverter.toUserPO(userInfoRequest, uid);
+        return updateById(userPO);
+    }
+
+    @Override
+    public String updateUserAvatar(MultipartFile file) {
+        String avatarUrl = uploadStrategy.uploadFile(FilePathEnum.AVATAR.getPath(), file);
+        Long uid = httpContext.getCurrentClaimsDTO().getUid();
+
+        UserPO userPO = new UserPO();
+        userPO.setId(uid);
+        userPO.setAvatar(avatarUrl);
+        updateById(userPO);
+        return avatarUrl;
     }
 }
 

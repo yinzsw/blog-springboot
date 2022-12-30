@@ -11,7 +11,7 @@ import org.springframework.data.redis.cache.RedisCacheWriter;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import top.yinzsw.blog.constant.RedisConst;
-import top.yinzsw.blog.extension.ProtostuffRedisSerializer;
+import top.yinzsw.blog.extension.serializer.ProtostuffRedisSerializer;
 
 import java.time.Duration;
 

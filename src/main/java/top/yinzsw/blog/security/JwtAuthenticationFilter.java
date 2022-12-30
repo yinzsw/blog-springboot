@@ -10,7 +10,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import top.yinzsw.blog.enums.TokenTypeEnum;
 import top.yinzsw.blog.exception.BizException;
-import top.yinzsw.blog.extension.HttpContext;
+import top.yinzsw.blog.extension.context.HttpContext;
 import top.yinzsw.blog.manager.JwtManager;
 import top.yinzsw.blog.model.dto.ClaimsDTO;
 import top.yinzsw.blog.model.vo.ResponseVO;

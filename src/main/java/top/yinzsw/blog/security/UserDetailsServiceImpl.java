@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import top.yinzsw.blog.constant.RedisConst;
-import top.yinzsw.blog.extension.HttpContext;
+import top.yinzsw.blog.extension.context.HttpContext;
 import top.yinzsw.blog.model.converter.UserConverter;
 import top.yinzsw.blog.model.po.UserPO;
 import top.yinzsw.blog.service.RoleService;

@@ -1,4 +1,4 @@
-package top.yinzsw.blog.extension;
+package top.yinzsw.blog.extension.serializer;
 
 import io.netty.util.internal.EmptyArrays;
 import io.protostuff.LinkedBuffer;

@@ -3,6 +3,10 @@ spring:
     name: blog
   profiles:
     active: "@profile.active@"
+  servlet:
+    multipart:
+      max-file-size: 32MB
+      max-request-size: 64MB
   datasource:
     url: "jdbc:mysql://127.0.0.1:3306/blog?allowMultiQueries=true&useAffectedRows=true&serverTimezone=Asia/Shanghai"
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -51,3 +55,10 @@ feign:
         read-timeout: 5000
         connect-timeout: 5000
         logger-level: BASIC
+upload:
+  mode: local
+  bucket: "/local"
+  endpoint: "image"
+  domain-url: http://localhost:8081
+  access-key: ""
+  access-key-secret: ""
