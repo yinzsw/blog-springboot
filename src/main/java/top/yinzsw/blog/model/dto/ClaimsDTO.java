@@ -19,8 +19,29 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ClaimsDTO {
+
+    /**
+     * 用户id
+     */
     private Long uid;
+
+    /**
+     * 访问的资源id
+     */
+    private Long rid;
+
+    /**
+     * token签名
+     */
     private String sign;
+
+    /**
+     * 用户角色列表
+     */
     private List<String> roles;
+
+    /**
+     * token类型
+     */
     private TokenTypeEnum type;
 }
