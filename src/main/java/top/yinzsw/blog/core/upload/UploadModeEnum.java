@@ -1,4 +1,4 @@
-package top.yinzsw.blog.extension.upload;
+package top.yinzsw.blog.core.upload;
 
 /**
  * 文件上传模式

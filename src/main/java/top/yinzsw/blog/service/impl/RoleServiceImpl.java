@@ -34,37 +34,31 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements 
     @Cacheable(key = "'uid '+#userId")
     @Override
     public List<String> getRoleNamesByUserId(Long userId) {
-        var roleIds = userMtmRoleMapper
-                .selectObjs(new LambdaQueryWrapper<UserMtmRolePO>()
-                        .select(UserMtmRolePO::getRoleId)
-                        .eq(UserMtmRolePO::getUserId, userId));
-
-        if (CollectionUtils.isEmpty(roleIds)) {
-            return Collections.emptyList();
-        }
-
-        return listObjs(new LambdaQueryWrapper<RolePO>()
-                .select(RolePO::getRoleLabel)
-                .eq(RolePO::getIsDisabled, false)
-                .in(RolePO::getId, roleIds), Object::toString);
+        var roleIds = userMtmRoleMapper.selectObjs(new LambdaQueryWrapper<UserMtmRolePO>()
+                .select(UserMtmRolePO::getRoleId)
+                .eq(UserMtmRolePO::getUserId, userId));
+        return getRoleNamesByIds(roleIds);
     }
 
     @Cacheable(key = "'rid '+#resourceId")
     @Override
     public List<String> getRoleNamesByResourceId(Long resourceId) {
-        var roleIds = roleMtmResourceMapper
-                .selectObjs(new LambdaQueryWrapper<RoleMtmResourcePO>()
-                        .select(RoleMtmResourcePO::getRoleId)
-                        .eq(RoleMtmResourcePO::getResourceId, resourceId));
+        var roleIds = roleMtmResourceMapper.selectObjs(new LambdaQueryWrapper<RoleMtmResourcePO>()
+                .select(RoleMtmResourcePO::getRoleId)
+                .eq(RoleMtmResourcePO::getResourceId, resourceId));
+        return getRoleNamesByIds(roleIds);
+    }
 
+    private List<String> getRoleNamesByIds(List<Object> roleIds) {
         if (CollectionUtils.isEmpty(roleIds)) {
             return Collections.emptyList();
         }
 
-        return listObjs(new LambdaQueryWrapper<RolePO>()
+        LambdaQueryWrapper<RolePO> queryObjsWrapper = new LambdaQueryWrapper<RolePO>()
                 .select(RolePO::getRoleLabel)
                 .eq(RolePO::getIsDisabled, false)
-                .in(RolePO::getId, roleIds), Object::toString);
+                .in(RolePO::getId, roleIds);
+        return listObjs(queryObjsWrapper, Object::toString);
     }
 }
 

@@ -2,14 +2,9 @@ spring:
   datasource:
     username: root
     password: toor
-    druid:
-      stat-view-servlet:
-        login-username: root
-        login-password: toor
+    druid.stat-view-servlet:
+      login-username: root
+      login-password: toor
 springdoc:
-  api-docs:
-    enabled: false
-  swagger-ui:
-    enabled: false
-jwt:
-  key: "zl74fc0c9a9ae0tce604743367c9646b"
+  api-docs.enabled: false
+  swagger-ui.enabled: false

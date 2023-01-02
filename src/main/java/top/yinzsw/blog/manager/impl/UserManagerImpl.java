@@ -2,9 +2,11 @@ package top.yinzsw.blog.manager.impl;
 
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import top.yinzsw.blog.client.IpClient;
+import top.yinzsw.blog.constant.RedisConst;
 import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.manager.UserManager;
 import top.yinzsw.blog.mapper.UserMapper;
@@ -25,6 +27,7 @@ import java.util.Optional;
 public class UserManagerImpl implements UserManager {
     private final UserMapper userMapper;
     private final IpClient ipClient;
+    private final StringRedisTemplate stringRedisTemplate;
 
     @Async
     @Override
@@ -40,5 +43,14 @@ public class UserManagerImpl implements UserManager {
                 .eq(UserPO::getId, userId);
 
         userMapper.update(null, updateWrapper);
+    }
+
+    @Override
+    public void checkEmailVerificationCode(String email, String code) throws BizException {
+        String redisEmailCodeKey = RedisConst.USER_EMAIL_CODE_PREFIX + email;
+        if (!code.equalsIgnoreCase(stringRedisTemplate.opsForValue().get(redisEmailCodeKey))) {
+            throw new BizException("邮箱验证码错误");
+        }
+        stringRedisTemplate.delete(redisEmailCodeKey);
     }
 }

@@ -6,8 +6,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
+import top.yinzsw.blog.core.context.HttpContext;
 import top.yinzsw.blog.enums.ResponseCodeEnum;
-import top.yinzsw.blog.extension.context.HttpContext;
 import top.yinzsw.blog.model.vo.ResponseVO;
 
 import javax.servlet.http.HttpServletRequest;

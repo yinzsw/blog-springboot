@@ -17,7 +17,7 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "用户信息")
-public class UserInfoRequest {
+public class UserInfoReq {
 
     /**
      * 用户昵称

@@ -34,4 +34,12 @@ public interface AuthService {
      * @return 是否成功
      */
     Boolean logout();
+
+    /**
+     * 发送验证邮件
+     *
+     * @param email 邮箱
+     * @return 是否成功
+     */
+    Boolean sendEmailCode(String email);
 }

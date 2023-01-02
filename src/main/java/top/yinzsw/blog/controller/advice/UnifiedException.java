@@ -31,8 +31,7 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class UnifiedException {
     private static final Pattern ENUM_CONVERT_ERROR_REGEXP = Pattern.compile("from String \"(?<errorValue>.*?)\".*?Enum class: (?<rightValues>\\[.*?]).*?\\[\"(?<field>.*?)\"]\\)", Pattern.DOTALL);
-    @Value("${spring.servlet.multipart.max-file-size}")
-    private String maxUploadFileSize;
+    private @Value("${spring.servlet.multipart.max-file-size}") String maxUploadFileSize;
 
     /**
      * 处理系统异常

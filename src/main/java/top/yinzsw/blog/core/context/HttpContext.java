@@ -1,4 +1,4 @@
-package top.yinzsw.blog.extension.context;
+package top.yinzsw.blog.core.context;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ import java.security.Principal;
 import java.util.function.Predicate;
 
 /**
- * HttpRequest操作接口实现
+ * HTTP 上下文
  *
  * @author yinzsW
  * @since 22/12/15

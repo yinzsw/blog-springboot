@@ -1,10 +1,10 @@
-package top.yinzsw.blog.extension.upload.impl;
+package top.yinzsw.blog.core.upload.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
+import top.yinzsw.blog.core.upload.UploadStrategy;
 import top.yinzsw.blog.exception.BizException;
-import top.yinzsw.blog.extension.upload.UploadStrategy;
 import top.yinzsw.blog.util.FileUtils;
 
 import java.io.IOException;

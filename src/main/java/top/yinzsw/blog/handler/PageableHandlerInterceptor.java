@@ -1,7 +1,6 @@
 package top.yinzsw.blog.handler;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -22,8 +21,8 @@ public class PageableHandlerInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request,
-                             @NotNull HttpServletResponse response,
-                             @NotNull Object handler) {
+                             HttpServletResponse response,
+                             Object handler) {
         String currentPage = request.getParameter(PageUtils.PARAMS_PAGE);
         if (StringUtils.hasText(currentPage)) {
             String pageSize = Optional.ofNullable(request.getParameter(PageUtils.PARAMS_SIZE)).orElse(PageUtils.DEFAULT_SIZE);
@@ -33,9 +32,9 @@ public class PageableHandlerInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public void afterCompletion(@NotNull HttpServletRequest request,
-                                @NotNull HttpServletResponse response,
-                                @NotNull Object handler,
+    public void afterCompletion(HttpServletRequest request,
+                                HttpServletResponse response,
+                                Object handler,
                                 Exception ex) {
         PageUtils.remove();
     }

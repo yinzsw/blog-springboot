@@ -3,12 +3,13 @@ package top.yinzsw.blog.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import top.yinzsw.blog.constant.RedisConst;
-import top.yinzsw.blog.extension.context.HttpContext;
+import top.yinzsw.blog.core.context.HttpContext;
 import top.yinzsw.blog.model.converter.UserConverter;
 import top.yinzsw.blog.model.po.UserPO;
 import top.yinzsw.blog.service.RoleService;
@@ -28,7 +29,7 @@ import java.util.Set;
  */
 @Service
 @RequiredArgsConstructor
-public class UserDetailsServiceImpl implements UserDetailsService {
+public class UserDetailsServiceImpl implements UserDetailsService, UserDetailsPasswordService {
     private final UserService userService;
     private final RoleService roleService;
     private final HttpContext httpContext;
@@ -59,5 +60,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         userDetailsDTO.setArticleLikeSet(likedArticles);
         userDetailsDTO.setCommentLikeSet(likedComments);
         return userDetailsDTO;
+    }
+
+    @Override
+    public UserDetails updatePassword(UserDetails user, String newPassword) {
+        Boolean status = userService.updateUserPassword(user.getUsername(), newPassword);
+        if (status) {
+            UserDetailsDTO userDetailsDTO = (UserDetailsDTO) user;
+            userDetailsDTO.setPassword(newPassword);
+        }
+        return user;
     }
 }

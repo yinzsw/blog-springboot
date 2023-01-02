@@ -1,4 +1,4 @@
-package top.yinzsw.blog.extension.serializer;
+package top.yinzsw.blog.extension.redis.serializer;
 
 import io.netty.util.internal.EmptyArrays;
 import io.protostuff.LinkedBuffer;
@@ -23,7 +23,6 @@ import java.util.Objects;
 @Component
 public class ProtostuffRedisSerializer implements RedisSerializer<Object> {
     private static final Schema<ObjectWrapper> SCHEMA = RuntimeSchema.getSchema(ObjectWrapper.class);
-    private static final LinkedBuffer BUFFER = LinkedBuffer.allocate(LinkedBuffer.DEFAULT_BUFFER_SIZE);
 
     @Override
     public byte[] serialize(Object source) throws SerializationException {
@@ -31,10 +30,11 @@ public class ProtostuffRedisSerializer implements RedisSerializer<Object> {
             return EmptyArrays.EMPTY_BYTES;
         }
 
+        LinkedBuffer buffer = LinkedBuffer.allocate(LinkedBuffer.DEFAULT_BUFFER_SIZE);
         try {
-            return ProtostuffIOUtil.toByteArray(new ObjectWrapper(source), SCHEMA, BUFFER);
+            return ProtostuffIOUtil.toByteArray(new ObjectWrapper(source), SCHEMA, buffer);
         } finally {
-            BUFFER.clear();
+            buffer.clear();
         }
     }
 

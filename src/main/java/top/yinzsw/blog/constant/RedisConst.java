@@ -6,7 +6,7 @@ package top.yinzsw.blog.constant;
  * @author yinzsW
  * @since 22/12/15
  */
-public class RedisConst {
+public final class RedisConst {
     /**
      * 缓存
      */
@@ -26,6 +26,16 @@ public class RedisConst {
      * 用户点赞过的说说
      */
     public static final String USER_LIKED_TALKS_PREFIX = "blog:user:liked_talks:";
+
+    /**
+     * 邮箱验证码
+     */
+    public static final String USER_EMAIL_CODE_PREFIX = "blog:user:email_code:";
+
+    /**
+     * 邮箱验证码过期时间(分钟)
+     */
+    public static final int USER_EMAIL_CODE_EXPIRE_TIME = 15;
 
     /**
      * 文章点击量

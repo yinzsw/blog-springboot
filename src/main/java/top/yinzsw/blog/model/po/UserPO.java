@@ -1,7 +1,10 @@
 package top.yinzsw.blog.model.po;
 
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import top.yinzsw.blog.enums.LoginTypeEnum;
 
 import java.io.Serializable;
@@ -14,6 +17,9 @@ import java.time.LocalDateTime;
  */
 @TableName(value = "user")
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserPO implements Serializable {
     /**
      * 用户id

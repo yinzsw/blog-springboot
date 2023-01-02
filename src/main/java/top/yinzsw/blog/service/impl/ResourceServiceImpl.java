@@ -21,11 +21,12 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, ResourcePO>
     @Cacheable(key = "#method+' '+#uri")
     @Override
     public ResourcePO getResourceByUriAndMethod(String uri, String method) {
-        LambdaQueryWrapper<ResourcePO> queryWrapper = new LambdaQueryWrapper<ResourcePO>()
+        LambdaQueryWrapper<ResourcePO> queryOneWrapper = new LambdaQueryWrapper<ResourcePO>()
                 .select(ResourcePO::getId, ResourcePO::getIsAnonymous)
                 .eq(ResourcePO::getUri, uri)
-                .eq(ResourcePO::getRequestMethod, method);
-        return getOne(queryWrapper);
+                .eq(ResourcePO::getRequestMethod, method)
+                .last("LIMIT 1");
+        return getOne(queryOneWrapper);
     }
 }
 

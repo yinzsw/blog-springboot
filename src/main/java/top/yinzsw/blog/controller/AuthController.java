@@ -1,16 +1,18 @@
 package top.yinzsw.blog.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import top.yinzsw.blog.model.request.LoginRequest;
+import top.yinzsw.blog.model.request.LoginReq;
 import top.yinzsw.blog.model.vo.TokenVO;
 import top.yinzsw.blog.model.vo.UserInfoVO;
 import top.yinzsw.blog.service.AuthService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Email;
 
 /**
  * 用户认证控制器
@@ -28,8 +30,8 @@ public class AuthController {
 
     @Operation(summary = "用户登录")
     @PostMapping("login")
-    public UserInfoVO login(@Valid @RequestBody LoginRequest loginRequest) {
-        return authService.login(loginRequest.getUsername(), loginRequest.getPassword());
+    public UserInfoVO login(@Valid @RequestBody LoginReq loginReq) {
+        return authService.login(loginReq.getUsername(), loginReq.getPassword());
     }
 
     @Operation(summary = "刷新凭据")
@@ -42,5 +44,12 @@ public class AuthController {
     @DeleteMapping("logout")
     public Boolean logout() {
         return authService.logout();
+    }
+
+    @Operation(summary = "发送邮箱验证码")
+    @PostMapping("email/{email}")
+    public Boolean sendEmailCode(@Parameter(description = "邮箱", required = true)
+                                 @Email(message = "邮箱格式不正确") @PathVariable("email") String email) {
+        return authService.sendEmailCode(email);
     }
 }

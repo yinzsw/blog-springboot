@@ -1,6 +1,8 @@
 spring:
   application:
     name: blog
+  config:
+    import: optional:file:.env[.properties]
   profiles:
     active: "@profile.active@"
   servlet:
@@ -8,7 +10,6 @@ spring:
       max-file-size: 32MB
       max-request-size: 64MB
   datasource:
-    url: "jdbc:mysql://127.0.0.1:3306/blog?allowMultiQueries=true&useAffectedRows=true&serverTimezone=Asia/Shanghai"
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
@@ -34,18 +35,28 @@ spring:
         url-pattern: /druid/*
         reset-enable: false
   redis:
-    host: 127.0.0.1
-    port: 6379
-    password: ""
     database: 0
-    lettuce:
-      pool:
-        enabled: true
-        min-idle: 5
-        max-idle: 16
-        max-active: 16
-        max-wait: 3000ms
-        time-between-eviction-runs: 1s
+    lettuce.pool:
+      enabled: true
+      min-idle: 5
+      max-idle: 16
+      max-active: 16
+      max-wait: 3000ms
+      time-between-eviction-runs: 1s
+  rabbitmq:
+    listener:
+      simple:
+        prefetch: 1
+  mail:
+    host: smtp.qq.com
+    port: 465
+    username: ${MAIL.USERNAME}
+    password: ${MAIL.PASSWORD}
+    default-encoding: UTF-8
+    protocol: smtp
+    properties:
+      auth: true
+      mail.smtp.ssl.enable: true
 feign:
   httpclient:
     enabled: true
@@ -54,11 +65,12 @@ feign:
       default:
         read-timeout: 5000
         connect-timeout: 5000
-        logger-level: BASIC
+        logger-level: basic
 upload:
   mode: local
-  bucket: "/local"
-  endpoint: "image"
-  domain-url: http://localhost:8081
-  access-key: ""
-  access-key-secret: ""
+  bucket: ${UPLOAD.BUCKET}
+  endpoint: ${UPLOAD.ENDPOINT}
+  domain-url: ${UPLOAD.DOMAIN_URL}
+  access-key: ${UPLOAD.ACCESS_KEY}
+  access-key-secret: ${UPLOAD.ACCESS_KEY_SECRET}
+jwt-key: ${JWT.KEY}

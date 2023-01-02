@@ -10,10 +10,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.util.ByteUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.DigestUtils;
+import top.yinzsw.blog.core.context.HttpContext;
 import top.yinzsw.blog.enums.ResponseCodeEnum;
 import top.yinzsw.blog.enums.TokenTypeEnum;
 import top.yinzsw.blog.exception.BizException;
-import top.yinzsw.blog.extension.context.HttpContext;
 import top.yinzsw.blog.manager.JwtManager;
 import top.yinzsw.blog.model.dto.ClaimsDTO;
 import top.yinzsw.blog.model.vo.TokenVO;
@@ -32,8 +32,7 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class JwtManagerImpl implements JwtManager {
     private final static String X_CLAIM = "xcm";
-    @Value("${jwt.key}")
-    private String jwtKey;
+    private @Value("${jwt-key}") String jwtKey;
     private final HttpContext httpContext;
 
     @Override

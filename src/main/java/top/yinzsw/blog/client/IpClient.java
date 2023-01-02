@@ -3,7 +3,7 @@ package top.yinzsw.blog.client;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import top.yinzsw.blog.model.vo.IpInfoVO;
+import top.yinzsw.blog.model.dto.IpInfoDTO;
 
 /**
  * 百度OpenData API IP 信息查询
@@ -14,5 +14,5 @@ import top.yinzsw.blog.model.vo.IpInfoVO;
 @FeignClient(url = "https://opendata.baidu.com", name = "ip")
 public interface IpClient {
     @GetMapping("api.php?resource_id=6006&ie=utf8&oe=utf-8&format=json")
-    IpInfoVO getIpInfo(@RequestParam("query") String query);
+    IpInfoDTO getIpInfo(@RequestParam("query") String query);
 }

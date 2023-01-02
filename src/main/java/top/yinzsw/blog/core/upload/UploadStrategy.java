@@ -1,4 +1,4 @@
-package top.yinzsw.blog.extension.upload;
+package top.yinzsw.blog.core.upload;
 
 import org.springframework.web.multipart.MultipartFile;
 

@@ -1,15 +1,12 @@
 package top.yinzsw.blog.util;
 
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import top.yinzsw.blog.exception.BizException;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -23,8 +20,10 @@ import java.util.Set;
 @Slf4j
 public class FileUtils {
     private static final Set<String> DOCUMENT_SUFFIXES = new HashSet<>() {{
-        add(".htm");add(".html");
-        add(".txt");add(".text");
+        add(".htm");
+        add(".html");
+        add(".txt");
+        add(".text");
         add(".md");
     }};
 
@@ -54,19 +53,51 @@ public class FileUtils {
     }
 
     /**
+     * 根据文件后缀名判断是否是文档类型
+     *
+     * @param suffix 文件后缀名
+     * @return 是否是文档类型的文件
+     */
+    public static boolean isDocument(String suffix) {
+        return DOCUMENT_SUFFIXES.contains(suffix);
+    }
+
+    /**
      * 将{@link MultipartFile}转换{@link File}
      *
      * @param multipartFile multipartFile对象
      * @return file对象
      */
-    @SneakyThrows
-    public static File toFile(MultipartFile multipartFile) {
+    public static File toFile(MultipartFile multipartFile) throws IOException {
         File file = new File(Objects.requireNonNull(multipartFile.getOriginalFilename()));
         multipartFile.transferTo(file);
         return file;
     }
 
-    public static boolean isDocument(String suffix) {
-        return DOCUMENT_SUFFIXES.contains(suffix);
+    /**
+     * 根据文件类型自动将流写入文件
+     *
+     * @param file        文件
+     * @param inputStream 输出流
+     * @throws IOException 写入文件出错
+     */
+    public static void autoWriteByFileType(File file, InputStream inputStream) throws IOException {
+        boolean isDocumentType = isDocument(FileUtils.getSuffix(file.getName()));
+
+        if (isDocumentType) {
+            try (inputStream;
+                 var reader = new BufferedReader(new InputStreamReader(inputStream));
+                 var writer = new BufferedWriter(new FileWriter(file))) {
+                reader.transferTo(writer);
+                writer.flush();
+            }
+        } else {
+            try (inputStream;
+                 var bis = new BufferedInputStream(inputStream);
+                 var bos = new BufferedOutputStream(new FileOutputStream(file))) {
+                bis.transferTo(bos);
+                bos.flush();
+            }
+        }
     }
 }

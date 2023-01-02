@@ -1,19 +1,29 @@
 spring:
   datasource:
+    url: "jdbc:mysql://127.0.0.1:3306/blog?allowMultiQueries=true&useAffectedRows=true&serverTimezone=Asia/Shanghai"
     username: root
     password: toor
-    druid:
-      stat-view-servlet:
-        login-username: root
-        login-password: toor
-logging:
-  level:
-    top.yinzsw.blog.mapper: debug
+    druid.stat-view-servlet:
+      login-username: root
+      login-password: toor
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    username: default
+    password: toor
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: root
+    password: toor
+    virtual-host: /
+logging.level:
+  top.yinzsw.blog.mapper: debug
 springdoc:
   packages-to-scan: top.yinzsw.blog.controller
   swagger-ui:
-    tags-sorter: ALPHA
-    operations-sorter: METHOD
+    tags-sorter: alpha
+    operations-sorter: method
 openapi:
   title: "博客API文档"
   version: "@project.version@"
@@ -21,5 +31,3 @@ openapi:
   contact-name: "yinzsW"
   contact-url: "https://github.com/yinzsw"
   contact-email: "yinzsW@qq.com"
-jwt:
-  key: "zl74fc0c9a9ae0tce604743367c9646b"

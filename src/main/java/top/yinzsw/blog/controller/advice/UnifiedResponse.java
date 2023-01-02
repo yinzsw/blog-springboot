@@ -4,7 +4,6 @@ package top.yinzsw.blog.controller.advice;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -30,7 +29,7 @@ public class UnifiedResponse implements ResponseBodyAdvice<Object> {
     private final ObjectMapper objectMapper;
 
     @Override
-    public boolean supports(MethodParameter returnType, @NotNull Class<? extends HttpMessageConverter<?>> converterType) {
+    public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
         var parameterType = returnType.getParameterType();
         var isResponseVO = parameterType.isAssignableFrom(ResponseVO.class);
         var isVoid = parameterType == void.class;
@@ -40,10 +39,10 @@ public class UnifiedResponse implements ResponseBodyAdvice<Object> {
     @SneakyThrows
     @Override
     public Object beforeBodyWrite(Object body,
-                                  @NotNull MethodParameter returnType,
-                                  @NotNull MediaType selectedContentType,
+                                  MethodParameter returnType,
+                                  MediaType selectedContentType,
                                   Class<? extends HttpMessageConverter<?>> selectedConverterType,
-                                  @NotNull ServerHttpRequest request,
+                                  ServerHttpRequest request,
                                   ServerHttpResponse response) {
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 

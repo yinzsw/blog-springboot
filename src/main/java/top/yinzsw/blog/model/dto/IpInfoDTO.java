@@ -1,4 +1,4 @@
-package top.yinzsw.blog.model.vo;
+package top.yinzsw.blog.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.AllArgsConstructor;
@@ -17,7 +17,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class IpInfoVO {
+public class IpInfoDTO {
     private String status;
 
     @JsonAlias("t")
