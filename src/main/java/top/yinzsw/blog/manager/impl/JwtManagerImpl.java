@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.util.ByteUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.DigestUtils;
+import org.springframework.util.StringUtils;
 import top.yinzsw.blog.core.context.HttpContext;
 import top.yinzsw.blog.enums.ResponseCodeEnum;
 import top.yinzsw.blog.enums.TokenTypeEnum;
@@ -68,8 +69,11 @@ public class JwtManagerImpl implements JwtManager {
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public ClaimsDTO parseTokenInfo(String token, TokenTypeEnum expectTokenType) throws BizException {
-        Key jwk = Keys.hmacShaKeyFor(jwtKey.getBytes());
+        if (!StringUtils.hasText(token)) {
+            throw new BizException(ResponseCodeEnum.TOKEN_ERROR, "token不能为空");
+        }
 
+        Key jwk = Keys.hmacShaKeyFor(jwtKey.getBytes());
         JwtParser jwtParser = Jwts.parserBuilder()
                 .deserializeJsonWith(new JacksonDeserializer(Maps.of(X_CLAIM, ClaimsDTO.class).build()))
                 .setSigningKey(jwk).build();

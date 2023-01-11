@@ -3,6 +3,7 @@ package top.yinzsw.blog.model.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import top.yinzsw.blog.enums.ResponseCodeEnum;
@@ -16,6 +17,7 @@ import static top.yinzsw.blog.enums.ResponseCodeEnum.SUCCESS;
  * @since 22/12/15
  **/
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "统一响应模型")

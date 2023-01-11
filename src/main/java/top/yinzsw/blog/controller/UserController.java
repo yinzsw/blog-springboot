@@ -43,7 +43,7 @@ public class UserController {
     @PatchMapping(value = "avatar", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public String updateUserAvatar(@Parameter(description = "文件", required = true)
                                    @NotNull(message = "上传文件不能为空")
-                                   @MatchFileType(mimeType = "image/*", message = "仅支持上传图片类型[{mimeType}]的文件")
+                                   @MatchFileType(mimeType = "image/*", message = "仅支持上传图片类型{mimeType}的文件")
                                    @RequestPart("file") MultipartFile file) {
         return userService.updateUserAvatar(file);
     }
@@ -51,9 +51,12 @@ public class UserController {
     @Operation(summary = "更新用户邮箱")
     @PatchMapping("email/{email}")
     public Boolean updateUserEmail(@Parameter(description = "邮箱", required = true)
-                                   @Email(message = "邮箱格式不正确") @PathVariable("email") String email,
+                                   @NotBlank(message = "邮箱不能为空")
+                                   @Email(message = "邮箱格式不正确")
+                                   @PathVariable("email") String email,
                                    @Parameter(description = "验证码")
-                                   @NotBlank(message = "验证码不能为空") @RequestParam("code") String code) {
+                                   @NotBlank(message = "验证码不能为空")
+                                   @RequestParam("code") String code) {
         return userService.updateUserEmail(email, code);
     }
 

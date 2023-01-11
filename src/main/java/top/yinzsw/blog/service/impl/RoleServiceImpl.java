@@ -1,22 +1,28 @@
 package top.yinzsw.blog.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import top.yinzsw.blog.manager.RoleMtmMenuManager;
+import top.yinzsw.blog.manager.RoleMtmResourceManager;
+import top.yinzsw.blog.manager.UserMtmRoleManager;
 import top.yinzsw.blog.mapper.RoleMapper;
-import top.yinzsw.blog.mapper.RoleMtmResourceMapper;
-import top.yinzsw.blog.mapper.UserMtmRoleMapper;
-import top.yinzsw.blog.model.po.RoleMtmResourcePO;
+import top.yinzsw.blog.model.converter.RoleConverter;
 import top.yinzsw.blog.model.po.RolePO;
-import top.yinzsw.blog.model.po.UserMtmRolePO;
+import top.yinzsw.blog.model.request.PageReq;
+import top.yinzsw.blog.model.vo.PageVO;
+import top.yinzsw.blog.model.vo.RoleVO;
+import top.yinzsw.blog.model.vo.UserRoleVO;
 import top.yinzsw.blog.service.RoleService;
+import top.yinzsw.blog.util.CommonUtils;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author yinzsW
@@ -27,38 +33,69 @@ import java.util.List;
 @RequiredArgsConstructor
 @CacheConfig(cacheNames = "role")
 public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements RoleService {
-    private final UserMtmRoleMapper userMtmRoleMapper;
-    private final RoleMtmResourceMapper roleMtmResourceMapper;
-
+    private final UserMtmRoleManager userMtmRoleManager;
+    private final RoleMtmResourceManager roleMtmResourceManager;
+    private final RoleMtmMenuManager roleMtmMenuManager;
+    private final RoleConverter roleConverter;
 
     @Cacheable(key = "'uid '+#userId")
     @Override
     public List<String> getRoleNamesByUserId(Long userId) {
-        var roleIds = userMtmRoleMapper.selectObjs(new LambdaQueryWrapper<UserMtmRolePO>()
-                .select(UserMtmRolePO::getRoleId)
-                .eq(UserMtmRolePO::getUserId, userId));
+        List<Long> roleIds = userMtmRoleManager.listRoleIdsByUserId(userId);
         return getRoleNamesByIds(roleIds);
     }
 
     @Cacheable(key = "'rid '+#resourceId")
     @Override
     public List<String> getRoleNamesByResourceId(Long resourceId) {
-        var roleIds = roleMtmResourceMapper.selectObjs(new LambdaQueryWrapper<RoleMtmResourcePO>()
-                .select(RoleMtmResourcePO::getRoleId)
-                .eq(RoleMtmResourcePO::getResourceId, resourceId));
+        List<Long> roleIds = roleMtmResourceManager.listRoleIdsByResourceId(resourceId);
         return getRoleNamesByIds(roleIds);
     }
 
-    private List<String> getRoleNamesByIds(List<Object> roleIds) {
+    @Cacheable(key = "'list'")
+    @Override
+    public List<UserRoleVO> listUserRoles() {
+        List<RolePO> rolePOList = lambdaQuery().select(RolePO::getId, RolePO::getRoleLabel).list();
+        return roleConverter.toUserRoleVO(rolePOList);
+    }
+
+    @Cacheable(key = "'page '+#args")
+    @Override
+    public PageVO<RoleVO> pageListRoles(PageReq pageReq, String keywords) {
+        // 根据关键词查找角色列表
+        boolean alpha = CommonUtils.isAlpha(keywords);
+        Page<RolePO> rolePOPage = lambdaQuery()
+                .select(RolePO::getId, RolePO::getRoleName,
+                        RolePO::getRoleLabel, RolePO::getIsDisabled,
+                        RolePO::getCreateTime)
+                .likeRight(alpha ? RolePO::getRoleLabel : RolePO::getRoleName, keywords)
+                .page(new Page<>(pageReq.getOffset(), pageReq.getSize()));
+
+        // 根据角色id获取菜单id列表和资源id列表
+        List<Long> roleIds = rolePOPage.getRecords().stream().map(RolePO::getId).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(roleIds)) {
+            return new PageVO<>(List.of(), rolePOPage.getTotal());
+        }
+
+        List<RoleVO> roleVOList = roleMtmMenuManager.asyncGetMappingByRoleIds(roleIds)
+                .thenCombine(roleMtmResourceManager.asyncGetMappingByRoleIds(roleIds), (menuMapping, resourceMapping) ->
+                        roleConverter.toRoleVO(rolePOPage.getRecords(), menuMapping, resourceMapping))
+                .join();
+
+        return new PageVO<>(roleVOList, rolePOPage.getTotal());
+    }
+
+    private List<String> getRoleNamesByIds(List<Long> roleIds) {
         if (CollectionUtils.isEmpty(roleIds)) {
             return Collections.emptyList();
         }
 
-        LambdaQueryWrapper<RolePO> queryObjsWrapper = new LambdaQueryWrapper<RolePO>()
+        List<RolePO> rolePOList = lambdaQuery()
                 .select(RolePO::getRoleLabel)
                 .eq(RolePO::getIsDisabled, false)
-                .in(RolePO::getId, roleIds);
-        return listObjs(queryObjsWrapper, Object::toString);
+                .in(RolePO::getId, roleIds)
+                .list();
+        return rolePOList.stream().map(RolePO::getRoleLabel).collect(Collectors.toList());
     }
 }
 

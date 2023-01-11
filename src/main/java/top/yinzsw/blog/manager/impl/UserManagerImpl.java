@@ -1,6 +1,7 @@
 package top.yinzsw.blog.manager.impl;
 
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Async;
@@ -36,12 +37,11 @@ public class UserManagerImpl implements UserManager {
         String ipSource = Optional.ofNullable(ipClient.getIpInfo(ipAddress).getFirstLocation()).orElse("");
         LocalDateTime loginTime = Optional.ofNullable(lastLoginTime).orElse(LocalDateTime.now(ZoneOffset.ofHours(8)));
 
-        LambdaUpdateWrapper<UserPO> updateWrapper = new LambdaUpdateWrapper<UserPO>()
+        LambdaUpdateWrapper<UserPO> updateWrapper = Wrappers.lambdaUpdate(UserPO.class)
                 .set(UserPO::getIpAddress, ipAddress)
                 .set(UserPO::getIpSource, ipSource)
                 .set(UserPO::getLastLoginTime, loginTime)
                 .eq(UserPO::getId, userId);
-
         userMapper.update(null, updateWrapper);
     }
 

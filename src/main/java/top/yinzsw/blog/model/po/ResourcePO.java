@@ -1,7 +1,10 @@
 package top.yinzsw.blog.model.po;
 
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -13,6 +16,9 @@ import java.time.LocalDateTime;
  */
 @TableName(value = "resource")
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ResourcePO implements Serializable {
     /**
      * 主键

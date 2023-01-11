@@ -41,7 +41,7 @@
         <mapstruct.version>1.5.3.Final</mapstruct.version>
         <protostuff.version>1.8.0</protostuff.version>
         <druid.version>1.2.15</druid.version>
-        <mybatis.version>3.5.3</mybatis.version>
+        <mybatis.version>3.5.3.1</mybatis.version>
         <springdoc.version>1.6.13</springdoc.version>
         <jwt.version>0.11.5</jwt.version>
     </properties>
@@ -159,6 +159,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <!--aop-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
         <!--cache-->
         <dependency>

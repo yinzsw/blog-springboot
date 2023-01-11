@@ -57,6 +57,6 @@ public class OpenApiConfig {
                 .required(List.of("code", "msg", "data"))
                 .addProperty("code", new IntegerSchema()._default(ResponseCodeEnum.SUCCESS.getCode()).title("状态码"))
                 .addProperty("msg", new StringSchema()._default(ResponseCodeEnum.SUCCESS.getDesc()).title("信息"))
-                .addProperty("data", schema._default(null).title("数据"));
+                .addProperty("data", schema._default(null).title("数据").nullable(true));
     }
 }

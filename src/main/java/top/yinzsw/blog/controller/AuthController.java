@@ -35,7 +35,7 @@ public class AuthController {
     }
 
     @Operation(summary = "刷新凭据")
-    @GetMapping("refresh")
+    @PutMapping("refresh")
     public TokenVO refresh() {
         return authService.refreshToken();
     }
@@ -49,7 +49,8 @@ public class AuthController {
     @Operation(summary = "发送邮箱验证码")
     @PostMapping("email/{email}")
     public Boolean sendEmailCode(@Parameter(description = "邮箱", required = true)
-                                 @Email(message = "邮箱格式不正确") @PathVariable("email") String email) {
+                                 @Email(message = "邮箱格式不正确")
+                                 @PathVariable("email") String email) {
         return authService.sendEmailCode(email);
     }
 }

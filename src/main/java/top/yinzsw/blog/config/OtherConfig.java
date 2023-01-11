@@ -5,7 +5,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.hibernate.validator.HibernateValidator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.util.AntPathMatcher;
 
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -17,7 +17,6 @@ import javax.validation.Validator;
  * @since 22/12/30
  */
 @Configuration
-@EnableAsync
 public class OtherConfig {
 
     /**
@@ -42,5 +41,15 @@ public class OtherConfig {
                 .failFast(true)
                 .buildValidatorFactory()
                 .getValidator();
+    }
+
+    /**
+     * 注册 路径匹配器 Bean
+     *
+     * @return 路径匹配器
+     */
+    @Bean
+    public AntPathMatcher antPathMatcher() {
+        return new AntPathMatcher();
     }
 }

@@ -49,9 +49,19 @@ public enum ResponseCodeEnum {
     NOT_VALID_PARAMS(40000, "无效的请求参数"),
 
     /**
+     * 缺少必要参数
+     */
+    MISSING_REQUIRED_PARAMS(41000, "缺少必要参数"),
+
+    /**
      * 操作失败
      */
     FAIL(45000, "失败"),
+
+    /**
+     * 文件上传出错
+     */
+    FILE_UPLOAD_ERROR(46000, "文件上传出错"),
 
     /**
      * 系统异常
