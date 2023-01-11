@@ -1,6 +1,5 @@
 package top.yinzsw.blog.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,12 +8,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.util.pattern.PathPattern;
-import top.yinzsw.blog.mapper.RoleMtmResourceMapper;
+import top.yinzsw.blog.manager.RoleMtmResourceManager;
 import top.yinzsw.blog.model.po.ResourcePO;
 import top.yinzsw.blog.model.po.RoleMtmResourcePO;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -31,8 +31,7 @@ public class ResourceServiceTests {
     @Autowired
     private ResourceService resourceService;
     @Autowired
-    private RoleMtmResourceMapper roleMtmResourceMapper;
-    private static final String LOGIN_URI = "/auth/login";
+    private RoleMtmResourceManager roleMtmResourceManager;
 
     @Test
     void saveOrUpdateTest() {
@@ -42,37 +41,38 @@ public class ResourceServiceTests {
 
         for (ResourcePO resourcePO : resourcePOS) {
             log.info("开始加载资源: [{}] {}", resourcePO.getRequestMethod(), resourcePO.getUri());
-            ResourcePO resource = resourceService.getResourceByUriAndMethod(resourcePO.getUri(), resourcePO.getRequestMethod());
-            if (Objects.isNull(resource)) {
-                if (LOGIN_URI.equals(resourcePO.getUri())) {
-                    resourcePO.setIsAnonymous(true);
-                }
-                resourceService.save(resourcePO);
-            } else {
-                resourcePO.setId(resource.getId());
-                resourceService.updateById(resourcePO);
-            }
 
-            RoleMtmResourcePO roleMtmResourcePO = roleMtmResourceMapper
-                    .selectOne(new LambdaQueryWrapper<RoleMtmResourcePO>()
-                            .eq(RoleMtmResourcePO::getResourceId, resourcePO.getId())
-                            .eq(RoleMtmResourcePO::getRoleId, 1L));
+            Optional.ofNullable(resourceService.getResourceByUriAndMethod(resourcePO.getUri(), resourcePO.getRequestMethod()))
+                    .ifPresentOrElse(resource -> resourceService.lambdaUpdate().eq(ResourcePO::getId, resource.getId()).update(resourcePO),
+                            () -> resourceService.save(ConditionSave(resourcePO)));
 
-            if (Objects.isNull(roleMtmResourcePO)) {
-                RoleMtmResourcePO roleMtmResourcePO1 = new RoleMtmResourcePO();
-                roleMtmResourcePO1.setResourceId(resourcePO.getId());
-                roleMtmResourcePO1.setRoleId(1L);
-                roleMtmResourceMapper.insert(roleMtmResourcePO1);
-            }
+            roleMtmResourceManager.lambdaQuery()
+                    .eq(RoleMtmResourcePO::getResourceId, resourcePO.getId())
+                    .eq(RoleMtmResourcePO::getRoleId, 1L)
+                    .oneOpt()
+                    .ifPresentOrElse(po -> {
+                    }, () -> roleMtmResourceManager.save(RoleMtmResourcePO.builder().resourceId(resourcePO.getId()).roleId(1L).build()));
         }
     }
 
     @Test
     void clearResources() {
-        resourceService.remove(null);
-        roleMtmResourceMapper.delete(null);
+        resourceService.lambdaUpdate().remove();
+        roleMtmResourceManager.lambdaUpdate().remove();
     }
 
+    private ResourcePO ConditionSave(ResourcePO resourcePO) {
+        if ("/auth/login".equals(resourcePO.getUri())) {
+            resourcePO.setIsAnonymous(true);
+        }
+        return resourcePO;
+    }
+
+    /**
+     * 加载所有接口
+     *
+     * @return 接口资源列表
+     */
     private List<ResourcePO> loadResources() {
         var mapping = applicationContext.getBean(RequestMappingHandlerMapping.class);
         var handlerMethods = mapping.getHandlerMethods();

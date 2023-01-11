@@ -2,6 +2,10 @@ package top.yinzsw.blog.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import top.yinzsw.blog.model.po.RolePO;
+import top.yinzsw.blog.model.request.PageReq;
+import top.yinzsw.blog.model.vo.PageVO;
+import top.yinzsw.blog.model.vo.RoleVO;
+import top.yinzsw.blog.model.vo.UserRoleVO;
 
 import java.util.List;
 
@@ -27,4 +31,20 @@ public interface RoleService extends IService<RolePO> {
      * @return 角色列表
      */
     List<String> getRoleNamesByResourceId(Long resourceId);
+
+    /**
+     * 获取角色列表
+     *
+     * @return 角色列表
+     */
+    List<UserRoleVO> listUserRoles();
+
+    /**
+     * 根据用户名关键词 分页获取所有用户角色信息
+     *
+     * @param pageReq  分页信息
+     * @param keywords 用户名关键词
+     * @return 用户角色列表信息
+     */
+    PageVO<RoleVO> pageListRoles(PageReq pageReq, String keywords);
 }

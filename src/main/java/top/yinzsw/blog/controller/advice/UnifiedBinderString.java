@@ -8,13 +8,14 @@ import java.beans.PropertyEditorSupport;
 import java.util.Objects;
 
 /**
+ * 对字符串类型参数做统一处理 <br/>
  * 去除请求中字符串类型参数的首尾空白字符
  *
  * @author yinzsW
  * @since 23/01/02
  */
 @RestControllerAdvice(basePackages = "top.yinzsw.blog.controller")
-public class UnifiedStripString extends PropertyEditorSupport {
+public class UnifiedBinderString extends PropertyEditorSupport {
     @InitBinder
     public void initBinder(WebDataBinder binder) {
         binder.registerCustomEditor(String.class, this);

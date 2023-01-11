@@ -2,7 +2,6 @@ package top.yinzsw.blog.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -22,7 +21,7 @@ import java.time.Duration;
  * @since 22/12/15
  */
 @Configuration
-@EnableCaching
+//@EnableCaching
 @RequiredArgsConstructor
 public class CacheConfig {
     private final LettuceConnectionFactory redisConnectionFactory;

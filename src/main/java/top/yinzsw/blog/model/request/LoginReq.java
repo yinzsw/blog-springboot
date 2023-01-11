@@ -2,6 +2,7 @@ package top.yinzsw.blog.model.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
@@ -13,6 +14,7 @@ import org.hibernate.validator.constraints.Length;
  * @since 22/12/19
  */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "用户登录模型")

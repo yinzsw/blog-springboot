@@ -3,9 +3,11 @@ package top.yinzsw.blog.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import top.yinzsw.blog.handler.PageableHandlerInterceptor;
+
+import java.util.List;
 
 /**
  * web mvc配置
@@ -16,10 +18,10 @@ import top.yinzsw.blog.handler.PageableHandlerInterceptor;
 @Configuration
 @RequiredArgsConstructor
 public class WebMvcConfig implements WebMvcConfigurer {
-    private final PageableHandlerInterceptor pageableHandlerInterceptor;
+    private final List<HandlerInterceptor> handlerInterceptors;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(pageableHandlerInterceptor);
+        handlerInterceptors.forEach(registry::addInterceptor);
     }
 }

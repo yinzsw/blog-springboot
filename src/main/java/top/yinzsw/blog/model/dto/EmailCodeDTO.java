@@ -1,6 +1,7 @@
 package top.yinzsw.blog.model.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
  * @since 23/01/01
  */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class EmailCodeDTO {

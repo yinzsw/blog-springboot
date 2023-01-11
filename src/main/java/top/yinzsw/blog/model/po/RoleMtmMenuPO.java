@@ -10,25 +10,25 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 
 /**
- * 角色与资源映射表(多对多)
+ * 角色与菜单映射表(多对多)
  *
- * @TableName role_mtm_resource
+ * @TableName role_mtm_menu
  */
-@TableName(value = "role_mtm_resource")
+@TableName(value = "role_mtm_menu")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoleMtmResourcePO implements Serializable {
+public class RoleMtmMenuPO implements Serializable {
     /**
      * 角色id
      */
     private Long roleId;
 
     /**
-     * 资源id
+     * 菜单id
      */
-    private Long resourceId;
+    private Long menuId;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

@@ -1,7 +1,5 @@
 package top.yinzsw.blog.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -41,24 +39,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPO> implements 
         if (!StringUtils.hasText(identity)) {
             return null;
         }
-        boolean isEmail = CommonUtils.isEmail(identity);
-        return getOne(new LambdaQueryWrapper<UserPO>()
+        boolean email = CommonUtils.isEmail(identity);
+        return lambdaQuery()
                 .select(UserPO::getId, UserPO::getUsername, UserPO::getPassword,
                         UserPO::getEmail, UserPO::getNickname, UserPO::getAvatar,
                         UserPO::getIntro, UserPO::getWebSite, UserPO::getIsDisabled)
-                .eq(isEmail ? UserPO::getEmail : UserPO::getUsername, identity));
+                .eq(email ? UserPO::getEmail : UserPO::getUsername, identity)
+                .one();
     }
 
     @Override
     public Boolean updateUserInfo(UserInfoReq userInfoReq) {
         Long uid = httpContext.getCurrentClaimsDTO().getUid();
 
-        UserPO userPO = UserPO.builder()
-                .id(uid)
-                .nickname(userInfoReq.getNickname())
-                .intro(userInfoReq.getIntro())
-                .webSite(userInfoReq.getWebSite()).build();
-        return updateById(userPO);
+        return lambdaUpdate()
+                .set(UserPO::getNickname, userInfoReq.getNickname())
+                .set(UserPO::getIntro, userInfoReq.getIntro())
+                .set(UserPO::getWebSite, userInfoReq.getWebSite())
+                .eq(UserPO::getId, uid)
+                .update();
     }
 
     @Override
@@ -66,7 +65,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPO> implements 
         String avatarUrl = uploadStrategy.uploadFile(FilePathEnum.AVATAR.getPath(), file);
         Long uid = httpContext.getCurrentClaimsDTO().getUid();
 
-        updateById(UserPO.builder().id(uid).avatar(avatarUrl).build());
+        lambdaUpdate().set(UserPO::getAvatar, avatarUrl).eq(UserPO::getId, uid).update();
         return avatarUrl;
     }
 
@@ -74,20 +73,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPO> implements 
     public Boolean updateUserEmail(String email, String code) {
         userManager.checkEmailVerificationCode(email, code);
         Long uid = httpContext.getCurrentClaimsDTO().getUid();
-        return updateById(UserPO.builder().id(uid).email(email).build());
+        return lambdaUpdate().set(UserPO::getEmail, email).eq(UserPO::getId, uid).update();
     }
 
     @Override
     public Boolean updateUserDisable(Long userId, Boolean disable) {
-        return updateById(UserPO.builder().id(userId).isDisabled(disable).build());
+        return lambdaUpdate().set(UserPO::getIsDisabled, disable).eq(UserPO::getId, userId).update();
     }
 
     @Override
     public Boolean updateUserPassword(String identity, String newPassword) {
-        boolean isEmail = CommonUtils.isEmail(identity);
-        return update(new LambdaUpdateWrapper<UserPO>()
+        boolean email = CommonUtils.isEmail(identity);
+        return lambdaUpdate()
                 .set(UserPO::getPassword, newPassword)
-                .eq(isEmail ? UserPO::getEmail : UserPO::getUsername, identity));
+                .eq(email ? UserPO::getEmail : UserPO::getUsername, identity)
+                .update();
     }
 
     @Override
@@ -103,16 +103,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPO> implements 
     @Override
     public Boolean updateUserPassword(PasswordByOldReq password) {
         Long uid = httpContext.getCurrentClaimsDTO().getUid();
-        String oldPassword = getObj(new LambdaQueryWrapper<UserPO>()
+
+        String oldPassword = lambdaQuery()
                 .select(UserPO::getPassword)
-                .eq(UserPO::getId, uid), Object::toString);
+                .eq(UserPO::getId, uid)
+                .one()
+                .getPassword();
+
         boolean notMatches = !passwordEncoder.matches(password.getOldPassword(), oldPassword);
         if (notMatches) {
             throw new BizException("旧密码不正确");
         }
 
         String newPassword = passwordEncoder.encode(password.getNewPassword());
-        return updateById(UserPO.builder().id(uid).password(newPassword).build());
+        return lambdaUpdate().set(UserPO::getPassword, newPassword).eq(UserPO::getId, uid).update();
     }
 }
 

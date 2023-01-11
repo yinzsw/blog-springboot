@@ -2,6 +2,7 @@ package top.yinzsw.blog.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.util.CollectionUtils;
@@ -15,6 +16,7 @@ import java.util.List;
  * @since 22/12/15
  */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class IpInfoDTO {

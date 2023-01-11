@@ -3,6 +3,7 @@ package top.yinzsw.blog.model.po;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -15,6 +16,7 @@ import java.io.Serializable;
  */
 @TableName(value = "user_mtm_role")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserMtmRolePO implements Serializable {
