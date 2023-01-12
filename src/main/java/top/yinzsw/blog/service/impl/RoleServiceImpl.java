@@ -5,8 +5,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.manager.RoleMtmMenuManager;
 import top.yinzsw.blog.manager.RoleMtmResourceManager;
 import top.yinzsw.blog.manager.UserMtmRoleManager;
@@ -14,6 +17,7 @@ import top.yinzsw.blog.mapper.RoleMapper;
 import top.yinzsw.blog.model.converter.RoleConverter;
 import top.yinzsw.blog.model.po.RolePO;
 import top.yinzsw.blog.model.request.PageReq;
+import top.yinzsw.blog.model.request.RoleReq;
 import top.yinzsw.blog.model.vo.PageVO;
 import top.yinzsw.blog.model.vo.RoleVO;
 import top.yinzsw.blog.model.vo.UserRoleVO;
@@ -83,6 +87,27 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements 
                 .join();
 
         return new PageVO<>(roleVOList, rolePOPage.getTotal());
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public Boolean saveOrUpdateRole(RoleReq roleReq) {
+        // 更新角色信息
+        RolePO rolePO = RolePO.builder()
+                .id(roleReq.getRoleId())
+                .roleName(roleReq.getRoleName())
+                .roleLabel(roleReq.getRoleLabel())
+                .build();
+        try {
+            saveOrUpdate(rolePO);
+        } catch (DuplicateKeyException e) {
+            throw new BizException(String.format("角色名 %s/%s 已经存在", roleReq.getRoleName(), roleReq.getRoleLabel()));
+        }
+
+        // 更新 角色<->资源, 角色<->菜单 映射关系
+        roleMtmResourceManager.updateRoleResources(rolePO.getId(), roleReq.getResourceIdList());
+        roleMtmMenuManager.updateRoleMenus(rolePO.getId(), roleReq.getMenuIdList());
+        return true;
     }
 
     private List<String> getRoleNamesByIds(List<Long> roleIds) {

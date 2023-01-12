@@ -31,4 +31,13 @@ public interface RoleMtmResourceManager extends IService<RoleMtmResourcePO> {
      * @return 关联表
      */
     CompletableFuture<Map<Long, List<Long>>> asyncGetMappingByRoleIds(List<Long> roleIds);
+
+    /**
+     * 更新角色的资源列表
+     *
+     * @param roleId         角色id
+     * @param resourceIdList 资源列表
+     * @return 是否成功
+     */
+    Boolean updateRoleResources(Long roleId, List<Long> resourceIdList);
 }
