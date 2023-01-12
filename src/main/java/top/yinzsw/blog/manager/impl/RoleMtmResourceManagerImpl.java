@@ -1,6 +1,7 @@
 package top.yinzsw.blog.manager.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import top.yinzsw.blog.manager.RoleMtmResourceManager;
@@ -31,6 +32,7 @@ public class RoleMtmResourceManagerImpl extends ServiceImpl<RoleMtmResourceMappe
         return roleMtmResourcePOList.stream().map(RoleMtmResourcePO::getRoleId).collect(Collectors.toList());
     }
 
+    @Async
     @Override
     public CompletableFuture<Map<Long, List<Long>>> asyncGetMappingByRoleIds(List<Long> roleIds) {
         if (CollectionUtils.isEmpty(roleIds)) {

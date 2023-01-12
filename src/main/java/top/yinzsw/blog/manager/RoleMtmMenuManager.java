@@ -1,7 +1,6 @@
 package top.yinzsw.blog.manager;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import org.springframework.scheduling.annotation.Async;
 import top.yinzsw.blog.model.po.RoleMtmMenuPO;
 
 import java.util.List;
@@ -23,6 +22,5 @@ public interface RoleMtmMenuManager extends IService<RoleMtmMenuPO> {
      * @param roleIds 角色id列表
      * @return 映射表 [roleId=menuIds]
      */
-    @Async
     CompletableFuture<Map<Long, List<Long>>> asyncGetMappingByRoleIds(List<Long> roleIds);
 }
