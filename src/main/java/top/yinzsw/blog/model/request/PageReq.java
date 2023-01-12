@@ -1,7 +1,8 @@
 package top.yinzsw.blog.model.request;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +11,6 @@ import org.springdoc.api.annotations.ParameterObject;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 
 /**
  * 分页模型
@@ -28,8 +28,8 @@ public class PageReq {
     /**
      * 页码
      */
-    @NotNull(message = "页码值不能为空")
     @Min(value = 1, message = "页码不能小于 {value}")
+    @Schema(defaultValue = "1")
     @Parameter(description = "页码")
     private Long page;
 
@@ -38,12 +38,12 @@ public class PageReq {
      */
     @Min(value = 1, message = "条数不能少于 {min}")
     @Max(value = 30, message = "条数不能多于 {max}")
+    @Schema(defaultValue = "10")
     @Parameter(description = "条数")
     private Long size;
 
-    @JsonIgnore
-    public Long getOffset() {
-        return (page - 1) * size;
+    public <T> Page<T> getPager() {
+        return new Page<>((page - 1) * size, size);
     }
 
     public static boolean instanceOf(Object o) {

@@ -23,7 +23,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
- * 用户控制层
+ * 用户控制器
  *
  * @author yinzsW
  * @since 22/12/15

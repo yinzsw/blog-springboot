@@ -26,6 +26,9 @@ public class PagingAspect {
                 .filter(PageReq::instanceOf)
                 .map(PageReq::valueOf)
                 .findFirst()
-                .ifPresent(pageReq -> pageReq.setSize(Optional.ofNullable(pageReq.getSize()).orElse(10L)));
+                .ifPresent(pageReq -> {
+                    pageReq.setPage(Optional.ofNullable(pageReq.getPage()).orElse(1L));
+                    pageReq.setSize(Optional.ofNullable(pageReq.getSize()).orElse(10L));
+                });
     }
 }
