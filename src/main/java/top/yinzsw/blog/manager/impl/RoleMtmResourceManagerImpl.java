@@ -1,7 +1,9 @@
 package top.yinzsw.blog.manager.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import top.yinzsw.blog.manager.RoleMtmResourceManager;
 import top.yinzsw.blog.mapper.RoleMtmResourceMapper;
@@ -10,6 +12,7 @@ import top.yinzsw.blog.util.CommonUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -31,6 +34,7 @@ public class RoleMtmResourceManagerImpl extends ServiceImpl<RoleMtmResourceMappe
         return roleMtmResourcePOList.stream().map(RoleMtmResourcePO::getRoleId).collect(Collectors.toList());
     }
 
+    @Async
     @Override
     public CompletableFuture<Map<Long, List<Long>>> asyncGetMappingByRoleIds(List<Long> roleIds) {
         if (CollectionUtils.isEmpty(roleIds)) {
@@ -40,5 +44,19 @@ public class RoleMtmResourceManagerImpl extends ServiceImpl<RoleMtmResourceMappe
         List<RoleMtmResourcePO> roleMtmResourcePOS = lambdaQuery().in(RoleMtmResourcePO::getRoleId, roleIds).list();
         Map<Long, List<Long>> mapping = CommonUtils.getMapping(roleMtmResourcePOS, RoleMtmResourcePO::getRoleId, RoleMtmResourcePO::getResourceId);
         return CompletableFuture.completedFuture(mapping);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public Boolean updateRoleResources(Long roleId, List<Long> resourceIdList) {
+        if (Objects.isNull(roleId) || CollectionUtils.isEmpty(resourceIdList)) {
+            return false;
+        }
+
+        lambdaUpdate().eq(RoleMtmResourcePO::getRoleId, roleId).remove();
+        List<RoleMtmResourcePO> roleMtmResourcePOList = resourceIdList.stream()
+                .map(resourceId -> new RoleMtmResourcePO(roleId, resourceId))
+                .collect(Collectors.toList());
+        return saveBatch(roleMtmResourcePOList);
     }
 }

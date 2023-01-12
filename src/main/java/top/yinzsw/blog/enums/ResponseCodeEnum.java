@@ -54,14 +54,19 @@ public enum ResponseCodeEnum {
     MISSING_REQUIRED_PARAMS(41000, "缺少必要参数"),
 
     /**
+     * 文件上传出错
+     */
+    FILE_UPLOAD_ERROR(43000, "文件上传出错"),
+
+    /**
      * 操作失败
      */
     FAIL(45000, "失败"),
 
     /**
-     * 文件上传出错
+     * 数据持久层异常
      */
-    FILE_UPLOAD_ERROR(46000, "文件上传出错"),
+    DAO_ERROR(49000, "数据层异常"),
 
     /**
      * 系统异常

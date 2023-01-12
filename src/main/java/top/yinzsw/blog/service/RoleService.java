@@ -3,6 +3,7 @@ package top.yinzsw.blog.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import top.yinzsw.blog.model.po.RolePO;
 import top.yinzsw.blog.model.request.PageReq;
+import top.yinzsw.blog.model.request.RoleReq;
 import top.yinzsw.blog.model.vo.PageVO;
 import top.yinzsw.blog.model.vo.RoleVO;
 import top.yinzsw.blog.model.vo.UserRoleVO;
@@ -47,4 +48,20 @@ public interface RoleService extends IService<RolePO> {
      * @return 用户角色列表信息
      */
     PageVO<RoleVO> pageListRoles(PageReq pageReq, String keywords);
+
+    /**
+     * 保存或更新角色
+     *
+     * @param roleReq 角色信息
+     * @return 是否成功
+     */
+    Boolean saveOrUpdateRole(RoleReq roleReq);
+
+    /**
+     * 批量删除角色
+     *
+     * @param roleIdList 角色id列表
+     * @return 是否成功
+     */
+    Boolean deleteRoles(List<Long> roleIdList);
 }

@@ -1,7 +1,6 @@
 package top.yinzsw.blog.manager;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import org.springframework.scheduling.annotation.Async;
 import top.yinzsw.blog.model.po.RoleMtmResourcePO;
 
 import java.util.List;
@@ -31,6 +30,14 @@ public interface RoleMtmResourceManager extends IService<RoleMtmResourcePO> {
      * @param roleIds 角色id列表
      * @return 关联表
      */
-    @Async
     CompletableFuture<Map<Long, List<Long>>> asyncGetMappingByRoleIds(List<Long> roleIds);
+
+    /**
+     * 更新角色的资源列表
+     *
+     * @param roleId         角色id
+     * @param resourceIdList 资源列表
+     * @return 是否成功
+     */
+    Boolean updateRoleResources(Long roleId, List<Long> resourceIdList);
 }

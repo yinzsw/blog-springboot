@@ -20,4 +20,12 @@ public interface UserMtmRoleManager extends IService<UserMtmRolePO> {
      * @return 角色id列表
      */
     List<Long> listRoleIdsByUserId(Long userId);
+
+    /**
+     * 根据角色id列表获取用户数量
+     *
+     * @param roleIdList 角色id列表
+     * @return 用户数量
+     */
+    Long countUserByRoleId(List<Long> roleIdList);
 }

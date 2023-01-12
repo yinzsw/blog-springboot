@@ -20,7 +20,7 @@ import javax.validation.constraints.Email;
  * @author yinzsW
  * @since 22/12/19
  */
-@Tag(name = "用户认证控制器")
+@Tag(name = "认证模块")
 @Validated
 @RestController
 @RequestMapping("auth")

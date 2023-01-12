@@ -3,6 +3,7 @@ package top.yinzsw.blog.controller.advice;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.util.StringUtils;
@@ -153,6 +154,11 @@ public class UnifiedException {
     @ExceptionHandler(BizException.class)
     public ResponseVO<?> bizExceptionHandler(BizException e) {
         return ResponseVO.fail(e.getCode(), e.getMessage());
+    }
+
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseVO<?> daoExceptionHandler(DataAccessException e) {
+        return ResponseVO.fail(ResponseCodeEnum.DAO_ERROR);
     }
 
     /**
