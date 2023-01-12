@@ -28,4 +28,13 @@ public interface UserMtmRoleManager extends IService<UserMtmRolePO> {
      * @return 用户数量
      */
     Long countUserByRoleId(List<Long> roleIdList);
+
+    /**
+     * 根据id更新用户角色
+     *
+     * @param userId  用户id
+     * @param roleIds 角色id列表
+     * @return 是否成功
+     */
+    Boolean updateUserRoles(Long userId, List<Long> roleIds);
 }
