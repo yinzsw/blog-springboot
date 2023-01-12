@@ -1,6 +1,7 @@
 package top.yinzsw.blog.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,6 +31,7 @@ public class IpInfoDTO {
 
     private List<Detail> data;
 
+    @JsonIgnore
     public String getFirstLocation() {
         if (CollectionUtils.isEmpty(this.data)) {
             return null;
