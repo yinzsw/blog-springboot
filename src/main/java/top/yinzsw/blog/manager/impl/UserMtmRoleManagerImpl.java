@@ -2,6 +2,7 @@ package top.yinzsw.blog.manager.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import top.yinzsw.blog.manager.UserMtmRoleManager;
 import top.yinzsw.blog.mapper.UserMtmRoleMapper;
 import top.yinzsw.blog.model.po.UserMtmRolePO;
@@ -25,5 +26,15 @@ public class UserMtmRoleManagerImpl extends ServiceImpl<UserMtmRoleMapper, UserM
                 .list();
 
         return userMtmRolePOList.stream().map(UserMtmRolePO::getRoleId).collect(Collectors.toList());
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public Boolean updateUserRoles(Long userId, List<Long> roleIds) {
+        lambdaUpdate().eq(UserMtmRolePO::getUserId, userId).remove();
+        List<UserMtmRolePO> userMtmRolePOList = roleIds.stream()
+                .map(roleId -> new UserMtmRolePO(userId, roleId))
+                .collect(Collectors.toList());
+        return saveBatch(userMtmRolePOList);
     }
 }

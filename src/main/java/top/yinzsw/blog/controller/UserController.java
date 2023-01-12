@@ -9,6 +9,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import top.yinzsw.blog.extension.validation.MatchFileType;
+import top.yinzsw.blog.manager.UserMtmRoleManager;
 import top.yinzsw.blog.model.request.PasswordByEmailReq;
 import top.yinzsw.blog.model.request.PasswordByOldReq;
 import top.yinzsw.blog.model.request.UserInfoReq;
@@ -16,8 +17,10 @@ import top.yinzsw.blog.service.UserService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * 用户控制层
@@ -32,6 +35,7 @@ import javax.validation.constraints.NotNull;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final UserMtmRoleManager userMtmRoleManager;
 
     @Operation(summary = "更新用户信息")
     @PutMapping("info")
@@ -61,7 +65,7 @@ public class UserController {
     }
 
     @Operation(summary = "更新用户禁用状态")
-    @PatchMapping("disable/{userId}")
+    @PatchMapping("disable/{userId:\\d+}")
     public Boolean updateUserDisable(@Parameter(description = "用户id", required = true)
                                      @PathVariable("userId") Long userId,
                                      @Parameter(description = "禁用状态")
@@ -79,5 +83,15 @@ public class UserController {
     @PatchMapping("password/old")
     public Boolean updateUserPasswordByOldPassword(@Valid @RequestBody PasswordByOldReq password) {
         return userService.updateUserPassword(password);
+    }
+
+    @Operation(summary = "修改用户角色")
+    @PutMapping("role/{userId:\\d+}")
+    public Boolean updateUserRole(@Parameter(description = "用户id", required = true)
+                                  @Min(value = 1, message = "不合法的用户id: ${validatedValue}")
+                                  @PathVariable("userId") Long userId,
+                                  @Parameter(description = "用户角色id列表", required = true)
+                                  @RequestBody List<Long> roleIds) {
+        return userMtmRoleManager.updateUserRoles(userId, roleIds);
     }
 }
