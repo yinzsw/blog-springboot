@@ -73,7 +73,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements 
                         RolePO::getRoleLabel, RolePO::getIsDisabled,
                         RolePO::getCreateTime)
                 .likeRight(alpha ? RolePO::getRoleLabel : RolePO::getRoleName, keywords)
-                .page(new Page<>(pageReq.getOffset(), pageReq.getSize()));
+                .page(pageReq.getPager());
 
         // 根据角色id获取菜单id列表和资源id列表
         List<Long> roleIds = rolePOPage.getRecords().stream().map(RolePO::getId).collect(Collectors.toList());
