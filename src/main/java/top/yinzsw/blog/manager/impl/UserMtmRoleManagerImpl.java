@@ -26,4 +26,12 @@ public class UserMtmRoleManagerImpl extends ServiceImpl<UserMtmRoleMapper, UserM
 
         return userMtmRolePOList.stream().map(UserMtmRolePO::getRoleId).collect(Collectors.toList());
     }
+
+    @Override
+    public Long countUserByRoleId(List<Long> roleIdList) {
+        return lambdaQuery()
+                .select(UserMtmRolePO::getUserId)
+                .in(UserMtmRolePO::getRoleId, roleIdList)
+                .count();
+    }
 }
