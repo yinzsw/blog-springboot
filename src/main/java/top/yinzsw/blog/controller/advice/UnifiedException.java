@@ -158,6 +158,7 @@ public class UnifiedException {
 
     @ExceptionHandler(DataAccessException.class)
     public ResponseVO<?> daoExceptionHandler(DataAccessException e) {
+        log.error(e.getMessage());
         return ResponseVO.fail(ResponseCodeEnum.DAO_ERROR);
     }
 

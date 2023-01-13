@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import top.yinzsw.blog.enums.ArticleStatusEnum;
+import top.yinzsw.blog.exception.DaoException;
 import top.yinzsw.blog.manager.ArticleManager;
 import top.yinzsw.blog.manager.ArticleMtmTagManager;
 import top.yinzsw.blog.mapper.ArticleMapper;
@@ -19,6 +21,7 @@ import top.yinzsw.blog.service.ArticleService;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -53,16 +56,28 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
                         ArticlePO::getArticleContent, ArticlePO::getArticleCover, ArticlePO::getArticleType,
                         ArticlePO::getIsTop, ArticlePO::getCreateTime)
                 .eq(ArticlePO::getArticleStatus, ArticleStatusEnum.PUBLIC)
+                .orderByDesc(ArticlePO::getIsTop)
                 .page(pageReq.getPager());
 
         List<ArticlePO> articlePOList = articlePOPage.getRecords();
+        if (CollectionUtils.isEmpty(articlePOList)) {
+            return new PageVO<>(List.of(), articlePOPage.getTotal());
+        }
+
+        //根据分类id列表和文章id列表获取分类信息和标签信息
         List<Long> categoryIds = articlePOList.stream().map(ArticlePO::getCategoryId).collect(Collectors.toList());
-        Map<Long, String> categoryMapping = articleManager.getCategoryMappingByCategoryIds(categoryIds);
-
         List<Long> articleIds = articlePOList.stream().map(ArticlePO::getId).collect(Collectors.toList());
-        Map<Long, List<TagPO>> tagMapping = articleMtmTagManager.getMappingByArticleIds(articleIds);
 
-        List<ArticleHomeVO> articleHomeVOList = articleConverter.toArticleHomeVO(articlePOList, categoryMapping, tagMapping);
+        var categoryMappingFuture = articleManager.getCategoryMappingByCategoryIds(categoryIds);
+        var tagMappingFuture = articleMtmTagManager.getMappingByArticleIds(articleIds);
+        List<ArticleHomeVO> articleHomeVOList = CompletableFuture.allOf(categoryMappingFuture, tagMappingFuture).thenApply(unused -> {
+            Map<Long, String> categoryMapping = categoryMappingFuture.join();
+            Map<Long, List<TagPO>> tagMapping = tagMappingFuture.join();
+            return articleConverter.toArticleHomeVO(articlePOList, categoryMapping, tagMapping);
+        }).exceptionally(throwable -> {
+            throw new DaoException(throwable.getMessage());
+        }).join();
+
         return new PageVO<>(articleHomeVOList, articlePOPage.getTotal());
     }
 }

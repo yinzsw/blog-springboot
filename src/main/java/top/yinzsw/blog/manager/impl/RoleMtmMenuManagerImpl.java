@@ -10,6 +10,7 @@ import top.yinzsw.blog.mapper.RoleMtmMenuMapper;
 import top.yinzsw.blog.model.po.RoleMtmMenuPO;
 import top.yinzsw.blog.util.CommonUtils;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -28,9 +29,13 @@ public class RoleMtmMenuManagerImpl extends ServiceImpl<RoleMtmMenuMapper, RoleM
     @Override
     public CompletableFuture<Map<Long, List<Long>>> asyncGetMappingByRoleIds(List<Long> roleIds) {
         if (CollectionUtils.isEmpty(roleIds)) {
-            return CompletableFuture.completedFuture(null);
+            return CompletableFuture.completedFuture(new HashMap<>());
         }
-
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         List<RoleMtmMenuPO> roleMtmMenuPOList = lambdaQuery().in(RoleMtmMenuPO::getRoleId, roleIds).list();
         Map<Long, List<Long>> mapping = CommonUtils.getMapping(roleMtmMenuPOList, RoleMtmMenuPO::getRoleId, RoleMtmMenuPO::getMenuId);
         return CompletableFuture.completedFuture(mapping);

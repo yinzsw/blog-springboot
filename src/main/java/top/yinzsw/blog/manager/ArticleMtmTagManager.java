@@ -6,6 +6,7 @@ import top.yinzsw.blog.model.po.TagPO;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author yinzsW
@@ -20,5 +21,5 @@ public interface ArticleMtmTagManager extends IService<ArticleMtmTagPO> {
      * @param articleIds 文章id列表
      * @return 映射表[articleId=tagPO]
      */
-    Map<Long, List<TagPO>> getMappingByArticleIds(List<Long> articleIds);
+    CompletableFuture<Map<Long, List<TagPO>>> getMappingByArticleIds(List<Long> articleIds);
 }

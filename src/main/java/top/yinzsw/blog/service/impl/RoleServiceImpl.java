@@ -26,6 +26,8 @@ import top.yinzsw.blog.util.CommonUtils;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -75,17 +77,24 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements 
                 .likeRight(alpha ? RolePO::getRoleLabel : RolePO::getRoleName, keywords)
                 .page(pageReq.getPager());
 
-        // 根据角色id获取菜单id列表和资源id列表
-        List<Long> roleIds = rolePOPage.getRecords().stream().map(RolePO::getId).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(roleIds)) {
+        List<RolePO> rolePOList = rolePOPage.getRecords();
+        if (CollectionUtils.isEmpty(rolePOList)) {
             return new PageVO<>(List.of(), rolePOPage.getTotal());
         }
 
-        List<RoleVO> roleVOList = roleMtmMenuManager.asyncGetMappingByRoleIds(roleIds)
-                .thenCombine(roleMtmResourceManager.asyncGetMappingByRoleIds(roleIds), (menuMapping, resourceMapping) ->
-                        roleConverter.toRoleVO(rolePOPage.getRecords(), menuMapping, resourceMapping))
-                .join();
+        // 根据角色id获取菜单id列表和资源id列表
+        List<Long> roleIds = rolePOList.stream().map(RolePO::getId).collect(Collectors.toList());
 
+        var menuMappingFuture = roleMtmMenuManager.asyncGetMappingByRoleIds(roleIds);
+        var resourceMappingFuture = roleMtmResourceManager.asyncGetMappingByRoleIds(roleIds);
+        List<RoleVO> roleVOList = CompletableFuture.allOf(menuMappingFuture, resourceMappingFuture)
+                .thenApply(unused -> {
+                    Map<Long, List<Long>> menuMapping = menuMappingFuture.join();
+                    Map<Long, List<Long>> resourceMapping = resourceMappingFuture.join();
+                    return roleConverter.toRoleVO(rolePOList, menuMapping, resourceMapping);
+                }).exceptionally(throwable -> {
+                    throw new BizException(throwable.getMessage());
+                }).join();
         return new PageVO<>(roleVOList, rolePOPage.getTotal());
     }
 

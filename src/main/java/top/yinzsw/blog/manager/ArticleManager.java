@@ -2,6 +2,7 @@ package top.yinzsw.blog.manager;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * 文章通用业务处理层
@@ -17,5 +18,5 @@ public interface ArticleManager {
      * @param categoryIds 分类id
      * @return 映射表[categoryId=categoryName]
      */
-    Map<Long, String> getCategoryMappingByCategoryIds(List<Long> categoryIds);
+    CompletableFuture<Map<Long, String>> getCategoryMappingByCategoryIds(List<Long> categoryIds);
 }

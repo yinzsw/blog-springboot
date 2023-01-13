@@ -10,6 +10,7 @@ import top.yinzsw.blog.mapper.RoleMtmResourceMapper;
 import top.yinzsw.blog.model.po.RoleMtmResourcePO;
 import top.yinzsw.blog.util.CommonUtils;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -38,9 +39,13 @@ public class RoleMtmResourceManagerImpl extends ServiceImpl<RoleMtmResourceMappe
     @Override
     public CompletableFuture<Map<Long, List<Long>>> asyncGetMappingByRoleIds(List<Long> roleIds) {
         if (CollectionUtils.isEmpty(roleIds)) {
-            return CompletableFuture.completedFuture(null);
+            return CompletableFuture.completedFuture(new HashMap<>());
         }
-
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         List<RoleMtmResourcePO> roleMtmResourcePOS = lambdaQuery().in(RoleMtmResourcePO::getRoleId, roleIds).list();
         Map<Long, List<Long>> mapping = CommonUtils.getMapping(roleMtmResourcePOS, RoleMtmResourcePO::getRoleId, RoleMtmResourcePO::getResourceId);
         return CompletableFuture.completedFuture(mapping);
