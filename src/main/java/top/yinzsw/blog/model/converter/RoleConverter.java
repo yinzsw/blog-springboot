@@ -23,10 +23,13 @@ public interface RoleConverter {
 
     RoleVO toRoleVO(RolePO rolePOList, List<Long> menuIdList, List<Long> resourceIdList);
 
-    default List<RoleVO> toRoleVO(List<RolePO> rolePOList, Map<Long, List<Long>> menuIdMapping, Map<Long, List<Long>> resourceIdMapping) {
-        return rolePOList.stream()
-                .map(rolePO -> toRoleVO(rolePO, menuIdMapping.get(rolePO.getId()), resourceIdMapping.get(rolePO.getId())))
-                .collect(Collectors.toList());
+    default List<RoleVO> toRoleVO(List<RolePO> rolePOList,
+                                  Map<Long, List<Long>> menuIdMapping,
+                                  Map<Long, List<Long>> resourceIdMapping) {
+        return rolePOList.stream().map(rolePO -> {
+            Long roleId = rolePO.getId();
+            return toRoleVO(rolePO, menuIdMapping.get(roleId), resourceIdMapping.get(roleId));
+        }).collect(Collectors.toList());
     }
 }
 

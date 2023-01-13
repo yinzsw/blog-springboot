@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.vo.ArticleArchiveVO;
+import top.yinzsw.blog.model.vo.ArticleHomeVO;
 import top.yinzsw.blog.model.vo.PageVO;
 import top.yinzsw.blog.service.ArticleService;
 
@@ -34,4 +35,9 @@ public class ArticleController {
         return articleService.pageListArchives(pageReq);
     }
 
+    @Operation(summary = "查看首页文章(分页)")
+    @GetMapping("home/page")
+    public PageVO<ArticleHomeVO> pageListHomeArticles(@Valid PageReq pageReq) {
+        return articleService.pageListHomeArticles(pageReq);
+    }
 }
