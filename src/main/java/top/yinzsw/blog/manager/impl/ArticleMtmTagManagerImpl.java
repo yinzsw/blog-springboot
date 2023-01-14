@@ -2,11 +2,11 @@ package top.yinzsw.blog.manager.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import top.yinzsw.blog.extension.mybatisplus.service.MappingServiceImpl;
 import top.yinzsw.blog.manager.ArticleMtmTagManager;
 import top.yinzsw.blog.mapper.ArticleMtmTagMapper;
 import top.yinzsw.blog.mapper.TagMapper;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
-public class ArticleMtmTagManagerImpl extends ServiceImpl<ArticleMtmTagMapper, ArticleMtmTagPO> implements ArticleMtmTagManager {
+public class ArticleMtmTagManagerImpl extends MappingServiceImpl<ArticleMtmTagMapper, ArticleMtmTagPO> implements ArticleMtmTagManager {
     private final TagMapper tagMapper;
 
     @Async

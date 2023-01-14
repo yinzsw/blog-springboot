@@ -1,10 +1,10 @@
 package top.yinzsw.blog.manager.impl;
 
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import top.yinzsw.blog.extension.mybatisplus.service.MappingServiceImpl;
 import top.yinzsw.blog.manager.RoleMtmMenuManager;
 import top.yinzsw.blog.mapper.RoleMtmMenuMapper;
 import top.yinzsw.blog.model.po.RoleMtmMenuPO;
@@ -24,18 +24,14 @@ import java.util.stream.Collectors;
  * @since 23/01/02
  */
 @Service
-public class RoleMtmMenuManagerImpl extends ServiceImpl<RoleMtmMenuMapper, RoleMtmMenuPO> implements RoleMtmMenuManager {
+public class RoleMtmMenuManagerImpl extends MappingServiceImpl<RoleMtmMenuMapper, RoleMtmMenuPO> implements RoleMtmMenuManager {
     @Async
     @Override
     public CompletableFuture<Map<Long, List<Long>>> asyncGetMappingByRoleIds(List<Long> roleIds) {
         if (CollectionUtils.isEmpty(roleIds)) {
             return CompletableFuture.completedFuture(new HashMap<>());
         }
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+
         List<RoleMtmMenuPO> roleMtmMenuPOList = lambdaQuery().in(RoleMtmMenuPO::getRoleId, roleIds).list();
         Map<Long, List<Long>> mapping = CommonUtils.getMapping(roleMtmMenuPOList, RoleMtmMenuPO::getRoleId, RoleMtmMenuPO::getMenuId);
         return CompletableFuture.completedFuture(mapping);

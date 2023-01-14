@@ -13,14 +13,17 @@ import top.yinzsw.blog.mapper.ArticleMapper;
 import top.yinzsw.blog.model.converter.ArticleConverter;
 import top.yinzsw.blog.model.po.ArticlePO;
 import top.yinzsw.blog.model.po.TagPO;
+import top.yinzsw.blog.model.request.ArticleRequest;
 import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.vo.ArticleArchiveVO;
+import top.yinzsw.blog.model.vo.ArticleBackVO;
 import top.yinzsw.blog.model.vo.ArticleHomeVO;
 import top.yinzsw.blog.model.vo.PageVO;
 import top.yinzsw.blog.service.ArticleService;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -37,7 +40,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
     private final ArticleConverter articleConverter;
 
     @Override
-    public PageVO<ArticleArchiveVO> pageListArchives(PageReq pageReq) {
+    public PageVO<ArticleArchiveVO> pageListArchivesArticles(PageReq pageReq) {
         Page<ArticlePO> articlePOPage = lambdaQuery()
                 .select(ArticlePO::getId, ArticlePO::getArticleTitle, ArticlePO::getCreateTime)
                 .eq(ArticlePO::getArticleStatus, ArticleStatusEnum.PUBLIC)
@@ -70,15 +73,33 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
 
         var categoryMappingFuture = articleManager.getCategoryMappingByCategoryIds(categoryIds);
         var tagMappingFuture = articleMtmTagManager.getMappingByArticleIds(articleIds);
-        List<ArticleHomeVO> articleHomeVOList = CompletableFuture.allOf(categoryMappingFuture, tagMappingFuture).thenApply(unused -> {
-            Map<Long, String> categoryMapping = categoryMappingFuture.join();
-            Map<Long, List<TagPO>> tagMapping = tagMappingFuture.join();
-            return articleConverter.toArticleHomeVO(articlePOList, categoryMapping, tagMapping);
-        }).exceptionally(throwable -> {
-            throw new DaoException(throwable.getMessage());
-        }).join();
+        List<ArticleHomeVO> articleHomeVOList = CompletableFuture.allOf(categoryMappingFuture, tagMappingFuture)
+                .thenApply(unused -> {
+                    Map<Long, String> categoryMapping = categoryMappingFuture.join();
+                    Map<Long, List<TagPO>> tagMapping = tagMappingFuture.join();
+                    return articleConverter.toArticleHomeVO(articlePOList, categoryMapping, tagMapping);
+                }).exceptionally(throwable -> {
+                    throw new DaoException(throwable.getMessage());
+                }).join();
 
         return new PageVO<>(articleHomeVOList, articlePOPage.getTotal());
+    }
+
+    @Override
+    public PageVO<ArticleBackVO> pageListBackArticles(PageReq pageReq, ArticleRequest articleRequest) {
+        List<ArticlePO> articlePOList = lambdaQuery()
+                .select(ArticlePO::getId)
+                .eq(Objects.nonNull(articleRequest.getCategoryId()), ArticlePO::getCategoryId, articleRequest.getCategoryId())
+                .eq(Objects.nonNull(articleRequest.getArticleStatus()), ArticlePO::getArticleStatus, articleRequest.getArticleStatus())
+                .eq(Objects.nonNull(articleRequest.getArticleType()), ArticlePO::getArticleType, articleRequest.getArticleType())
+                .like(Objects.nonNull(articleRequest.getKeywords()), ArticlePO::getArticleTitle, articleRequest.getKeywords())
+                .list();
+        if (CollectionUtils.isEmpty(articlePOList)) {
+            return new PageVO<>(List.of(), 0L);
+        }
+
+        List<Long> articleIds = articlePOList.stream().map(ArticlePO::getId).collect(Collectors.toList());
+        return null;
     }
 }
 

@@ -1,6 +1,7 @@
 package top.yinzsw.blog.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
@@ -76,5 +77,27 @@ public class RoleServiceTests {
                 .eq(UserMtmRolePO::getUserId, 996L)
                 .list();
         System.out.println(result2);
+    }
+
+
+    @RepeatedTest(5)
+    void getRoles() {
+        roleService.list();
+    }
+
+    @SneakyThrows
+    @Test
+    void getRolesThread() {
+//        for (int i = 0; i < 5; i++) {
+//            CompletableFuture.supplyAsync(() -> {
+//                return roleMapper.listRole();
+//            });
+//        }
+//        Thread.sleep(2000);
+        roleMtmResourceManager.lambdaQuery()
+                .in(RoleMtmResourcePO::getRoleId, 1, 2)
+                .in(RoleMtmResourcePO::getResourceId, 1, 2)
+                .list();
+
     }
 }

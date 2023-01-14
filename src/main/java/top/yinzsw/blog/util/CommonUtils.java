@@ -48,6 +48,7 @@ public class CommonUtils {
      * @param <D>         Map 值列表项类型
      * @return mapping 映射表
      */
+    @Deprecated
     public static <T, K, D> Map<K, List<D>> getMapping(List<T> list,
                                                        Function<? super T, ? extends K> keyFn,
                                                        Function<? super T, ? extends D> valueItemFn) {

@@ -7,8 +7,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import top.yinzsw.blog.model.request.ArticleRequest;
 import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.vo.ArticleArchiveVO;
+import top.yinzsw.blog.model.vo.ArticleBackVO;
 import top.yinzsw.blog.model.vo.ArticleHomeVO;
 import top.yinzsw.blog.model.vo.PageVO;
 import top.yinzsw.blog.service.ArticleService;
@@ -32,7 +34,7 @@ public class ArticleController {
     @Operation(summary = "查看文章归档(分页)")
     @GetMapping("archives/page")
     public PageVO<ArticleArchiveVO> pageListArchives(@Valid PageReq pageReq) {
-        return articleService.pageListArchives(pageReq);
+        return articleService.pageListArchivesArticles(pageReq);
     }
 
     @Operation(summary = "查看首页文章(分页)")
@@ -40,4 +42,12 @@ public class ArticleController {
     public PageVO<ArticleHomeVO> pageListHomeArticles(@Valid PageReq pageReq) {
         return articleService.pageListHomeArticles(pageReq);
     }
+
+    @Operation(summary = "查看后台文章(分页)")
+    @GetMapping("back/page")
+    public PageVO<ArticleBackVO> pageListBackArticles(@Valid PageReq pageReq,
+                                                      @Valid ArticleRequest articleRequest) {
+        return articleService.pageListBackArticles(pageReq, articleRequest);
+    }
+
 }

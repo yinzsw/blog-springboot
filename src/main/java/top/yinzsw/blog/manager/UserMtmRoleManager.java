@@ -1,6 +1,6 @@
 package top.yinzsw.blog.manager;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import top.yinzsw.blog.extension.mybatisplus.service.IMappingService;
 import top.yinzsw.blog.model.po.UserMtmRolePO;
 
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
  * @since 23/01/02
  */
 
-public interface UserMtmRoleManager extends IService<UserMtmRolePO> {
+public interface UserMtmRoleManager extends IMappingService<UserMtmRolePO> {
     /**
      * 根据用户id获取角色id列表
      *

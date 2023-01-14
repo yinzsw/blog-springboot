@@ -1,6 +1,6 @@
 package top.yinzsw.blog.manager;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import top.yinzsw.blog.extension.mybatisplus.service.IMappingService;
 import top.yinzsw.blog.model.po.RoleMtmResourcePO;
 
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
  * @since 23/01/02
  */
 
-public interface RoleMtmResourceManager extends IService<RoleMtmResourcePO> {
+public interface RoleMtmResourceManager extends IMappingService<RoleMtmResourcePO> {
 
     /**
      * 根据资源id获取角色id列表

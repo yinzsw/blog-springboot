@@ -1,10 +1,10 @@
 package top.yinzsw.blog.manager.impl;
 
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import top.yinzsw.blog.extension.mybatisplus.service.MappingServiceImpl;
 import top.yinzsw.blog.manager.RoleMtmResourceManager;
 import top.yinzsw.blog.mapper.RoleMtmResourceMapper;
 import top.yinzsw.blog.model.po.RoleMtmResourcePO;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  * @since 23/01/02
  */
 @Service
-public class RoleMtmResourceManagerImpl extends ServiceImpl<RoleMtmResourceMapper, RoleMtmResourcePO> implements RoleMtmResourceManager {
+public class RoleMtmResourceManagerImpl extends MappingServiceImpl<RoleMtmResourceMapper, RoleMtmResourcePO> implements RoleMtmResourceManager {
     @Override
     public List<Long> listRoleIdsByResourceId(Long resourceId) {
         List<RoleMtmResourcePO> roleMtmResourcePOList = lambdaQuery()
@@ -41,11 +41,7 @@ public class RoleMtmResourceManagerImpl extends ServiceImpl<RoleMtmResourceMappe
         if (CollectionUtils.isEmpty(roleIds)) {
             return CompletableFuture.completedFuture(new HashMap<>());
         }
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+
         List<RoleMtmResourcePO> roleMtmResourcePOS = lambdaQuery().in(RoleMtmResourcePO::getRoleId, roleIds).list();
         Map<Long, List<Long>> mapping = CommonUtils.getMapping(roleMtmResourcePOS, RoleMtmResourcePO::getRoleId, RoleMtmResourcePO::getResourceId);
         return CompletableFuture.completedFuture(mapping);

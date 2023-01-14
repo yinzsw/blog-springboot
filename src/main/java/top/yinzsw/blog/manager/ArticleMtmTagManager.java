@@ -1,6 +1,6 @@
 package top.yinzsw.blog.manager;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import top.yinzsw.blog.extension.mybatisplus.service.IMappingService;
 import top.yinzsw.blog.model.po.ArticleMtmTagPO;
 import top.yinzsw.blog.model.po.TagPO;
 
@@ -13,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
  * @description 针对表【article_mtm_tag(文章与标签映射表(多对多))】的数据库操作Service
  * @createDate 2023-01-13 09:59:04
  */
-public interface ArticleMtmTagManager extends IService<ArticleMtmTagPO> {
+public interface ArticleMtmTagManager extends IMappingService<ArticleMtmTagPO> {
 
     /**
      * 根据文章id获取映射表

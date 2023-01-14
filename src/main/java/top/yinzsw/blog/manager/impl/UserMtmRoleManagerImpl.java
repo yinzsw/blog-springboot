@@ -1,8 +1,8 @@
 package top.yinzsw.blog.manager.impl;
 
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.yinzsw.blog.extension.mybatisplus.service.MappingServiceImpl;
 import top.yinzsw.blog.manager.UserMtmRoleManager;
 import top.yinzsw.blog.mapper.UserMtmRoleMapper;
 import top.yinzsw.blog.model.po.UserMtmRolePO;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  * @since 23/01/02
  */
 @Service
-public class UserMtmRoleManagerImpl extends ServiceImpl<UserMtmRoleMapper, UserMtmRolePO> implements UserMtmRoleManager {
+public class UserMtmRoleManagerImpl extends MappingServiceImpl<UserMtmRoleMapper, UserMtmRolePO> implements UserMtmRoleManager {
     @Override
     public List<Long> listRoleIdsByUserId(Long userId) {
         List<UserMtmRolePO> userMtmRolePOList = lambdaQuery()
