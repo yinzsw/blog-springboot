@@ -10,10 +10,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import top.yinzsw.blog.constant.RedisConst;
 import top.yinzsw.blog.core.context.HttpContext;
+import top.yinzsw.blog.manager.UserManager;
 import top.yinzsw.blog.model.converter.UserConverter;
 import top.yinzsw.blog.model.po.UserPO;
 import top.yinzsw.blog.service.RoleService;
-import top.yinzsw.blog.service.UserService;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -30,7 +30,7 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService, UserDetailsPasswordService {
-    private final UserService userService;
+    private final UserManager userManager;
     private final RoleService roleService;
     private final HttpContext httpContext;
     private final UserConverter userConverter;
@@ -41,7 +41,7 @@ public class UserDetailsServiceImpl implements UserDetailsService, UserDetailsPa
         if (!StringUtils.hasText(username)) {
             throw new UsernameNotFoundException("用户名或密码错误");
         }
-        UserPO userPO = userService.getUserByNameOrEmail(username);
+        UserPO userPO = userManager.getUserByNameOrEmail(username);
         Optional.ofNullable(userPO).orElseThrow(() -> new UsernameNotFoundException("用户名或密码错误"));
         userPO.setIpAddress(httpContext.getUserIpAddress());
 
@@ -55,16 +55,15 @@ public class UserDetailsServiceImpl implements UserDetailsService, UserDetailsPa
         Set<Object> likedComments = redisTemplate.opsForSet().members(RedisConst.USER_LIKED_COMMENTS_PREFIX + userId);
 
         userPO.setLastLoginTime(LocalDateTime.now(ZoneOffset.ofHours(8)));
-        UserDetailsDTO userDetailsDTO = userConverter.toUserDetailDTO(userPO, roles);
-        userDetailsDTO.setTalkLikeSet(likedTalks);
-        userDetailsDTO.setArticleLikeSet(likedArticles);
-        userDetailsDTO.setCommentLikeSet(likedComments);
-        return userDetailsDTO;
+        return userConverter.toUserDetailDTO(userPO, roles)
+                .setTalkLikeSet(likedTalks)
+                .setArticleLikeSet(likedArticles)
+                .setCommentLikeSet(likedComments);
     }
 
     @Override
     public UserDetails updatePassword(UserDetails user, String newPassword) {
-        Boolean status = userService.updateUserPassword(user.getUsername(), newPassword);
+        boolean status = userManager.updateUserPassword(user.getUsername(), newPassword);
         if (status) {
             UserDetailsDTO userDetailsDTO = (UserDetailsDTO) user;
             userDetailsDTO.setPassword(newPassword);

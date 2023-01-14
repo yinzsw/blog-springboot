@@ -1,10 +1,11 @@
 package top.yinzsw.blog.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.extension.toolkit.SimpleQuery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,49 +45,45 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements 
     private final RoleMtmMenuManager roleMtmMenuManager;
     private final RoleConverter roleConverter;
 
-    @Cacheable(key = "'uid '+#userId")
     @Override
     public List<String> getRoleNamesByUserId(Long userId) {
         List<Long> roleIds = userMtmRoleManager.listRoleIdsByUserId(userId);
-        return getRoleNamesByIds(roleIds);
+        return getEnabledRoleNamesByIds(roleIds);
     }
 
-    @Cacheable(key = "'rid '+#resourceId")
     @Override
     public List<String> getRoleNamesByResourceId(Long resourceId) {
         List<Long> roleIds = roleMtmResourceManager.listRoleIdsByResourceId(resourceId);
-        return getRoleNamesByIds(roleIds);
+        return getEnabledRoleNamesByIds(roleIds);
     }
 
-    @Cacheable(key = "'list'")
     @Override
     public List<UserRoleVO> listUserRoles() {
         List<RolePO> rolePOList = lambdaQuery().select(RolePO::getId, RolePO::getRoleLabel).list();
         return roleConverter.toUserRoleVO(rolePOList);
     }
 
-    @Cacheable(key = "'page '+#args")
     @Override
     public PageVO<RoleVO> pageListRoles(PageReq pageReq, String keywords) {
         // 根据关键词查找角色列表
-        boolean alpha = CommonUtils.isAlpha(keywords);
+        boolean isAlpha = CommonUtils.getIsAlpha(keywords);
         Page<RolePO> rolePOPage = lambdaQuery()
                 .select(RolePO::getId, RolePO::getRoleName,
                         RolePO::getRoleLabel, RolePO::getIsDisabled,
                         RolePO::getCreateTime)
-                .likeRight(alpha ? RolePO::getRoleLabel : RolePO::getRoleName, keywords)
+                .likeRight(isAlpha ? RolePO::getRoleLabel : RolePO::getRoleName, keywords)
                 .page(pageReq.getPager());
 
         List<RolePO> rolePOList = rolePOPage.getRecords();
+        long totalCount = rolePOPage.getTotal();
         if (CollectionUtils.isEmpty(rolePOList)) {
-            return new PageVO<>(List.of(), rolePOPage.getTotal());
+            return new PageVO<>(List.of(), totalCount);
         }
 
-        // 根据角色id获取菜单id列表和资源id列表
+        // 角色id<->菜单id列表 角色id<->资源id列表
         List<Long> roleIds = rolePOList.stream().map(RolePO::getId).collect(Collectors.toList());
-
-        var menuMappingFuture = roleMtmMenuManager.asyncGetMappingByRoleIds(roleIds);
-        var resourceMappingFuture = roleMtmResourceManager.asyncGetMappingByRoleIds(roleIds);
+        var menuMappingFuture = roleMtmMenuManager.getMappingByRoleIds(roleIds);
+        var resourceMappingFuture = roleMtmResourceManager.getMappingByRoleIds(roleIds);
         List<RoleVO> roleVOList = CompletableFuture.allOf(menuMappingFuture, resourceMappingFuture)
                 .thenApply(unused -> {
                     Map<Long, List<Long>> menuMapping = menuMappingFuture.join();
@@ -95,22 +92,22 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements 
                 }).exceptionally(throwable -> {
                     throw new BizException(throwable.getMessage());
                 }).join();
-        return new PageVO<>(roleVOList, rolePOPage.getTotal());
+
+        return new PageVO<>(roleVOList, totalCount);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Boolean saveOrUpdateRole(RoleReq roleReq) {
+    public boolean saveOrUpdateRole(RoleReq roleReq) {
         // 更新角色信息
-        RolePO rolePO = RolePO.builder()
-                .id(roleReq.getRoleId())
-                .roleName(roleReq.getRoleName())
-                .roleLabel(roleReq.getRoleLabel())
-                .build();
+        RolePO rolePO = new RolePO()
+                .setId(roleReq.getRoleId())
+                .setRoleName(roleReq.getRoleName())
+                .setRoleLabel(roleReq.getRoleLabel());
         try {
             saveOrUpdate(rolePO);
         } catch (DuplicateKeyException e) {
-            throw new BizException(String.format("角色名 %s/%s 已经存在", roleReq.getRoleName(), roleReq.getRoleLabel()));
+            throw new BizException(String.format("角色名 %s/%s 已经存在, 请更换", roleReq.getRoleName(), roleReq.getRoleLabel()));
         }
 
         // 更新 角色<->资源, 角色<->菜单 映射关系
@@ -120,27 +117,25 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements 
     }
 
     @Override
-    public Boolean deleteRoles(List<Long> roleIdList) {
+    public boolean deleteRoles(List<Long> roleIdList) {
         // 判断角色下是否有用户
-        Long userCount = userMtmRoleManager.countUserByRoleId(roleIdList);
-        if (userCount > 0) {
-            throw new BizException(String.format("角色id下共存在%d位用户, 不能删除!", userCount));
+        List<Long> userIds = userMtmRoleManager.listUserIdsByRoleId(roleIdList);
+        if (!CollectionUtils.isEmpty(userIds)) {
+            throw new BizException(String.format("角色id下共存在%d位用户, 不能删除!", userIds.size()));
         }
 
         return lambdaUpdate().in(RolePO::getId, roleIdList).remove();
     }
 
-    private List<String> getRoleNamesByIds(List<Long> roleIds) {
+    private List<String> getEnabledRoleNamesByIds(List<Long> roleIds) {
         if (CollectionUtils.isEmpty(roleIds)) {
             return Collections.emptyList();
         }
 
-        List<RolePO> rolePOList = lambdaQuery()
+        return SimpleQuery.list(Wrappers.<RolePO>lambdaQuery()
                 .select(RolePO::getRoleLabel)
                 .eq(RolePO::getIsDisabled, false)
-                .in(RolePO::getId, roleIds)
-                .list();
-        return rolePOList.stream().map(RolePO::getRoleLabel).collect(Collectors.toList());
+                .in(RolePO::getId, roleIds), RolePO::getRoleLabel);
     }
 }
 

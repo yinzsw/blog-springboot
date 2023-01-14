@@ -2,9 +2,9 @@ package top.yinzsw.blog.model.po;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -16,9 +16,9 @@ import java.time.LocalDateTime;
  */
 @TableName(value = "tag")
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 public class TagPO implements Serializable {
     /**
      * 标签id

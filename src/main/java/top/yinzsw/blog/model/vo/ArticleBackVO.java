@@ -2,9 +2,9 @@ package top.yinzsw.blog.model.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 import top.yinzsw.blog.enums.ArticleStatusEnum;
 import top.yinzsw.blog.enums.ArticleTypeEnum;
 
@@ -18,9 +18,9 @@ import java.util.List;
  * @since 23/01/13
  */
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 @Schema(description = "后台文章")
 public class ArticleBackVO {
     /**

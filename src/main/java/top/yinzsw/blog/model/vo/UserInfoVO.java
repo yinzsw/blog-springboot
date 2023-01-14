@@ -2,9 +2,9 @@ package top.yinzsw.blog.model.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 import top.yinzsw.blog.enums.LoginTypeEnum;
 
 import java.time.LocalDateTime;
@@ -17,9 +17,9 @@ import java.util.Set;
  * @since 22/12/15
  */
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 @Schema(description = "用户信息")
 public class UserInfoVO {
 

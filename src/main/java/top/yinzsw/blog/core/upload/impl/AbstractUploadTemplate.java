@@ -3,7 +3,7 @@ package top.yinzsw.blog.core.upload.impl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
-import top.yinzsw.blog.core.upload.UploadStrategy;
+import top.yinzsw.blog.core.upload.UploadProvider;
 import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.util.FileUtils;
 
@@ -17,7 +17,7 @@ import java.io.InputStream;
  * @since 22/12/29
  */
 @Slf4j
-public abstract class AbstractUploadTemplate implements UploadStrategy {
+public abstract class AbstractUploadTemplate implements UploadProvider {
 
     @Override
     public String uploadFile(String path, MultipartFile file) {

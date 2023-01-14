@@ -15,20 +15,12 @@ import top.yinzsw.blog.model.request.UserInfoReq;
 public interface UserService extends IService<UserPO> {
 
     /**
-     * 格局用户名或邮箱查询用户
-     *
-     * @param identity 用户身份标识字符串
-     * @return 用户
-     */
-    UserPO getUserByNameOrEmail(String identity);
-
-    /**
      * 更新用户信息
      *
      * @param userInfoReq 用户信息
      * @return 是否更新成功
      */
-    Boolean updateUserInfo(UserInfoReq userInfoReq);
+    boolean updateUserInfo(UserInfoReq userInfoReq);
 
     /**
      * 更新用户头像
@@ -45,7 +37,7 @@ public interface UserService extends IService<UserPO> {
      * @param code  验证码
      * @return 更新状态
      */
-    Boolean updateUserEmail(String email, String code);
+    boolean updateUserEmail(String email, String code);
 
     /**
      * 更新用户禁用状态
@@ -54,16 +46,7 @@ public interface UserService extends IService<UserPO> {
      * @param disable 禁用状态
      * @return 更新状态
      */
-    Boolean updateUserDisable(Long userId, Boolean disable);
-
-    /**
-     * 根据用户名或邮箱修改密码
-     *
-     * @param identity    用户身份标识字符串
-     * @param newPassword 新密码
-     * @return 是否成功
-     */
-    Boolean updateUserPassword(String identity, String newPassword);
+    boolean updateUserDisable(Long userId, Boolean disable);
 
     /**
      * 根据邮箱更新用户密码
@@ -71,7 +54,7 @@ public interface UserService extends IService<UserPO> {
      * @param password 密码验证信息
      * @return 是否成功
      */
-    Boolean updateUserPassword(PasswordByEmailReq password);
+    boolean updateUserPassword(PasswordByEmailReq password);
 
     /**
      * 根据旧密码更新用户密码
@@ -79,5 +62,5 @@ public interface UserService extends IService<UserPO> {
      * @param password 密码验证信息
      * @return 是否成功
      */
-    Boolean updateUserPassword(PasswordByOldReq password);
+    boolean updateUserPassword(PasswordByOldReq password);
 }

@@ -1,6 +1,6 @@
 package top.yinzsw.blog.manager;
 
-import top.yinzsw.blog.extension.mybatisplus.service.IMappingService;
+import com.baomidou.mybatisplus.extension.service.IService;
 import top.yinzsw.blog.model.po.UserMtmRolePO;
 
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
  * @since 23/01/02
  */
 
-public interface UserMtmRoleManager extends IMappingService<UserMtmRolePO> {
+public interface UserMtmRoleManager extends IService<UserMtmRolePO> {
     /**
      * 根据用户id获取角色id列表
      *
@@ -22,12 +22,12 @@ public interface UserMtmRoleManager extends IMappingService<UserMtmRolePO> {
     List<Long> listRoleIdsByUserId(Long userId);
 
     /**
-     * 根据角色id列表获取用户数量
+     * 根据角色id列表获取用户id列表
      *
      * @param roleIdList 角色id列表
-     * @return 用户数量
+     * @return 用户id列表
      */
-    Long countUserByRoleId(List<Long> roleIdList);
+    List<Long> listUserIdsByRoleId(List<Long> roleIdList);
 
     /**
      * 根据id更新用户角色
@@ -36,5 +36,5 @@ public interface UserMtmRoleManager extends IMappingService<UserMtmRolePO> {
      * @param roleIds 角色id列表
      * @return 是否成功
      */
-    Boolean updateUserRoles(Long userId, List<Long> roleIds);
+    boolean updateUserRoles(Long userId, List<Long> roleIds);
 }

@@ -1,6 +1,6 @@
 package top.yinzsw.blog.manager;
 
-import top.yinzsw.blog.extension.mybatisplus.service.IMappingService;
+import com.baomidou.mybatisplus.extension.service.IService;
 import top.yinzsw.blog.model.po.RoleMtmMenuPO;
 
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
  * @since 23/01/02
  */
 
-public interface RoleMtmMenuManager extends IMappingService<RoleMtmMenuPO> {
+public interface RoleMtmMenuManager extends IService<RoleMtmMenuPO> {
 
     /**
      * 根据角色id列表 获取映射表
@@ -22,14 +22,13 @@ public interface RoleMtmMenuManager extends IMappingService<RoleMtmMenuPO> {
      * @param roleIds 角色id列表
      * @return 映射表 [roleId=menuIds]
      */
-    CompletableFuture<Map<Long, List<Long>>> asyncGetMappingByRoleIds(List<Long> roleIds);
+    CompletableFuture<Map<Long, List<Long>>> getMappingByRoleIds(List<Long> roleIds);
 
     /**
      * 更新角色菜单列表
      *
      * @param roleId     角色id
      * @param menuIdList 菜单列表
-     * @return 是否成功
      */
-    Boolean updateRoleMenus(Long roleId, List<Long> menuIdList);
+    void updateRoleMenus(Long roleId, List<Long> menuIdList);
 }

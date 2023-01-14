@@ -3,9 +3,9 @@ package top.yinzsw.blog.model.po;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 
@@ -16,9 +16,9 @@ import java.io.Serializable;
  */
 @TableName(value = "article_mtm_tag")
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 public class ArticleMtmTagPO implements Serializable {
     /**
      * 文章id

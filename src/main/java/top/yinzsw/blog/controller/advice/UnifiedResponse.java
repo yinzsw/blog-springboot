@@ -4,6 +4,7 @@ package top.yinzsw.blog.controller.advice;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -23,6 +24,7 @@ import top.yinzsw.blog.model.vo.ResponseVO;
  * @author yinzsW
  * @since 22/12/15
  */
+@Slf4j
 @RestControllerAdvice(basePackages = "top.yinzsw.blog.controller")
 @RequiredArgsConstructor
 public class UnifiedResponse implements ResponseBodyAdvice<Object> {

@@ -4,9 +4,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 import org.springdoc.api.annotations.ParameterObject;
 
 import javax.validation.constraints.Max;
@@ -19,9 +19,9 @@ import javax.validation.constraints.Min;
  * @since 23/01/09
  */
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 @ParameterObject
 public class PageReq {
 

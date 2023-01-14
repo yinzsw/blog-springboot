@@ -51,7 +51,8 @@ public class ResourceServiceTests {
                     .eq(RoleMtmResourcePO::getRoleId, 1L)
                     .oneOpt()
                     .ifPresentOrElse(po -> {
-                    }, () -> roleMtmResourceManager.save(RoleMtmResourcePO.builder().resourceId(resourcePO.getId()).roleId(1L).build()));
+                    }, () -> roleMtmResourceManager.save(new RoleMtmResourcePO(1L, resourcePO.getId())));
+
         }
     }
 

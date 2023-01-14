@@ -3,9 +3,9 @@ package top.yinzsw.blog.model.request;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 import org.springdoc.api.annotations.ParameterObject;
 import top.yinzsw.blog.enums.ArticleStatusEnum;
 import top.yinzsw.blog.enums.ArticleTypeEnum;
@@ -17,9 +17,9 @@ import top.yinzsw.blog.enums.ArticleTypeEnum;
  * @since 23/01/13
  **/
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 @ParameterObject
 public class ArticleRequest {
 

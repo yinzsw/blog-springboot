@@ -47,13 +47,13 @@ public class RoleController {
 
     @Operation(summary = "保存或更新角色")
     @PutMapping
-    public Boolean saveOrUpdateRole(@Valid @RequestBody RoleReq roleReq) {
+    public boolean saveOrUpdateRole(@Valid @RequestBody RoleReq roleReq) {
         return roleService.saveOrUpdateRole(roleReq);
     }
 
     @Operation(summary = "删除角色")
     @DeleteMapping
-    public Boolean deleteRoles(@Parameter(description = "角色id列表", required = true)
+    public boolean deleteRoles(@Parameter(description = "角色id列表", required = true)
                                @NotEmpty(message = "角色id不能为空")
                                @RequestParam("roleIdList") List<Long> roleIdList) {
         return roleService.deleteRoles(roleIdList);

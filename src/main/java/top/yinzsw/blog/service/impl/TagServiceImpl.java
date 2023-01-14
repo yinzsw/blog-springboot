@@ -26,10 +26,9 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, TagPO> implements Tag
 
     @Override
     public PageVO<TagVO> pageListTags(PageReq pageReq) {
-        Page<TagPO> tagPOPage = lambdaQuery()
-                .select(TagPO::getId, TagPO::getTagName)
-                .page(pageReq.getPager());
+        Page<TagPO> tagPOPage = lambdaQuery().select(TagPO::getId, TagPO::getTagName).page(pageReq.getPager());
         List<TagVO> tagVOList = tagConverter.toTagVO(tagPOPage.getRecords());
+
         return new PageVO<>(tagVOList, tagPOPage.getTotal());
     }
 }

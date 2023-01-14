@@ -2,9 +2,9 @@ package top.yinzsw.blog.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import top.yinzsw.blog.enums.TokenTypeEnum;
@@ -20,9 +20,9 @@ import java.util.stream.Collectors;
  * @since 22/12/25
  */
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 public class ClaimsDTO {
 
     /**
@@ -49,7 +49,6 @@ public class ClaimsDTO {
      * token类型
      */
     private TokenTypeEnum type;
-
 
     @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {

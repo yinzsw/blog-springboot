@@ -1,20 +1,17 @@
 package top.yinzsw.blog.manager.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import top.yinzsw.blog.manager.ArticleManager;
-import top.yinzsw.blog.mapper.CategoryMapper;
 import top.yinzsw.blog.model.po.CategoryPO;
+import top.yinzsw.blog.util.MybatisPlusUtils;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 /**
  * 文章通用业务处理层实现
@@ -25,21 +22,14 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ArticleManagerImpl implements ArticleManager {
-    private final CategoryMapper categoryMapper;
-
     @Async
     @Override
     public CompletableFuture<Map<Long, String>> getCategoryMappingByCategoryIds(List<Long> categoryIds) {
         if (CollectionUtils.isEmpty(categoryIds)) {
-            return CompletableFuture.completedFuture(new HashMap<>());
+            return CompletableFuture.completedFuture(Collections.emptyMap());
         }
 
-        LambdaQueryWrapper<CategoryPO> queryListWrapper = Wrappers.lambdaQuery(CategoryPO.class)
-                .select(CategoryPO::getId, CategoryPO::getCategoryName)
-                .in(CategoryPO::getId, categoryIds);
-        List<CategoryPO> categoryPOList = categoryMapper.selectList(queryListWrapper);
-
-        Map<Long, String> categoryMapping = categoryPOList.stream().collect(Collectors.toMap(CategoryPO::getId, CategoryPO::getCategoryName));
+        Map<Long, String> categoryMapping = MybatisPlusUtils.mappingMap(CategoryPO::getId, CategoryPO::getCategoryName, categoryIds);
         return CompletableFuture.completedFuture(categoryMapping);
     }
 }

@@ -39,7 +39,7 @@ public class UserController {
 
     @Operation(summary = "更新用户信息")
     @PutMapping("info")
-    public Boolean updateUserInfo(@Valid @RequestBody UserInfoReq userInfoReq) {
+    public boolean updateUserInfo(@Valid @RequestBody UserInfoReq userInfoReq) {
         return userService.updateUserInfo(userInfoReq);
     }
 
@@ -54,7 +54,7 @@ public class UserController {
 
     @Operation(summary = "更新用户邮箱")
     @PatchMapping("email/{email}")
-    public Boolean updateUserEmail(@Parameter(description = "邮箱", required = true)
+    public boolean updateUserEmail(@Parameter(description = "邮箱", required = true)
                                    @NotBlank(message = "邮箱不能为空")
                                    @Email(message = "邮箱格式不正确")
                                    @PathVariable("email") String email,
@@ -66,7 +66,7 @@ public class UserController {
 
     @Operation(summary = "更新用户禁用状态")
     @PatchMapping("disable/{userId:\\d+}")
-    public Boolean updateUserDisable(@Parameter(description = "用户id", required = true)
+    public boolean updateUserDisable(@Parameter(description = "用户id", required = true)
                                      @PathVariable("userId") Long userId,
                                      @Parameter(description = "禁用状态")
                                      @RequestParam("disable") Boolean disable) {
@@ -75,19 +75,19 @@ public class UserController {
 
     @Operation(summary = "更新用户密码(邮箱验证码)")
     @PatchMapping("password/email")
-    public Boolean updateUserPasswordByEmailCode(@Valid @RequestBody PasswordByEmailReq password) {
+    public boolean updateUserPasswordByEmailCode(@Valid @RequestBody PasswordByEmailReq password) {
         return userService.updateUserPassword(password);
     }
 
     @Operation(summary = "更新用户密码(旧密码)")
     @PatchMapping("password/old")
-    public Boolean updateUserPasswordByOldPassword(@Valid @RequestBody PasswordByOldReq password) {
+    public boolean updateUserPasswordByOldPassword(@Valid @RequestBody PasswordByOldReq password) {
         return userService.updateUserPassword(password);
     }
 
     @Operation(summary = "修改用户角色")
     @PutMapping("role/{userId:\\d+}")
-    public Boolean updateUserRole(@Parameter(description = "用户id", required = true)
+    public boolean updateUserRole(@Parameter(description = "用户id", required = true)
                                   @Min(value = 1, message = "不合法的用户id: ${validatedValue}")
                                   @PathVariable("userId") Long userId,
                                   @Parameter(description = "用户角色id列表", required = true)

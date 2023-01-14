@@ -80,8 +80,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // 校验成功处理
-        claimsDTO.setRid(resourcePO.getId());
-        var authenticationToken = new UsernamePasswordAuthenticationToken(claimsDTO, null, claimsDTO.getAuthorities());
+        var authenticationToken = new UsernamePasswordAuthenticationToken(claimsDTO.setRid(resourcePO.getId()), null, claimsDTO.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         filterChain.doFilter(request, response);
     }

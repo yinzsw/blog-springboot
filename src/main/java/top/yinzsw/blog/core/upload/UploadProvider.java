@@ -11,7 +11,7 @@ import java.io.InputStream;
  * @since 22/12/29
  */
 
-public interface UploadStrategy {
+public interface UploadProvider {
 
     /**
      * 上传文件

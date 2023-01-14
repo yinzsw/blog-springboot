@@ -3,9 +3,9 @@ package top.yinzsw.blog.model.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 import top.yinzsw.blog.enums.ResponseCodeEnum;
 
 import static top.yinzsw.blog.enums.ResponseCodeEnum.SUCCESS;
@@ -17,9 +17,9 @@ import static top.yinzsw.blog.enums.ResponseCodeEnum.SUCCESS;
  * @since 22/12/15
  **/
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 @Schema(description = "统一响应模型")
 public class ResponseVO<T> {
 
@@ -62,10 +62,6 @@ public class ResponseVO<T> {
     }
 
     private static <T> ResponseVO<T> createResponseVO(Integer code, String msg, T data) {
-        ResponseVO<T> responseVO = new ResponseVO<>();
-        responseVO.setCode(code);
-        responseVO.setMsg(msg);
-        responseVO.setData(data);
-        return responseVO;
+        return new ResponseVO<T>().setCode(code).setMsg(msg).setData(data);
     }
 }

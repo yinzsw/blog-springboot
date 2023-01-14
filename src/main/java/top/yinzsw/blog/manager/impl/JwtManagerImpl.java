@@ -33,6 +33,7 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class JwtManagerImpl implements JwtManager {
     private final static String X_CLAIM = "xcm";
+    private final static String UNKNOWN = "unknown";
     private @Value("${jwt-key}") String jwtKey;
     private final HttpContext httpContext;
 
@@ -43,7 +44,7 @@ public class JwtManagerImpl implements JwtManager {
         Key jwk = Keys.hmacShaKeyFor(jwtKey.getBytes());
 
         Function<TokenTypeEnum, String> generateToken = tokenTypeEnum -> Jwts.builder()
-                .claim(X_CLAIM, ClaimsDTO.builder().uid(userId).roles(roles).sign(sign).type(tokenTypeEnum).build())
+                .claim(X_CLAIM, new ClaimsDTO().setUid(userId).setRoles(roles).setSign(sign).setType(tokenTypeEnum))
                 .setIssuedAt(new Date(currentTimeMillis))
                 .setExpiration(new Date(currentTimeMillis + tokenTypeEnum.getTtl()))
                 .signWith(jwk)
@@ -55,8 +56,8 @@ public class JwtManagerImpl implements JwtManager {
     }
 
     private String getSign() {
-        String userAgent = Optional.ofNullable(httpContext.getUserAgent()).orElse("IP");
-        String userIpAddress = Optional.ofNullable(httpContext.getUserIpAddress()).orElse("UA");
+        String userAgent = Optional.ofNullable(httpContext.getUserAgent()).orElse(UNKNOWN);
+        String userIpAddress = Optional.ofNullable(httpContext.getUserIpAddress()).orElse(UNKNOWN);
 
         byte[] dataBytes = String.join("", userAgent.concat(userIpAddress)).getBytes();
         byte[] keyBytes = Keys.hmacShaKeyFor(jwtKey.getBytes()).getEncoded();

@@ -63,14 +63,14 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
                 .page(pageReq.getPager());
 
         List<ArticlePO> articlePOList = articlePOPage.getRecords();
+        long totalCount = articlePOPage.getTotal();
         if (CollectionUtils.isEmpty(articlePOList)) {
-            return new PageVO<>(List.of(), articlePOPage.getTotal());
+            return new PageVO<>(List.of(), totalCount);
         }
 
         //根据分类id列表和文章id列表获取分类信息和标签信息
         List<Long> categoryIds = articlePOList.stream().map(ArticlePO::getCategoryId).collect(Collectors.toList());
         List<Long> articleIds = articlePOList.stream().map(ArticlePO::getId).collect(Collectors.toList());
-
         var categoryMappingFuture = articleManager.getCategoryMappingByCategoryIds(categoryIds);
         var tagMappingFuture = articleMtmTagManager.getMappingByArticleIds(articleIds);
         List<ArticleHomeVO> articleHomeVOList = CompletableFuture.allOf(categoryMappingFuture, tagMappingFuture)
@@ -82,7 +82,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
                     throw new DaoException(throwable.getMessage());
                 }).join();
 
-        return new PageVO<>(articleHomeVOList, articlePOPage.getTotal());
+        return new PageVO<>(articleHomeVOList, totalCount);
     }
 
     @Override

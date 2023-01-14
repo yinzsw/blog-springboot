@@ -137,11 +137,10 @@ public class UnifiedException {
     /**
      * 文件上传大小异常
      *
-     * @param e 文件上传大小异常
      * @return 上传失败信息
      */
     @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseVO<?> uploadExceptionHandler(MaxUploadSizeExceededException e) {
+    public ResponseVO<?> uploadExceptionHandler() {
         return ResponseVO.fail(ResponseCodeEnum.FILE_UPLOAD_ERROR, String.format("上传文件大小不能超过%s", maxUploadFileSize));
     }
 

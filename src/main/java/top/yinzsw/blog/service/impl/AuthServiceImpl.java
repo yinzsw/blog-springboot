@@ -55,7 +55,7 @@ public class AuthServiceImpl implements AuthService {
         UserInfoVO userInfoVO = userConverter.toUserInfoVO(userDetailsDTO, tokenVO);
 
         //更新用户登录信息
-        userManager.asyncUpdateUserLoginInfo(userId, userDetailsDTO.getIpAddress(), userDetailsDTO.getLastLoginTime());
+        userManager.updateUserLoginInfo(userId, userDetailsDTO.getIpAddress(), userDetailsDTO.getLastLoginTime());
         return userInfoVO;
     }
 
@@ -66,12 +66,12 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public Boolean logout() {
+    public boolean logout() {
         throw new BizException("暂未实现");
     }
 
     @Override
-    public Boolean sendEmailCode(String email) {
+    public boolean sendEmailCode(String email) {
         String code = UUID.randomUUID().toString().substring(0, 6).toUpperCase();
         rabbitTemplate.convertAndSend(MQConst.EMAIL_EXCHANGE, MQConst.EMAIL_CODE_KEY, new EmailCodeDTO(email, code, RedisConst.USER_EMAIL_CODE_EXPIRE_TIME));
         stringRedisTemplate.opsForValue().set(RedisConst.USER_EMAIL_CODE_PREFIX + email, code, Duration.ofMinutes(RedisConst.USER_EMAIL_CODE_EXPIRE_TIME));

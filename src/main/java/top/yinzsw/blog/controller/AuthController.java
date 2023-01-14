@@ -42,13 +42,13 @@ public class AuthController {
 
     @Operation(summary = "用户注销")
     @DeleteMapping("logout")
-    public Boolean logout() {
+    public boolean logout() {
         return authService.logout();
     }
 
     @Operation(summary = "发送邮箱验证码")
     @PostMapping("email/{email}")
-    public Boolean sendEmailCode(@Parameter(description = "邮箱", required = true)
+    public boolean sendEmailCode(@Parameter(description = "邮箱", required = true)
                                  @Email(message = "邮箱格式不正确")
                                  @PathVariable("email") String email) {
         return authService.sendEmailCode(email);

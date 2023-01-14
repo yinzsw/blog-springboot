@@ -1,22 +1,18 @@
 package top.yinzsw.blog.manager.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import top.yinzsw.blog.extension.mybatisplus.service.MappingServiceImpl;
 import top.yinzsw.blog.manager.ArticleMtmTagManager;
 import top.yinzsw.blog.mapper.ArticleMtmTagMapper;
-import top.yinzsw.blog.mapper.TagMapper;
 import top.yinzsw.blog.model.po.ArticleMtmTagPO;
 import top.yinzsw.blog.model.po.TagPO;
-import top.yinzsw.blog.util.CommonUtils;
+import top.yinzsw.blog.util.MybatisPlusUtils;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -26,34 +22,25 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
-public class ArticleMtmTagManagerImpl extends MappingServiceImpl<ArticleMtmTagMapper, ArticleMtmTagPO> implements ArticleMtmTagManager {
-    private final TagMapper tagMapper;
+public class ArticleMtmTagManagerImpl extends ServiceImpl<ArticleMtmTagMapper, ArticleMtmTagPO> implements ArticleMtmTagManager {
 
     @Async
     @Override
     public CompletableFuture<Map<Long, List<TagPO>>> getMappingByArticleIds(List<Long> articleIds) {
         if (CollectionUtils.isEmpty(articleIds)) {
-            return CompletableFuture.completedFuture(new HashMap<>());
+            return CompletableFuture.completedFuture(Collections.emptyMap());
         }
 
-        List<ArticleMtmTagPO> articleMtmTagPOList = lambdaQuery().in(ArticleMtmTagPO::getArticleId, articleIds).list();
-        Map<Long, List<Long>> articleTagIdMapping = CommonUtils
-                .getMapping(articleMtmTagPOList, ArticleMtmTagPO::getArticleId, ArticleMtmTagPO::getTagId);
-
+        Map<Long, List<Long>> articleTagIdMapping = MybatisPlusUtils.mappingGroup(ArticleMtmTagPO::getArticleId, ArticleMtmTagPO::getTagId, articleIds);
         Set<Long> tagIds = articleTagIdMapping.values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
-        LambdaQueryWrapper<TagPO> queryListWrapper = Wrappers.lambdaQuery(TagPO.class).in(TagPO::getId, tagIds);
-        Map<Long, TagPO> tagPOMapping = tagMapper.selectList(queryListWrapper).stream()
-                .collect(Collectors.toMap(TagPO::getId, Function.identity()));
+        Map<Long, TagPO> tagMapping = MybatisPlusUtils.mappingMap(TagPO::getId, tagIds);
 
-        Map<Long, List<TagPO>> articleTagPOMapping = new HashMap<>();
+        Map<Long, List<TagPO>> articleTagMapping = new HashMap<>();
         articleTagIdMapping.keySet().forEach(articleId -> {
-            List<TagPO> tagPOList = articleTagIdMapping.get(articleId).stream()
-                    .map(tagPOMapping::get)
-                    .collect(Collectors.toList());
-            articleTagPOMapping.put(articleId, tagPOList);
+            List<TagPO> tagPOList = articleTagIdMapping.get(articleId).stream().map(tagMapping::get).collect(Collectors.toList());
+            articleTagMapping.put(articleId, tagPOList);
         });
-
-        return CompletableFuture.completedFuture(articleTagPOMapping);
+        return CompletableFuture.completedFuture(articleTagMapping);
     }
 }
 

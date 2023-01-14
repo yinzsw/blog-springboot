@@ -55,7 +55,7 @@ public interface RoleService extends IService<RolePO> {
      * @param roleReq 角色信息
      * @return 是否成功
      */
-    Boolean saveOrUpdateRole(RoleReq roleReq);
+    boolean saveOrUpdateRole(RoleReq roleReq);
 
     /**
      * 批量删除角色
@@ -63,5 +63,5 @@ public interface RoleService extends IService<RolePO> {
      * @param roleIdList 角色id列表
      * @return 是否成功
      */
-    Boolean deleteRoles(List<Long> roleIdList);
+    boolean deleteRoles(List<Long> roleIdList);
 }

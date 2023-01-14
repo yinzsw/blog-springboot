@@ -1,6 +1,6 @@
 package top.yinzsw.blog.manager;
 
-import top.yinzsw.blog.extension.mybatisplus.service.IMappingService;
+import com.baomidou.mybatisplus.extension.service.IService;
 import top.yinzsw.blog.model.po.RoleMtmResourcePO;
 
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
  * @since 23/01/02
  */
 
-public interface RoleMtmResourceManager extends IMappingService<RoleMtmResourcePO> {
+public interface RoleMtmResourceManager extends IService<RoleMtmResourcePO> {
 
     /**
      * 根据资源id获取角色id列表
@@ -30,14 +30,13 @@ public interface RoleMtmResourceManager extends IMappingService<RoleMtmResourceP
      * @param roleIds 角色id列表
      * @return 关联表
      */
-    CompletableFuture<Map<Long, List<Long>>> asyncGetMappingByRoleIds(List<Long> roleIds);
+    CompletableFuture<Map<Long, List<Long>>> getMappingByRoleIds(List<Long> roleIds);
 
     /**
      * 更新角色的资源列表
      *
      * @param roleId         角色id
      * @param resourceIdList 资源列表
-     * @return 是否成功
      */
-    Boolean updateRoleResources(Long roleId, List<Long> resourceIdList);
+    void updateRoleResources(Long roleId, List<Long> resourceIdList);
 }

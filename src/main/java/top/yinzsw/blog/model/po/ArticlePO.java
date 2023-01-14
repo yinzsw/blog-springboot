@@ -2,9 +2,9 @@ package top.yinzsw.blog.model.po;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 import top.yinzsw.blog.enums.ArticleStatusEnum;
 import top.yinzsw.blog.enums.ArticleTypeEnum;
 
@@ -18,9 +18,9 @@ import java.time.LocalDateTime;
  */
 @TableName(value = "article")
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 public class ArticlePO implements Serializable {
     /**
      * 文章id
