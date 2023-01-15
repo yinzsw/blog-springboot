@@ -2,7 +2,6 @@ package top.yinzsw.blog.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -12,6 +11,7 @@ import top.yinzsw.blog.constant.RedisConst;
 import top.yinzsw.blog.core.context.HttpContext;
 import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.manager.JwtManager;
+import top.yinzsw.blog.manager.RedisManager;
 import top.yinzsw.blog.manager.UserManager;
 import top.yinzsw.blog.model.converter.UserConverter;
 import top.yinzsw.blog.model.dto.ClaimsDTO;
@@ -21,7 +21,6 @@ import top.yinzsw.blog.model.vo.UserInfoVO;
 import top.yinzsw.blog.security.UserDetailsDTO;
 import top.yinzsw.blog.service.AuthService;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,10 +36,11 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserManager userManager;
     private final JwtManager jwtManager;
+    private final RedisManager redisManager;
     private final HttpContext httpContext;
     private final UserConverter userConverter;
     private final RabbitTemplate rabbitTemplate;
-    private final StringRedisTemplate stringRedisTemplate;
+
 
     @Override
     public UserInfoVO login(String username, String password) {
@@ -74,7 +74,7 @@ public class AuthServiceImpl implements AuthService {
     public boolean sendEmailCode(String email) {
         String code = UUID.randomUUID().toString().substring(0, 6).toUpperCase();
         rabbitTemplate.convertAndSend(MQConst.EMAIL_EXCHANGE, MQConst.EMAIL_CODE_KEY, new EmailCodeDTO(email, code, RedisConst.USER_EMAIL_CODE_EXPIRE_TIME));
-        stringRedisTemplate.opsForValue().set(RedisConst.USER_EMAIL_CODE_PREFIX + email, code, Duration.ofMinutes(RedisConst.USER_EMAIL_CODE_EXPIRE_TIME));
+        redisManager.saveEmailVerificationCode(email, code);
         return true;
     }
 }

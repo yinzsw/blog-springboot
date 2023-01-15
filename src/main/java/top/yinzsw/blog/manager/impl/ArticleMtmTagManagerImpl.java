@@ -26,7 +26,7 @@ public class ArticleMtmTagManagerImpl extends ServiceImpl<ArticleMtmTagMapper, A
 
     @Async
     @Override
-    public CompletableFuture<Map<Long, List<TagPO>>> getMappingByArticleIds(List<Long> articleIds) {
+    public CompletableFuture<Map<Long, List<TagPO>>> getMappingByArticleId(List<Long> articleIds) {
         if (CollectionUtils.isEmpty(articleIds)) {
             return CompletableFuture.completedFuture(Collections.emptyMap());
         }
@@ -41,6 +41,14 @@ public class ArticleMtmTagManagerImpl extends ServiceImpl<ArticleMtmTagMapper, A
             articleTagMapping.put(articleId, tagPOList);
         });
         return CompletableFuture.completedFuture(articleTagMapping);
+    }
+
+    @Override
+    public List<Long> listArticleIdsByTagId(Long tagId) {
+        if (Objects.isNull(tagId)) {
+            return null;
+        }
+        return MybatisPlusUtils.mappingList(ArticleMtmTagPO::getTagId, ArticleMtmTagPO::getArticleId, tagId);
     }
 }
 

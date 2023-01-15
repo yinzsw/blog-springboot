@@ -1,6 +1,5 @@
 package top.yinzsw.blog.manager;
 
-import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.model.po.UserPO;
 
 import java.time.LocalDateTime;
@@ -39,12 +38,4 @@ public interface UserManager {
      * @param lastLoginTime 登录时间
      */
     void updateUserLoginInfo(Long userId, String userIpAddress, LocalDateTime lastLoginTime);
-
-    /**
-     * 校验邮箱验证码
-     *
-     * @param email 邮箱
-     * @param code  验证码
-     */
-    void checkEmailVerificationCode(String email, String code) throws BizException;
 }

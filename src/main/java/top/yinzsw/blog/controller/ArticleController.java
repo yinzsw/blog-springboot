@@ -7,7 +7,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import top.yinzsw.blog.model.request.ArticleRequest;
+import top.yinzsw.blog.model.request.ArticleReq;
 import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.vo.ArticleArchiveVO;
 import top.yinzsw.blog.model.vo.ArticleBackVO;
@@ -46,8 +46,8 @@ public class ArticleController {
     @Operation(summary = "查看后台文章(分页)")
     @GetMapping("back/page")
     public PageVO<ArticleBackVO> pageListBackArticles(@Valid PageReq pageReq,
-                                                      @Valid ArticleRequest articleRequest) {
-        return articleService.pageListBackArticles(pageReq, articleRequest);
+                                                      @Valid ArticleReq articleReq) {
+        return articleService.pageListBackArticles(pageReq, articleReq);
     }
 
 }

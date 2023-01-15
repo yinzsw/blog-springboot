@@ -1,54 +1,79 @@
 package top.yinzsw.blog.constant;
 
+import top.yinzsw.blog.exception.DaoException;
+
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 /**
  * redis常量
  *
  * @author yinzsW
  * @since 22/12/15
  */
-public final class RedisConst {
-    /**
-     * 缓存
-     */
-    public static final String CACHE_PREFIX = "blog:cache:";
+public interface RedisConst {
 
     /**
-     * 用户点赞过的文章
+     * 界定符
      */
-    public static final String USER_LIKED_ARTICLES_PREFIX = "blog:user:liked_articles:";
-
-    /**
-     * 用户点赞过的评论
-     */
-    public static final String USER_LIKED_COMMENTS_PREFIX = "blog:user:liked_comments:";
-
-    /**
-     * 用户点赞过的说说
-     */
-    public static final String USER_LIKED_TALKS_PREFIX = "blog:user:liked_talks:";
-
-    /**
-     * 邮箱验证码
-     */
-    public static final String USER_EMAIL_CODE_PREFIX = "blog:user:email_code:";
+    String DELIMITER = ":";
 
     /**
      * 邮箱验证码过期时间(分钟)
      */
-    public static final int USER_EMAIL_CODE_EXPIRE_TIME = 15;
+    int USER_EMAIL_CODE_EXPIRE_TIME = 15;
+
+    /**
+     * 邮箱验证码
+     */
+    String USER_EMAIL_CODE_PREFIX = "blog:user:email_code:";
+
+    /**
+     * 用户点赞过的说说
+     */
+    String USER_LIKED_TALKS_PREFIX = "blog:user:liked_talks:";
+
+    /**
+     * 用户点赞过的文章
+     */
+    String USER_LIKED_ARTICLES_PREFIX = "blog:user:liked_articles:";
+
+    /**
+     * 用户点赞过的评论
+     */
+    String USER_LIKED_COMMENTS_PREFIX = "blog:user:liked_comments:";
 
     /**
      * 文章点击量
      */
-    public static final String ARTICLE_VIEWS_COUNT = "blog:article:hits";
+    String ARTICLE_VIEW_COUNT = "blog:article:views";
 
     /**
      * 文章点赞量
      */
-    public static final String ARTICLE_LIKE_COUNT = "blog:article:likes";
+    String ARTICLE_LIKE_COUNT = "blog:article:likes";
 
     /**
      * 网站配置
      */
-    public static final String WEBSITE_CONFIG = "blog:website:config";
+    String WEBSITE_CONFIG = "blog:website:config";
+
+
+    /**
+     * 创建Redis Key
+     *
+     * @param prefix 前缀
+     * @param params 参数
+     * @return Redis KEY
+     */
+    default String createKey(String prefix, Object... params) {
+        if (Objects.isNull(prefix) || params.length == 0) {
+            throw new DaoException("不合法的Redis KEY");
+        }
+        String suffix = Arrays.stream(params)
+                .map(Object::toString)
+                .collect(Collectors.joining(DELIMITER));
+        return prefix.concat(suffix);
+    }
 }

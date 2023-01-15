@@ -27,8 +27,6 @@ import top.yinzsw.blog.util.CommonUtils;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -82,16 +80,10 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements 
 
         // 角色id<->菜单id列表 角色id<->资源id列表
         List<Long> roleIds = rolePOList.stream().map(RolePO::getId).collect(Collectors.toList());
-        var menuMappingFuture = roleMtmMenuManager.getMappingByRoleIds(roleIds);
-        var resourceMappingFuture = roleMtmResourceManager.getMappingByRoleIds(roleIds);
-        List<RoleVO> roleVOList = CompletableFuture.allOf(menuMappingFuture, resourceMappingFuture)
-                .thenApply(unused -> {
-                    Map<Long, List<Long>> menuMapping = menuMappingFuture.join();
-                    Map<Long, List<Long>> resourceMapping = resourceMappingFuture.join();
-                    return roleConverter.toRoleVO(rolePOList, menuMapping, resourceMapping);
-                }).exceptionally(throwable -> {
-                    throw new BizException(throwable.getMessage());
-                }).join();
+        List<RoleVO> roleVOList = CommonUtils.biCompletableFuture(
+                roleMtmMenuManager.getMappingByRoleId(roleIds),
+                roleMtmResourceManager.getMappingByRoleId(roleIds),
+                (menuMapping, resourceMapping) -> roleConverter.toRoleVO(rolePOList, menuMapping, resourceMapping));
 
         return new PageVO<>(roleVOList, totalCount);
     }

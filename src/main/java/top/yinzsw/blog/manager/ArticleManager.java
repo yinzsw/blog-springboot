@@ -18,5 +18,5 @@ public interface ArticleManager {
      * @param categoryIds 分类id
      * @return 映射表[categoryId=categoryName]
      */
-    CompletableFuture<Map<Long, String>> getCategoryMappingByCategoryIds(List<Long> categoryIds);
+    CompletableFuture<Map<Long, String>> getCategoryMappingByCategoryId(List<Long> categoryIds);
 }

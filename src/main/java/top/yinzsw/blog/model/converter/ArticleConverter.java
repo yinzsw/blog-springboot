@@ -2,9 +2,11 @@ package top.yinzsw.blog.model.converter;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
+import top.yinzsw.blog.model.dto.ArticleMappingDTO;
 import top.yinzsw.blog.model.po.ArticlePO;
 import top.yinzsw.blog.model.po.TagPO;
 import top.yinzsw.blog.model.vo.ArticleArchiveVO;
+import top.yinzsw.blog.model.vo.ArticleBackVO;
 import top.yinzsw.blog.model.vo.ArticleHomeVO;
 
 import java.util.List;
@@ -30,6 +32,20 @@ public interface ArticleConverter {
             Long articleId = articlePO.getId();
             Long categoryId = articlePO.getCategoryId();
             return toArticleHomeVO(articlePO, categoryMapping.get(categoryId), tagMapping.get(articleId));
+        }).collect(Collectors.toList());
+    }
+
+    ArticleBackVO toArticleBackVO(ArticlePO articlePO, String categoryName, List<TagPO> tagList, Long likeCount, Long viewsCount);
+
+    default List<ArticleBackVO> toArticleBackVO(List<ArticlePO> articlePOList, ArticleMappingDTO articleMappingDTO) {
+        return articlePOList.stream().map(articlePO -> {
+            Long articleId = articlePO.getId();
+            Long categoryId = articlePO.getCategoryId();
+            return toArticleBackVO(articlePO,
+                    articleMappingDTO.getCategoryNameMapping().get(categoryId),
+                    articleMappingDTO.getTagMapping().get(articleId),
+                    articleMappingDTO.getLikeCountMapping().get(articleId),
+                    articleMappingDTO.getViewCountMapping().get(articleId));
         }).collect(Collectors.toList());
     }
 }

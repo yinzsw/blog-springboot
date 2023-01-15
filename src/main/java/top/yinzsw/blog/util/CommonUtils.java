@@ -1,6 +1,16 @@
 package top.yinzsw.blog.util;
 
+import org.springframework.util.CollectionUtils;
+import top.yinzsw.blog.exception.DaoException;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * 公共工具类
@@ -31,5 +41,32 @@ public class CommonUtils {
      */
     public static boolean getIsAlpha(String alpha) {
         return ALPHA_REGEXP.matcher(alpha).matches();
+    }
+
+    /**
+     * 把两个列表合并成Map
+     *
+     * @param keys   键列表(不允许存在null值)
+     * @param values 值列表(不允许存在null值)
+     * @param <K>    键
+     * @param <V>    值
+     * @return 合并后的Map
+     */
+    public static <K, V> Map<K, V> mergeList(List<K> keys, List<V> values) {
+        if (CollectionUtils.isEmpty(keys) || CollectionUtils.isEmpty(values)) {
+            return Collections.emptyMap();
+        }
+        return IntStream.range(0, Math.min(keys.size(), values.size())).boxed()
+                .collect(Collectors.toMap(keys::get, values::get));
+    }
+
+    public static <T, K, R> R biCompletableFuture(CompletableFuture<T> future1,
+                                                  CompletableFuture<K> future2,
+                                                  BiFunction<T, K, R> function) {
+        return CompletableFuture.allOf(future1, future2)
+                .thenApply(unused -> function.apply(future1.join(), future2.join()))
+                .exceptionally(e -> {
+                    throw new DaoException(e.getMessage());
+                }).join();
     }
 }

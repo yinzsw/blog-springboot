@@ -6,25 +6,26 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import top.yinzsw.blog.enums.ArticleStatusEnum;
-import top.yinzsw.blog.exception.DaoException;
 import top.yinzsw.blog.manager.ArticleManager;
 import top.yinzsw.blog.manager.ArticleMtmTagManager;
+import top.yinzsw.blog.manager.RedisManager;
 import top.yinzsw.blog.mapper.ArticleMapper;
 import top.yinzsw.blog.model.converter.ArticleConverter;
+import top.yinzsw.blog.model.dto.ArticleMappingDTO;
 import top.yinzsw.blog.model.po.ArticlePO;
-import top.yinzsw.blog.model.po.TagPO;
-import top.yinzsw.blog.model.request.ArticleRequest;
+import top.yinzsw.blog.model.request.ArticleReq;
 import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.vo.ArticleArchiveVO;
 import top.yinzsw.blog.model.vo.ArticleBackVO;
 import top.yinzsw.blog.model.vo.ArticleHomeVO;
 import top.yinzsw.blog.model.vo.PageVO;
 import top.yinzsw.blog.service.ArticleService;
+import top.yinzsw.blog.util.CommonUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> implements ArticleService {
+    private final RedisManager redisManager;
     private final ArticleManager articleManager;
     private final ArticleMtmTagManager articleMtmTagManager;
     private final ArticleConverter articleConverter;
@@ -68,38 +70,53 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
             return new PageVO<>(List.of(), totalCount);
         }
 
-        //根据分类id列表和文章id列表获取分类信息和标签信息
         List<Long> categoryIds = articlePOList.stream().map(ArticlePO::getCategoryId).collect(Collectors.toList());
         List<Long> articleIds = articlePOList.stream().map(ArticlePO::getId).collect(Collectors.toList());
-        var categoryMappingFuture = articleManager.getCategoryMappingByCategoryIds(categoryIds);
-        var tagMappingFuture = articleMtmTagManager.getMappingByArticleIds(articleIds);
-        List<ArticleHomeVO> articleHomeVOList = CompletableFuture.allOf(categoryMappingFuture, tagMappingFuture)
-                .thenApply(unused -> {
-                    Map<Long, String> categoryMapping = categoryMappingFuture.join();
-                    Map<Long, List<TagPO>> tagMapping = tagMappingFuture.join();
-                    return articleConverter.toArticleHomeVO(articlePOList, categoryMapping, tagMapping);
-                }).exceptionally(throwable -> {
-                    throw new DaoException(throwable.getMessage());
-                }).join();
-
+        List<ArticleHomeVO> articleHomeVOList = CommonUtils.biCompletableFuture(
+                articleManager.getCategoryMappingByCategoryId(categoryIds),
+                articleMtmTagManager.getMappingByArticleId(articleIds),
+                (categoryMapping, tagMapping) -> articleConverter.toArticleHomeVO(articlePOList, categoryMapping, tagMapping));
         return new PageVO<>(articleHomeVOList, totalCount);
     }
 
     @Override
-    public PageVO<ArticleBackVO> pageListBackArticles(PageReq pageReq, ArticleRequest articleRequest) {
-        List<ArticlePO> articlePOList = lambdaQuery()
-                .select(ArticlePO::getId)
-                .eq(Objects.nonNull(articleRequest.getCategoryId()), ArticlePO::getCategoryId, articleRequest.getCategoryId())
-                .eq(Objects.nonNull(articleRequest.getArticleStatus()), ArticlePO::getArticleStatus, articleRequest.getArticleStatus())
-                .eq(Objects.nonNull(articleRequest.getArticleType()), ArticlePO::getArticleType, articleRequest.getArticleType())
-                .like(Objects.nonNull(articleRequest.getKeywords()), ArticlePO::getArticleTitle, articleRequest.getKeywords())
-                .list();
+    public PageVO<ArticleBackVO> pageListBackArticles(PageReq pageReq, ArticleReq articleReq) {
+        // 分页获取文章
+        Page<ArticlePO> articlePOPage = lambdaQuery()
+                .select(ArticlePO::getId, ArticlePO::getCategoryId, ArticlePO::getArticleTitle,
+                        ArticlePO::getArticleCover, ArticlePO::getArticleStatus, ArticlePO::getArticleType,
+                        ArticlePO::getIsTop, ArticlePO::getIsDeleted, ArticlePO::getCreateTime)
+                .eq(Objects.nonNull(articleReq.getCategoryId()), ArticlePO::getCategoryId, articleReq.getCategoryId())
+                .eq(Objects.nonNull(articleReq.getArticleStatus()), ArticlePO::getArticleStatus, articleReq.getArticleStatus())
+                .eq(Objects.nonNull(articleReq.getArticleType()), ArticlePO::getArticleType, articleReq.getArticleType())
+                .in(Objects.nonNull(articleReq.getTagId()), ArticlePO::getId, articleMtmTagManager.listArticleIdsByTagId(articleReq.getTagId()))
+                .like(Objects.nonNull(articleReq.getKeywords()), ArticlePO::getArticleTitle, articleReq.getKeywords())
+                .page(pageReq.getPager());
+
+        long totalCount = articlePOPage.getTotal();
+        List<ArticlePO> articlePOList = articlePOPage.getRecords();
         if (CollectionUtils.isEmpty(articlePOList)) {
-            return new PageVO<>(List.of(), 0L);
+            return new PageVO<>(Collections.emptyList(), totalCount);
         }
 
+        //根据分类id列表获取分类信息 文章id列表获取标签信息
+        List<Long> categoryIds = articlePOList.stream().map(ArticlePO::getCategoryId).collect(Collectors.toList());
         List<Long> articleIds = articlePOList.stream().map(ArticlePO::getId).collect(Collectors.toList());
-        return null;
+        Map<Long, Long> articleLikeCount = redisManager.getArticleLikeCount(articleIds);
+        Map<Long, Long> articleViewCount = redisManager.getArticleViewCount(articleIds);
+        List<ArticleBackVO> articleBackVOList = CommonUtils.biCompletableFuture(
+                articleManager.getCategoryMappingByCategoryId(categoryIds),
+                articleMtmTagManager.getMappingByArticleId(articleIds),
+                (categoryNameMapping, tagMapping) -> {
+                    ArticleMappingDTO articleMappingDTO = new ArticleMappingDTO()
+                            .setCategoryNameMapping(categoryNameMapping)
+                            .setTagMapping(tagMapping)
+                            .setLikeCountMapping(articleLikeCount)
+                            .setViewCountMapping(articleViewCount);
+                    return articleConverter.toArticleBackVO(articlePOList, articleMappingDTO);
+                });
+
+        return new PageVO<>(articleBackVOList, totalCount);
     }
 }
 

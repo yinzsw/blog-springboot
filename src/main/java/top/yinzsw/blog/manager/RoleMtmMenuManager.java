@@ -22,7 +22,7 @@ public interface RoleMtmMenuManager extends IService<RoleMtmMenuPO> {
      * @param roleIds 角色id列表
      * @return 映射表 [roleId=menuIds]
      */
-    CompletableFuture<Map<Long, List<Long>>> getMappingByRoleIds(List<Long> roleIds);
+    CompletableFuture<Map<Long, List<Long>>> getMappingByRoleId(List<Long> roleIds);
 
     /**
      * 更新角色菜单列表

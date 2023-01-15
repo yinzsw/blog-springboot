@@ -1,8 +1,8 @@
 package top.yinzsw.blog.model.converter;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
+import top.yinzsw.blog.model.dto.UserLikedDTO;
 import top.yinzsw.blog.model.po.UserPO;
 import top.yinzsw.blog.model.vo.TokenVO;
 import top.yinzsw.blog.model.vo.UserInfoVO;
@@ -18,14 +18,7 @@ import java.util.List;
  */
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface UserConverter {
-
-
-    @Mapping(target = ".", source = "userPO")
-    @Mapping(target = "roleList", source = "roles")
-    @Mapping(target = "talkLikeSet", ignore = true)
-    @Mapping(target = "commentLikeSet", ignore = true)
-    @Mapping(target = "articleLikeSet", ignore = true)
-    UserDetailsDTO toUserDetailDTO(UserPO userPO, List<String> roles);
+    UserDetailsDTO toUserDetailDTO(UserPO userPO, List<String> roleList, UserLikedDTO userLikedDTO);
 
     UserInfoVO toUserInfoVO(UserDetailsDTO userDetailsDTO, TokenVO token);
 }

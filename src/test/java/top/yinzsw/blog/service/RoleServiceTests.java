@@ -42,9 +42,9 @@ public class RoleServiceTests {
 //        System.out.println(mapCompletableFuture.join());
 
         List<Long> roleIds = List.of(1L);
-        roleMtmMenuManager.getMappingByRoleIds(roleIds)
+        roleMtmMenuManager.getMappingByRoleId(roleIds)
                 .thenCombine(
-                        roleMtmResourceManager.getMappingByRoleIds(roleIds),
+                        roleMtmResourceManager.getMappingByRoleId(roleIds),
                         (longListMap, longListMap2) -> {
                             System.out.println(longListMap);
                             System.out.println(longListMap2);

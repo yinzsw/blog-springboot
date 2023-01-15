@@ -8,7 +8,7 @@ import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.util.ByteUtils;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 import top.yinzsw.blog.core.context.HttpContext;
@@ -29,7 +29,7 @@ import java.util.function.Function;
  * @author yinzsW
  * @since 22/12/21
  */
-@Component
+@Service
 @RequiredArgsConstructor
 public class JwtManagerImpl implements JwtManager {
     private final static String X_CLAIM = "xcm";

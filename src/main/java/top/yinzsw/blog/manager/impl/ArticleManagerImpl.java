@@ -24,7 +24,7 @@ import java.util.concurrent.CompletableFuture;
 public class ArticleManagerImpl implements ArticleManager {
     @Async
     @Override
-    public CompletableFuture<Map<Long, String>> getCategoryMappingByCategoryIds(List<Long> categoryIds) {
+    public CompletableFuture<Map<Long, String>> getCategoryMappingByCategoryId(List<Long> categoryIds) {
         if (CollectionUtils.isEmpty(categoryIds)) {
             return CompletableFuture.completedFuture(Collections.emptyMap());
         }

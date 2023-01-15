@@ -21,5 +21,13 @@ public interface ArticleMtmTagManager extends IService<ArticleMtmTagPO> {
      * @param articleIds 文章id列表
      * @return 映射表[articleId=tagPO]
      */
-    CompletableFuture<Map<Long, List<TagPO>>> getMappingByArticleIds(List<Long> articleIds);
+    CompletableFuture<Map<Long, List<TagPO>>> getMappingByArticleId(List<Long> articleIds);
+
+    /**
+     * 根据标签id获取文章id列表
+     *
+     * @param tagId 标签id
+     * @return 文章id列表
+     */
+    List<Long> listArticleIdsByTagId(Long tagId);
 }

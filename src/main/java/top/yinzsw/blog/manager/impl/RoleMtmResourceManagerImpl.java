@@ -34,7 +34,7 @@ public class RoleMtmResourceManagerImpl extends ServiceImpl<RoleMtmResourceMappe
 
     @Async
     @Override
-    public CompletableFuture<Map<Long, List<Long>>> getMappingByRoleIds(List<Long> roleIds) {
+    public CompletableFuture<Map<Long, List<Long>>> getMappingByRoleId(List<Long> roleIds) {
         if (CollectionUtils.isEmpty(roleIds)) {
             return CompletableFuture.completedFuture(Collections.emptyMap());
         }

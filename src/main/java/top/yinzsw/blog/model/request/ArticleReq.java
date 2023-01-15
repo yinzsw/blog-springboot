@@ -21,7 +21,7 @@ import top.yinzsw.blog.enums.ArticleTypeEnum;
 @AllArgsConstructor
 @Accessors(chain = true)
 @ParameterObject
-public class ArticleRequest {
+public class ArticleReq {
 
     /**
      * 搜索关键字

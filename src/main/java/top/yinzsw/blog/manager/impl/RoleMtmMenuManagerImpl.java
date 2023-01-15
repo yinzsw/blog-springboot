@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public class RoleMtmMenuManagerImpl extends ServiceImpl<RoleMtmMenuMapper, RoleMtmMenuPO> implements RoleMtmMenuManager {
     @Async
     @Override
-    public CompletableFuture<Map<Long, List<Long>>> getMappingByRoleIds(List<Long> roleIds) {
+    public CompletableFuture<Map<Long, List<Long>>> getMappingByRoleId(List<Long> roleIds) {
         if (CollectionUtils.isEmpty(roleIds)) {
             return CompletableFuture.completedFuture(Collections.emptyMap());
         }

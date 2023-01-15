@@ -3,6 +3,12 @@ package top.yinzsw.blog.enums;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * token类型枚举
+ *
+ * @author yinzsW
+ * @since 23/01/15
+ **/
 @Getter
 @AllArgsConstructor
 public enum TokenTypeEnum {

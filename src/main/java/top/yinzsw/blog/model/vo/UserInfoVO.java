@@ -84,22 +84,22 @@ public class UserInfoVO {
     private LocalDateTime lastLoginTime;
 
     /**
+     * 点赞说说集合
+     */
+    @Schema(title = "点赞说说集合")
+    private Set<Long> likedTalkSet;
+
+    /**
      * 点赞文章集合
      */
     @Schema(title = "点赞文章集合")
-    private Set<Object> articleLikeSet;
+    private Set<Long> likedArticleSet;
 
     /**
      * 点赞评论集合
      */
     @Schema(title = "点赞评论集合")
-    private Set<Object> commentLikeSet;
-
-    /**
-     * 点赞评论集合
-     */
-    @Schema(title = "点赞评论集合")
-    private Set<Object> talkLikeSet;
+    private Set<Long> likedCommentSet;
 
     /**
      * token信息
