@@ -47,6 +47,13 @@ public class ArticleController {
         return articleService.pageHomeArticles(pageReq);
     }
 
+    @Operation(summary = "查看后台文章")
+    @GetMapping("back/{articleId:\\d+}")
+    public ArticleVO getBackArticle(@Parameter(description = "文章id", required = true)
+                                    @PathVariable("articleId") Long articleId) {
+        return articleService.getBackArticle(articleId);
+    }
+
     @Operation(summary = "查看后台文章(分页)")
     @GetMapping("back/page")
     public PageVO<ArticleBackVO> pageBackArticles(@Valid PageReq pageReq,
@@ -54,10 +61,12 @@ public class ArticleController {
         return articleService.pageBackArticles(pageReq, articleQueryReq);
     }
 
-    @Operation(summary = "添加或修改文章")
-    @PutMapping
-    public boolean saveOrUpdateArticle(@Valid @RequestBody ArticleReq articleReq) {
-        return articleService.saveOrUpdateArticle(articleReq);
+    @Operation(summary = "上传文章图片")
+    @PatchMapping(value = "image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public String uploadFileArticleImage(@Parameter(description = "文章图片", required = true)
+                                         @MatchFileType(mimeType = "image/*", message = "仅支持上传图片类型{mimeType}的文件")
+                                         @RequestPart("image") MultipartFile image) {
+        return uploadProvider.uploadFile(FilePathEnum.ARTICLE.getPath(), image);
     }
 
     @Operation(summary = "修改文章置顶状态")
@@ -78,12 +87,10 @@ public class ArticleController {
         return articleService.updateArticleIsDeleted(articleId, isDeleted);
     }
 
-    @Operation(summary = "上传文章图片")
-    @PatchMapping(value = "image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public String uploadFileArticleImage(@Parameter(description = "文章图片", required = true)
-                                         @MatchFileType(mimeType = "image/*", message = "仅支持上传图片类型{mimeType}的文件")
-                                         @RequestPart("image") MultipartFile image) {
-        return uploadProvider.uploadFile(FilePathEnum.ARTICLE.getPath(), image);
+    @Operation(summary = "添加或修改文章")
+    @PutMapping
+    public boolean saveOrUpdateArticle(@Valid @RequestBody ArticleReq articleReq) {
+        return articleService.saveOrUpdateArticle(articleReq);
     }
 
     @Operation(summary = "物理删除文章")
@@ -91,12 +98,5 @@ public class ArticleController {
     public boolean deleteArticles(@Parameter(description = "文章id列表", required = true)
                                   @PathVariable("articleIds") List<Long> articleIds) {
         return articleService.deleteArticles(articleIds);
-    }
-
-    @Operation(summary = "查看后台文章")
-    @GetMapping("{articleId:\\d+}")
-    public ArticleVO getBackArticle(@Parameter(description = "文章id", required = true)
-                                    @PathVariable("articleId") Long articleId) {
-        return articleService.getBackArticle(articleId);
     }
 }

@@ -15,14 +15,6 @@ import top.yinzsw.blog.model.request.UserInfoReq;
 public interface UserService extends IService<UserPO> {
 
     /**
-     * 更新用户信息
-     *
-     * @param userInfoReq 用户信息
-     * @return 是否更新成功
-     */
-    boolean updateUserInfo(UserInfoReq userInfoReq);
-
-    /**
      * 更新用户头像
      *
      * @param avatar 用户头像文件
@@ -63,4 +55,12 @@ public interface UserService extends IService<UserPO> {
      * @return 是否成功
      */
     boolean updateUserPassword(PasswordByOldReq password);
+
+    /**
+     * 更新用户信息
+     *
+     * @param userInfoReq 用户信息
+     * @return 是否更新成功
+     */
+    boolean updateUserInfo(UserInfoReq userInfoReq);
 }

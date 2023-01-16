@@ -34,12 +34,6 @@ public class UserController {
     private final UserService userService;
     private final UserMtmRoleManager userMtmRoleManager;
 
-    @Operation(summary = "更新用户信息")
-    @PutMapping("info")
-    public boolean updateUserInfo(@Valid @RequestBody UserInfoReq userInfoReq) {
-        return userService.updateUserInfo(userInfoReq);
-    }
-
     @Operation(summary = "更新用户头像")
     @PatchMapping(value = "avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public String updateUserAvatar(@Parameter(description = "用户头像", required = true)
@@ -77,6 +71,12 @@ public class UserController {
     @PatchMapping("password/old")
     public boolean updateUserPasswordByOldPassword(@Valid @RequestBody PasswordByOldReq password) {
         return userService.updateUserPassword(password);
+    }
+
+    @Operation(summary = "更新用户信息")
+    @PutMapping("info")
+    public boolean updateUserInfo(@Valid @RequestBody UserInfoReq userInfoReq) {
+        return userService.updateUserInfo(userInfoReq);
     }
 
     @Operation(summary = "修改用户角色")

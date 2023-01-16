@@ -35,17 +35,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPO> implements 
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public boolean updateUserInfo(UserInfoReq userInfoReq) {
-        Long uid = httpContext.getCurrentClaimsDTO().getUid();
-
-        UserPO userPO = new UserPO()
-                .setNickname(userInfoReq.getNickname())
-                .setIntro(userInfoReq.getIntro())
-                .setWebSite(userInfoReq.getWebSite());
-        return lambdaUpdate().eq(UserPO::getId, uid).update(userPO);
-    }
-
-    @Override
     public String updateUserAvatar(MultipartFile avatar) {
         String avatarUrl = uploadProvider.uploadFile(FilePathEnum.AVATAR.getPath(), avatar);
         Long uid = httpContext.getCurrentClaimsDTO().getUid();
@@ -88,6 +77,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPO> implements 
 
         String newPassword = passwordEncoder.encode(password.getNewPassword());
         return lambdaUpdate().set(UserPO::getPassword, newPassword).eq(UserPO::getId, uid).update();
+    }
+
+    @Override
+    public boolean updateUserInfo(UserInfoReq userInfoReq) {
+        Long uid = httpContext.getCurrentClaimsDTO().getUid();
+
+        UserPO userPO = new UserPO()
+                .setNickname(userInfoReq.getNickname())
+                .setIntro(userInfoReq.getIntro())
+                .setWebSite(userInfoReq.getWebSite());
+        return lambdaUpdate().eq(UserPO::getId, uid).update(userPO);
     }
 }
 

@@ -85,6 +85,17 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
     }
 
     @Override
+    public ArticleVO getBackArticle(Long articleId) {
+        ArticlePO articlePO = getById(articleId);
+        Optional.ofNullable(articlePO)
+                .orElseThrow(() -> new BizException(String.format("id为%d的文章不存在", articleId)));
+
+        CategoryPO categoryPO = articleManager.getCategory(articlePO.getCategoryId());
+        List<TagPO> tagPOList = articleMtmTagManager.getTags(articleId);
+        return articleConverter.toArticleVO(articlePO, categoryPO.getCategoryName(), tagPOList);
+    }
+
+    @Override
     public PageVO<ArticleBackVO> pageBackArticles(PageReq pageReq, ArticleQueryReq articleQueryReq) {
         // 分页获取文章
         Page<ArticlePO> articlePOPage = lambdaQuery()
@@ -125,6 +136,16 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
         return new PageVO<>(articleBackVOList, totalCount);
     }
 
+    @Override
+    public boolean updateArticleIsTop(Long articleId, Boolean isTop) {
+        return lambdaUpdate().set(ArticlePO::getIsTop, isTop).eq(ArticlePO::getId, articleId).update();
+    }
+
+    @Override
+    public boolean updateArticleIsDeleted(Long articleId, Boolean isDeleted) {
+        return lambdaUpdate().set(ArticlePO::getIsDeleted, isDeleted).eq(ArticlePO::getId, articleId).update();
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean saveOrUpdateArticle(ArticleReq articleReq) {
@@ -145,32 +166,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
         return articleMtmTagManager.saveArticleTagsWileNotExist(articleReq.getTagNames(), articlePO.getId());
     }
 
-    @Override
-    public boolean updateArticleIsTop(Long articleId, Boolean isTop) {
-        return lambdaUpdate().set(ArticlePO::getIsTop, isTop).eq(ArticlePO::getId, articleId).update();
-    }
-
-    @Override
-    public boolean updateArticleIsDeleted(Long articleId, Boolean isDeleted) {
-        return lambdaUpdate().set(ArticlePO::getIsDeleted, isDeleted).eq(ArticlePO::getId, articleId).update();
-    }
-
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean deleteArticles(List<Long> articleIds) {
         articleMtmTagManager.deleteByArticleId(articleIds);
         return lambdaUpdate().eq(ArticlePO::getIsDeleted, true).in(ArticlePO::getId, articleIds).remove();
-    }
-
-    @Override
-    public ArticleVO getBackArticle(Long articleId) {
-        ArticlePO articlePO = getById(articleId);
-        Optional.ofNullable(articlePO)
-                .orElseThrow(() -> new BizException(String.format("id为%d的文章不存在", articleId)));
-
-        CategoryPO categoryPO = articleManager.getCategory(articlePO.getCategoryId());
-        List<TagPO> tagPOList = articleMtmTagManager.getTags(articleId);
-        return articleConverter.toArticleVO(articlePO, categoryPO.getCategoryName(), tagPOList);
     }
 }
 
