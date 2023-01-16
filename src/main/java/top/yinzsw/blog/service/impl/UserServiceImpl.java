@@ -46,8 +46,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPO> implements 
     }
 
     @Override
-    public String updateUserAvatar(MultipartFile file) {
-        String avatarUrl = uploadProvider.uploadFile(FilePathEnum.AVATAR.getPath(), file);
+    public String updateUserAvatar(MultipartFile avatar) {
+        String avatarUrl = uploadProvider.uploadFile(FilePathEnum.AVATAR.getPath(), avatar);
         Long uid = httpContext.getCurrentClaimsDTO().getUid();
 
         lambdaUpdate().set(UserPO::getAvatar, avatarUrl).eq(UserPO::getId, uid).update();

@@ -4,8 +4,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import top.yinzsw.blog.core.upload.UploadProvider;
+import top.yinzsw.blog.enums.FilePathEnum;
+import top.yinzsw.blog.extension.validation.MatchFileType;
 import top.yinzsw.blog.model.request.ArticleQueryReq;
 import top.yinzsw.blog.model.request.ArticleReq;
 import top.yinzsw.blog.model.request.PageReq;
@@ -30,6 +35,7 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 public class ArticleController {
     private final ArticleService articleService;
+    private final UploadProvider uploadProvider;
 
     @Operation(summary = "查看文章归档(分页)")
     @GetMapping("archives/page")
@@ -72,5 +78,13 @@ public class ArticleController {
                                           @Parameter(description = "是否删除", required = true)
                                           @PathVariable("isDeleted") Boolean isDeleted) {
         return articleService.updateArticleIsDeleted(articleId, isDeleted);
+    }
+
+    @Operation(summary = "上传文章图片")
+    @PatchMapping(value = "image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public String saveArticleImages(@Parameter(description = "文章图片", required = true)
+                                    @MatchFileType(mimeType = "image/*", message = "仅支持上传图片类型{mimeType}的文件")
+                                    @RequestPart("image") MultipartFile image) {
+        return uploadProvider.uploadFile(FilePathEnum.ARTICLE.getPath(), image);
     }
 }

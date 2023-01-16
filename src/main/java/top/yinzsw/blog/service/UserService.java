@@ -25,10 +25,10 @@ public interface UserService extends IService<UserPO> {
     /**
      * 更新用户头像
      *
-     * @param file 用户头像文件
+     * @param avatar 用户头像文件
      * @return 头像地址
      */
-    String updateUserAvatar(MultipartFile file);
+    String updateUserAvatar(MultipartFile avatar);
 
     /**
      * 更新或绑定用户邮箱

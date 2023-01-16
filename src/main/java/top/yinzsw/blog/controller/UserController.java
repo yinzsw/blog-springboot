@@ -17,7 +17,6 @@ import top.yinzsw.blog.service.UserService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -42,12 +41,11 @@ public class UserController {
     }
 
     @Operation(summary = "更新用户头像")
-    @PatchMapping(value = "avatar", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public String updateUserAvatar(@Parameter(description = "文件", required = true)
-                                   @NotNull(message = "上传文件不能为空")
+    @PatchMapping(value = "avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public String updateUserAvatar(@Parameter(description = "用户头像", required = true)
                                    @MatchFileType(mimeType = "image/*", message = "仅支持上传图片类型{mimeType}的文件")
-                                   @RequestPart("file") MultipartFile file) {
-        return userService.updateUserAvatar(file);
+                                   @RequestPart("avatar") MultipartFile avatar) {
+        return userService.updateUserAvatar(avatar);
     }
 
     @Operation(summary = "更新用户邮箱")
