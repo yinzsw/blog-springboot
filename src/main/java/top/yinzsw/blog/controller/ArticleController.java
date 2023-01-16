@@ -1,6 +1,7 @@
 package top.yinzsw.blog.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -53,5 +54,14 @@ public class ArticleController {
     @PutMapping
     public boolean saveOrUpdateArticle(@Valid @RequestBody ArticleReq articleReq) {
         return articleService.saveOrUpdateArticle(articleReq);
+    }
+
+    @Operation(summary = "修改文章置顶状态")
+    @PatchMapping("{articleId:\\d+}/isTop/{isTop:true|false}")
+    public boolean updateArticleTop(@Parameter(description = "文章id")
+                                    @PathVariable("articleId") Long articleId,
+                                    @Parameter(description = "是否置顶")
+                                    @PathVariable("isTop") Boolean isTop) {
+        return articleService.updateArticleTop(articleId, isTop);
     }
 }

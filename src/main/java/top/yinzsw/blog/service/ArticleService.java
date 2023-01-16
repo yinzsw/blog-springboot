@@ -51,4 +51,13 @@ public interface ArticleService extends IService<ArticlePO> {
      * @return 是否成功
      */
     boolean saveOrUpdateArticle(ArticleReq articleReq);
+
+    /**
+     * 修改置顶状态
+     *
+     * @param articleId 文章id
+     * @param isTop     是否置顶
+     * @return 是否成功
+     */
+    boolean updateArticleTop(Long articleId, Boolean isTop);
 }

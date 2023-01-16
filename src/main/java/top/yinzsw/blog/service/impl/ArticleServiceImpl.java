@@ -145,6 +145,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
         //保存文章标签
         return articleMtmTagManager.saveArticleTagsWileNotExist(articleReq.getTagNames(), articlePO.getId());
     }
+
+    @Override
+    public boolean updateArticleTop(Long articleId, Boolean isTop) {
+        return lambdaUpdate().set(ArticlePO::getIsTop, isTop).eq(ArticlePO::getId, articleId).update();
+    }
 }
 
 
