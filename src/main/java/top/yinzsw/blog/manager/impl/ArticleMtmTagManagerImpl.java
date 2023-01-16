@@ -1,9 +1,11 @@
 package top.yinzsw.blog.manager.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.extension.toolkit.Db;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import top.yinzsw.blog.manager.ArticleMtmTagManager;
 import top.yinzsw.blog.mapper.ArticleMtmTagMapper;
@@ -49,6 +51,27 @@ public class ArticleMtmTagManagerImpl extends ServiceImpl<ArticleMtmTagMapper, A
             return null;
         }
         return MybatisPlusUtils.mappingList(ArticleMtmTagPO::getTagId, ArticleMtmTagPO::getArticleId, tagId);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public boolean saveArticleTagsWileNotExist(List<String> tagNames, Long articleId) {
+        //清除已经存在的标签名
+        List<TagPO> existTagPOList = Db.lambdaQuery(TagPO.class).in(TagPO::getTagName, tagNames).list();
+        if (!CollectionUtils.isEmpty(existTagPOList)) {
+            List<String> existTagNames = existTagPOList.stream().map(TagPO::getTagName).collect(Collectors.toList());
+            tagNames.removeAll(existTagNames);
+        }
+
+        //保存标签
+        List<TagPO> tagPOList = tagNames.stream().map(tageName -> new TagPO().setTagName(tageName)).collect(Collectors.toList());
+        Db.saveBatch(tagPOList);
+
+        //将标签与文章建立映射关系
+        List<ArticleMtmTagPO> articleMtmTagPOList = tagPOList.stream()
+                .map(tagPO -> new ArticleMtmTagPO(articleId, tagPO.getId()))
+                .collect(Collectors.toList());
+        return saveBatch(articleMtmTagPOList);
     }
 }
 

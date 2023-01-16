@@ -30,4 +30,13 @@ public interface ArticleMtmTagManager extends IService<ArticleMtmTagPO> {
      * @return 文章id列表
      */
     List<Long> listArticleIdsByTagId(Long tagId);
+
+    /**
+     * 保存没有添加的文章标签
+     *
+     * @param tagNames  文章标签名
+     * @param articleId 文章id
+     * @return 是否成功
+     */
+    boolean saveArticleTagsWileNotExist(List<String> tagNames, Long articleId);
 }

@@ -1,6 +1,10 @@
 package top.yinzsw.blog.manager.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SetOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -10,7 +14,9 @@ import top.yinzsw.blog.constant.RedisConst;
 import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.manager.RedisManager;
 import top.yinzsw.blog.model.dto.UserLikedDTO;
+import top.yinzsw.blog.model.po.WebsiteConfigPO;
 import top.yinzsw.blog.util.CommonUtils;
+import top.yinzsw.blog.util.MybatisPlusUtils;
 
 import java.time.Duration;
 import java.util.*;
@@ -22,11 +28,13 @@ import java.util.stream.Collectors;
  * @author yinzsW
  * @since 23/01/15
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RedisManagerImpl implements RedisManager, RedisConst {
     private final RedisTemplate<String, ?> redisTemplate;
     private final StringRedisTemplate stringRedisTemplate;
+    private final ObjectMapper objectMapper;
 
     /**
      * 泛化的值类型 Value Set ZSet List
@@ -88,5 +96,26 @@ public class RedisManagerImpl implements RedisManager, RedisConst {
                 .map(count -> Optional.ofNullable(count).orElse(0D).longValue())
                 .collect(Collectors.toList());
         return CommonUtils.mergeList(articleIds, articlesViewCount);
+    }
+
+    @Override
+    public void initWebSiteConfig() {
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(WEBSITE_CONFIG))) {
+            return;
+        }
+        Map<String, Object> config = objectMapper.convertValue(new WebsiteConfigPO(), new TypeReference<>() {
+        });
+        redisTemplate.<String, Object>opsForHash().putAll(WEBSITE_CONFIG, config);
+    }
+
+    @Override
+    public WebsiteConfigPO getWebSiteConfig() {
+        Map<String, Object> websiteConfigMap = redisTemplate.<String, Object>opsForHash().entries(WEBSITE_CONFIG);
+        return objectMapper.convertValue(websiteConfigMap, WebsiteConfigPO.class);
+    }
+
+    public <T, R> R getWebSiteConfig(SFunction<T, R> sFunction) {
+        String propertyName = MybatisPlusUtils.getPropertyName(sFunction);
+        return redisTemplate.<String, R>opsForHash().get(WEBSITE_CONFIG, propertyName);
     }
 }

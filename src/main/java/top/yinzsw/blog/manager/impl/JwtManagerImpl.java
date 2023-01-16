@@ -90,11 +90,9 @@ public class JwtManagerImpl implements JwtManager {
 
         Claims claims = claimsJws.getBody();
         ClaimsDTO claimsDTO = claims.get(X_CLAIM, ClaimsDTO.class);
-
         if (!getSign().equals(claimsDTO.getSign())) {
             throw new BizException(ResponseCodeEnum.TOKEN_ERROR, "非法的token解析");
         }
-
         if (Objects.isNull(expectTokenType) || !expectTokenType.equals(claimsDTO.getType())) {
             throw new BizException(ResponseCodeEnum.TOKEN_ERROR, "不是期待的token类型");
         }

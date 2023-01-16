@@ -4,9 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import top.yinzsw.blog.model.request.ArticleQueryReq;
 import top.yinzsw.blog.model.request.ArticleReq;
 import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.vo.ArticleArchiveVO;
@@ -46,8 +45,13 @@ public class ArticleController {
     @Operation(summary = "查看后台文章(分页)")
     @GetMapping("back/page")
     public PageVO<ArticleBackVO> pageListBackArticles(@Valid PageReq pageReq,
-                                                      @Valid ArticleReq articleReq) {
-        return articleService.pageListBackArticles(pageReq, articleReq);
+                                                      @Valid ArticleQueryReq articleQueryReq) {
+        return articleService.pageListBackArticles(pageReq, articleQueryReq);
     }
 
+    @Operation(summary = "添加或修改文章")
+    @PutMapping
+    public boolean saveOrUpdateArticle(@Valid @RequestBody ArticleReq articleReq) {
+        return articleService.saveOrUpdateArticle(articleReq);
+    }
 }

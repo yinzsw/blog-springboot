@@ -60,11 +60,22 @@ public class CommonUtils {
                 .collect(Collectors.toMap(keys::get, values::get));
     }
 
+    /**
+     * 将两个异步任务的结果根据自定义回调方法进行合并
+     *
+     * @param future1 异步任务1
+     * @param future2 异步任务2
+     * @param handle  回调方法
+     * @param <T>     future1
+     * @param <K>     future2
+     * @param <R>     result
+     * @return 合并结果
+     */
     public static <T, K, R> R biCompletableFuture(CompletableFuture<T> future1,
                                                   CompletableFuture<K> future2,
-                                                  BiFunction<T, K, R> function) {
+                                                  BiFunction<T, K, R> handle) {
         return CompletableFuture.allOf(future1, future2)
-                .thenApply(unused -> function.apply(future1.join(), future2.join()))
+                .thenApply(unused -> handle.apply(future1.join(), future2.join()))
                 .exceptionally(e -> {
                     throw new DaoException(e.getMessage());
                 }).join();

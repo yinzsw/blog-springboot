@@ -1,10 +1,12 @@
 package top.yinzsw.blog.model.converter;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import top.yinzsw.blog.model.dto.ArticleMappingDTO;
 import top.yinzsw.blog.model.po.ArticlePO;
 import top.yinzsw.blog.model.po.TagPO;
+import top.yinzsw.blog.model.request.ArticleReq;
 import top.yinzsw.blog.model.vo.ArticleArchiveVO;
 import top.yinzsw.blog.model.vo.ArticleBackVO;
 import top.yinzsw.blog.model.vo.ArticleHomeVO;
@@ -48,4 +50,10 @@ public interface ArticleConverter {
                     articleMappingDTO.getViewCountMapping().get(articleId));
         }).collect(Collectors.toList());
     }
+
+
+    @Mapping(target = "updateTime", ignore = true)
+    @Mapping(target = "isDeleted", ignore = true)
+    @Mapping(target = "createTime", ignore = true)
+    ArticlePO toArticlePO(ArticleReq articleReq, Long userId, Long categoryId);
 }

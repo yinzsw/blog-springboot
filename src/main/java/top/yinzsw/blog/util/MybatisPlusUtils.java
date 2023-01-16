@@ -1,8 +1,10 @@
 package top.yinzsw.blog.util;
 
+import com.baomidou.mybatisplus.core.toolkit.LambdaUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.toolkit.SimpleQuery;
+import org.apache.ibatis.reflection.property.PropertyNamer;
 
 import java.util.Collection;
 import java.util.List;
@@ -107,5 +109,17 @@ public class MybatisPlusUtils {
         return SimpleQuery.map(Wrappers.<T>lambdaQuery()
                 .select(keyFn, valueFn)
                 .in(keyFn, keys), keyFn, valueFn);
+    }
+
+    /**
+     * 获取JavaBean属性名
+     *
+     * @param sFunction 返回调用get方法的lambda表达式
+     * @param <T>       源类型
+     * @param <R>       返回类型
+     * @return 属性名
+     */
+    public static <T, R> String getPropertyName(SFunction<T, R> sFunction) {
+        return PropertyNamer.methodToProperty(LambdaUtils.extract(sFunction).getImplMethodName());
     }
 }

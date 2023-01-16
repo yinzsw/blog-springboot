@@ -1,5 +1,6 @@
 package top.yinzsw.blog.manager.impl;
 
+import com.baomidou.mybatisplus.extension.toolkit.Db;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -31,5 +32,17 @@ public class ArticleManagerImpl implements ArticleManager {
 
         Map<Long, String> categoryMapping = MybatisPlusUtils.mappingMap(CategoryPO::getId, CategoryPO::getCategoryName, categoryIds);
         return CompletableFuture.completedFuture(categoryMapping);
+    }
+
+    @Override
+    public CategoryPO saveArticleCategoryWileNotExist(String categoryName) {
+        return Db.lambdaQuery(CategoryPO.class)
+                .eq(CategoryPO::getCategoryName, categoryName)
+                .oneOpt()
+                .orElseGet(() -> {
+                    CategoryPO categoryPO = new CategoryPO().setCategoryName(categoryName);
+                    Db.save(categoryPO);
+                    return categoryPO;
+                });
     }
 }

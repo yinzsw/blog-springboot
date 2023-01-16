@@ -4,7 +4,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+import top.yinzsw.blog.core.context.HttpContext;
 import top.yinzsw.blog.enums.ArticleStatusEnum;
 import top.yinzsw.blog.manager.ArticleManager;
 import top.yinzsw.blog.manager.ArticleMtmTagManager;
@@ -13,6 +16,9 @@ import top.yinzsw.blog.mapper.ArticleMapper;
 import top.yinzsw.blog.model.converter.ArticleConverter;
 import top.yinzsw.blog.model.dto.ArticleMappingDTO;
 import top.yinzsw.blog.model.po.ArticlePO;
+import top.yinzsw.blog.model.po.CategoryPO;
+import top.yinzsw.blog.model.po.WebsiteConfigPO;
+import top.yinzsw.blog.model.request.ArticleQueryReq;
 import top.yinzsw.blog.model.request.ArticleReq;
 import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.vo.ArticleArchiveVO;
@@ -39,6 +45,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
     private final RedisManager redisManager;
     private final ArticleManager articleManager;
     private final ArticleMtmTagManager articleMtmTagManager;
+    private final HttpContext httpContext;
     private final ArticleConverter articleConverter;
 
     @Override
@@ -80,17 +87,17 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
     }
 
     @Override
-    public PageVO<ArticleBackVO> pageListBackArticles(PageReq pageReq, ArticleReq articleReq) {
+    public PageVO<ArticleBackVO> pageListBackArticles(PageReq pageReq, ArticleQueryReq articleQueryReq) {
         // 分页获取文章
         Page<ArticlePO> articlePOPage = lambdaQuery()
                 .select(ArticlePO::getId, ArticlePO::getCategoryId, ArticlePO::getArticleTitle,
                         ArticlePO::getArticleCover, ArticlePO::getArticleStatus, ArticlePO::getArticleType,
                         ArticlePO::getIsTop, ArticlePO::getIsDeleted, ArticlePO::getCreateTime)
-                .eq(Objects.nonNull(articleReq.getCategoryId()), ArticlePO::getCategoryId, articleReq.getCategoryId())
-                .eq(Objects.nonNull(articleReq.getArticleStatus()), ArticlePO::getArticleStatus, articleReq.getArticleStatus())
-                .eq(Objects.nonNull(articleReq.getArticleType()), ArticlePO::getArticleType, articleReq.getArticleType())
-                .in(Objects.nonNull(articleReq.getTagId()), ArticlePO::getId, articleMtmTagManager.listArticleIdsByTagId(articleReq.getTagId()))
-                .like(Objects.nonNull(articleReq.getKeywords()), ArticlePO::getArticleTitle, articleReq.getKeywords())
+                .eq(Objects.nonNull(articleQueryReq.getCategoryId()), ArticlePO::getCategoryId, articleQueryReq.getCategoryId())
+                .eq(Objects.nonNull(articleQueryReq.getArticleStatus()), ArticlePO::getArticleStatus, articleQueryReq.getArticleStatus())
+                .eq(Objects.nonNull(articleQueryReq.getArticleType()), ArticlePO::getArticleType, articleQueryReq.getArticleType())
+                .in(Objects.nonNull(articleQueryReq.getTagId()), ArticlePO::getId, articleMtmTagManager.listArticleIdsByTagId(articleQueryReq.getTagId()))
+                .like(Objects.nonNull(articleQueryReq.getKeywords()), ArticlePO::getArticleTitle, articleQueryReq.getKeywords())
                 .page(pageReq.getPager());
 
         long totalCount = articlePOPage.getTotal();
@@ -117,6 +124,26 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
                 });
 
         return new PageVO<>(articleBackVOList, totalCount);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public boolean saveOrUpdateArticle(ArticleReq articleReq) {
+        Long uid = httpContext.getCurrentClaimsDTO().getUid();
+        //保存文章分类
+        CategoryPO categoryPO = articleManager.saveArticleCategoryWileNotExist(articleReq.getCategoryName());
+        //当设置文章封面使用文章默认封面
+        if (!StringUtils.hasText(articleReq.getArticleCover())) {
+            String articleCover = redisManager.getWebSiteConfig(WebsiteConfigPO::getArticleCover);
+            articleReq.setArticleCover(articleCover);
+        }
+
+        //保存或更新文章
+        ArticlePO articlePO = articleConverter.toArticlePO(articleReq, uid, categoryPO.getId());
+        saveOrUpdate(articlePO);
+
+        //保存文章标签
+        return articleMtmTagManager.saveArticleTagsWileNotExist(articleReq.getTagNames(), articlePO.getId());
     }
 }
 

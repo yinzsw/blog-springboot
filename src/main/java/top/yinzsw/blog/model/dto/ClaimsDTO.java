@@ -31,11 +31,6 @@ public class ClaimsDTO {
     private Long uid;
 
     /**
-     * 访问的资源id
-     */
-    private Long rid;
-
-    /**
      * token签名
      */
     private String sign;
@@ -49,6 +44,12 @@ public class ClaimsDTO {
      * token类型
      */
     private TokenTypeEnum type;
+
+    /**
+     * 访问的资源id
+     */
+    @JsonIgnore
+    private Long rid;
 
     @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {

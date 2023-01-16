@@ -2,6 +2,7 @@ package top.yinzsw.blog.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import top.yinzsw.blog.model.po.ArticlePO;
+import top.yinzsw.blog.model.request.ArticleQueryReq;
 import top.yinzsw.blog.model.request.ArticleReq;
 import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.vo.ArticleArchiveVO;
@@ -37,9 +38,17 @@ public interface ArticleService extends IService<ArticlePO> {
     /**
      * 分页查询后台文章
      *
-     * @param pageReq    分页信息
-     * @param articleReq 文章查询信息
+     * @param pageReq         分页信息
+     * @param articleQueryReq 文章查询信息
      * @return 后台文章列表
      */
-    PageVO<ArticleBackVO> pageListBackArticles(@Valid PageReq pageReq, ArticleReq articleReq);
+    PageVO<ArticleBackVO> pageListBackArticles(@Valid PageReq pageReq, ArticleQueryReq articleQueryReq);
+
+    /**
+     * 保存文章
+     *
+     * @param articleReq 文章信息
+     * @return 是否成功
+     */
+    boolean saveOrUpdateArticle(ArticleReq articleReq);
 }

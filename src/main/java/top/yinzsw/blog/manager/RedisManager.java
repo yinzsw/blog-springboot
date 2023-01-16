@@ -1,7 +1,9 @@
 package top.yinzsw.blog.manager;
 
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.model.dto.UserLikedDTO;
+import top.yinzsw.blog.model.po.WebsiteConfigPO;
 
 import java.util.List;
 import java.util.Map;
@@ -55,4 +57,25 @@ public interface RedisManager {
      */
     Map<Long, Long> getArticleViewCount(List<Long> articleIds);
 
+    /**
+     * 保存网站配置文件
+     */
+    void initWebSiteConfig();
+
+    /**
+     * 获取网站配置文件
+     *
+     * @return 配置文件
+     */
+    WebsiteConfigPO getWebSiteConfig();
+
+    /**
+     * 根据key策略从网站配置文件获取配置
+     *
+     * @param sFunction hashKey策略
+     * @param <T>       原类型
+     * @param <R>       返回类型
+     * @return 返回配置
+     */
+    <T, R> R getWebSiteConfig(SFunction<T, R> sFunction);
 }
