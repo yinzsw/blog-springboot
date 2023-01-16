@@ -33,21 +33,21 @@ public class ArticleController {
 
     @Operation(summary = "查看文章归档(分页)")
     @GetMapping("archives/page")
-    public PageVO<ArticleArchiveVO> pageListArchives(@Valid PageReq pageReq) {
-        return articleService.pageListArchivesArticles(pageReq);
+    public PageVO<ArticleArchiveVO> pageArchivesArticles(@Valid PageReq pageReq) {
+        return articleService.pageArchivesArticles(pageReq);
     }
 
     @Operation(summary = "查看首页文章(分页)")
     @GetMapping("home/page")
-    public PageVO<ArticleHomeVO> pageListHomeArticles(@Valid PageReq pageReq) {
-        return articleService.pageListHomeArticles(pageReq);
+    public PageVO<ArticleHomeVO> pageHomeArticles(@Valid PageReq pageReq) {
+        return articleService.pageHomeArticles(pageReq);
     }
 
     @Operation(summary = "查看后台文章(分页)")
     @GetMapping("back/page")
-    public PageVO<ArticleBackVO> pageListBackArticles(@Valid PageReq pageReq,
-                                                      @Valid ArticleQueryReq articleQueryReq) {
-        return articleService.pageListBackArticles(pageReq, articleQueryReq);
+    public PageVO<ArticleBackVO> pageBackArticles(@Valid PageReq pageReq,
+                                                  @Valid ArticleQueryReq articleQueryReq) {
+        return articleService.pageBackArticles(pageReq, articleQueryReq);
     }
 
     @Operation(summary = "添加或修改文章")
@@ -58,10 +58,19 @@ public class ArticleController {
 
     @Operation(summary = "修改文章置顶状态")
     @PatchMapping("{articleId:\\d+}/isTop/{isTop:true|false}")
-    public boolean updateArticleTop(@Parameter(description = "文章id")
-                                    @PathVariable("articleId") Long articleId,
-                                    @Parameter(description = "是否置顶")
-                                    @PathVariable("isTop") Boolean isTop) {
-        return articleService.updateArticleTop(articleId, isTop);
+    public boolean updateArticleIsTop(@Parameter(description = "文章id", required = true)
+                                      @PathVariable("articleId") Long articleId,
+                                      @Parameter(description = "是否置顶", required = true)
+                                      @PathVariable("isTop") Boolean isTop) {
+        return articleService.updateArticleIsTop(articleId, isTop);
+    }
+
+    @Operation(summary = "恢复或删除文章")
+    @PatchMapping("{articleId:\\d+}/isDeleted/{isDeleted:true|false}")
+    public boolean updateArticleIsDeleted(@Parameter(description = "文章id", required = true)
+                                          @PathVariable("articleId") Long articleId,
+                                          @Parameter(description = "是否删除", required = true)
+                                          @PathVariable("isDeleted") Boolean isDeleted) {
+        return articleService.updateArticleIsDeleted(articleId, isDeleted);
     }
 }

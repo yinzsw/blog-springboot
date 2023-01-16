@@ -30,7 +30,7 @@ public class TagController {
 
     @Operation(summary = "查询标签列表(分页)")
     @GetMapping("page")
-    public PageVO<TagVO> pageListTags(@Valid PageReq pageReq) {
-        return tagService.pageListTags(pageReq);
+    public PageVO<TagVO> pageTags(@Valid PageReq pageReq) {
+        return tagService.pageTags(pageReq);
     }
 }

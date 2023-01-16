@@ -42,11 +42,11 @@ public interface UserService extends IService<UserPO> {
     /**
      * 更新用户禁用状态
      *
-     * @param userId   用户id
-     * @param disabled 禁用状态
+     * @param userId     用户id
+     * @param isDisabled 禁用状态
      * @return 更新状态
      */
-    boolean updateUserDisabled(Long userId, Boolean disabled);
+    boolean updateUserIsDisable(Long userId, Boolean isDisabled);
 
     /**
      * 根据邮箱更新用户密码

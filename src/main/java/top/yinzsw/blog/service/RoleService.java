@@ -38,7 +38,7 @@ public interface RoleService extends IService<RolePO> {
      *
      * @return 角色列表
      */
-    List<UserRoleVO> listUserRoles();
+    List<UserRoleVO> listRoles();
 
     /**
      * 根据用户名关键词 分页获取所有用户角色信息
@@ -47,7 +47,7 @@ public interface RoleService extends IService<RolePO> {
      * @param keywords 用户名关键词
      * @return 用户角色列表信息
      */
-    PageVO<RoleVO> pageListRoles(PageReq pageReq, String keywords);
+    PageVO<RoleVO> pageRoles(PageReq pageReq, String keywords);
 
     /**
      * 保存或更新角色

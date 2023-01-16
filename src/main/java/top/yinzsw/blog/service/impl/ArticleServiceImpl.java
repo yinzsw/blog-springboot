@@ -49,7 +49,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
     private final ArticleConverter articleConverter;
 
     @Override
-    public PageVO<ArticleArchiveVO> pageListArchivesArticles(PageReq pageReq) {
+    public PageVO<ArticleArchiveVO> pageArchivesArticles(PageReq pageReq) {
         Page<ArticlePO> articlePOPage = lambdaQuery()
                 .select(ArticlePO::getId, ArticlePO::getArticleTitle, ArticlePO::getCreateTime)
                 .eq(ArticlePO::getArticleStatus, ArticleStatusEnum.PUBLIC)
@@ -61,7 +61,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
     }
 
     @Override
-    public PageVO<ArticleHomeVO> pageListHomeArticles(PageReq pageReq) {
+    public PageVO<ArticleHomeVO> pageHomeArticles(PageReq pageReq) {
         // 分页获取文章
         Page<ArticlePO> articlePOPage = lambdaQuery()
                 .select(ArticlePO::getId, ArticlePO::getCategoryId, ArticlePO::getArticleTitle,
@@ -87,7 +87,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
     }
 
     @Override
-    public PageVO<ArticleBackVO> pageListBackArticles(PageReq pageReq, ArticleQueryReq articleQueryReq) {
+    public PageVO<ArticleBackVO> pageBackArticles(PageReq pageReq, ArticleQueryReq articleQueryReq) {
         // 分页获取文章
         Page<ArticlePO> articlePOPage = lambdaQuery()
                 .select(ArticlePO::getId, ArticlePO::getCategoryId, ArticlePO::getArticleTitle,
@@ -147,8 +147,13 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
     }
 
     @Override
-    public boolean updateArticleTop(Long articleId, Boolean isTop) {
+    public boolean updateArticleIsTop(Long articleId, Boolean isTop) {
         return lambdaUpdate().set(ArticlePO::getIsTop, isTop).eq(ArticlePO::getId, articleId).update();
+    }
+
+    @Override
+    public boolean updateArticleIsDeleted(Long articleId, Boolean isDeleted) {
+        return lambdaUpdate().set(ArticlePO::getIsDeleted, isDeleted).eq(ArticlePO::getId, articleId).update();
     }
 }
 

@@ -56,13 +56,13 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements 
     }
 
     @Override
-    public List<UserRoleVO> listUserRoles() {
+    public List<UserRoleVO> listRoles() {
         List<RolePO> rolePOList = lambdaQuery().select(RolePO::getId, RolePO::getRoleLabel).list();
         return roleConverter.toUserRoleVO(rolePOList);
     }
 
     @Override
-    public PageVO<RoleVO> pageListRoles(PageReq pageReq, String keywords) {
+    public PageVO<RoleVO> pageRoles(PageReq pageReq, String keywords) {
         // 根据关键词查找角色列表
         boolean isAlpha = CommonUtils.getIsAlpha(keywords);
         Page<RolePO> rolePOPage = lambdaQuery()

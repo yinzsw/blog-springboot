@@ -61,12 +61,12 @@ public class UserController {
     }
 
     @Operation(summary = "更新用户禁用状态")
-    @PatchMapping("{userId:\\d+}/disabled/{disabled:true|false}")
-    public boolean updateUserDisable(@Parameter(description = "用户id", required = true)
-                                     @PathVariable("userId") Long userId,
-                                     @Parameter(description = "禁用状态", required = true)
-                                     @PathVariable("disabled") Boolean disabled) {
-        return userService.updateUserDisabled(userId, disabled);
+    @PatchMapping("{userId:\\d+}/isDisabled/{isDisabled:true|false}")
+    public boolean updateUserIsDisable(@Parameter(description = "用户id", required = true)
+                                       @PathVariable("userId") Long userId,
+                                       @Parameter(description = "禁用状态", required = true)
+                                       @PathVariable("isDisabled") Boolean isDisabled) {
+        return userService.updateUserIsDisable(userId, isDisabled);
     }
 
     @Operation(summary = "更新用户密码(邮箱验证码)")
@@ -83,10 +83,10 @@ public class UserController {
 
     @Operation(summary = "修改用户角色")
     @PutMapping("{userId:\\d+}/role/{roleIds:\\d+(?:,\\d+)*}")
-    public boolean updateUserRole(@Parameter(description = "用户id", required = true)
-                                  @PathVariable("userId") Long userId,
-                                  @Parameter(description = "用户角色id列表", required = true)
-                                  @PathVariable("roleIds") List<Long> roleIds) {
+    public boolean updateUserRoles(@Parameter(description = "用户id", required = true)
+                                   @PathVariable("userId") Long userId,
+                                   @Parameter(description = "用户角色id列表", required = true)
+                                   @PathVariable("roleIds") List<Long> roleIds) {
         return userMtmRoleManager.updateUserRoles(userId, roleIds);
     }
 }

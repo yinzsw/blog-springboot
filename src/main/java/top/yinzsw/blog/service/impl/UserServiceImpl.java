@@ -62,8 +62,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPO> implements 
     }
 
     @Override
-    public boolean updateUserDisabled(Long userId, Boolean disabled) {
-        return lambdaUpdate().set(UserPO::getIsDisabled, disabled).eq(UserPO::getId, userId).update();
+    public boolean updateUserIsDisable(Long userId, Boolean isDisabled) {
+        return lambdaUpdate().set(UserPO::getIsDisabled, isDisabled).eq(UserPO::getId, userId).update();
     }
 
     @Override

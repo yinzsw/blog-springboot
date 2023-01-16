@@ -19,5 +19,5 @@ public interface TagService extends IService<TagPO> {
      * @param pageReq 分页信息
      * @return 标签列表
      */
-    PageVO<TagVO> pageListTags(PageReq pageReq);
+    PageVO<TagVO> pageTags(PageReq pageReq);
 }

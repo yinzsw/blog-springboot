@@ -33,15 +33,15 @@ public class RoleController {
     @Operation(summary = "获取角色列表")
     @GetMapping("list")
     public List<UserRoleVO> listRoles() {
-        return roleService.listUserRoles();
+        return roleService.listRoles();
     }
 
     @Operation(summary = "获取角色列表(分页)")
     @GetMapping("page")
-    public PageVO<RoleVO> pageListRoles(@Valid PageReq pageReq,
-                                        @Parameter(description = "用户名关键词")
-                                        @RequestParam("keywords") String keywords) {
-        return roleService.pageListRoles(pageReq, keywords);
+    public PageVO<RoleVO> pageRoles(@Valid PageReq pageReq,
+                                    @Parameter(description = "用户名关键词")
+                                    @RequestParam("keywords") String keywords) {
+        return roleService.pageRoles(pageReq, keywords);
     }
 
     @Operation(summary = "保存或更新角色")

@@ -25,7 +25,7 @@ public interface ArticleService extends IService<ArticlePO> {
      * @param pageReq 分页信息
      * @return 文章归档列表
      */
-    PageVO<ArticleArchiveVO> pageListArchivesArticles(PageReq pageReq);
+    PageVO<ArticleArchiveVO> pageArchivesArticles(PageReq pageReq);
 
     /**
      * 分页查询首页文章
@@ -33,7 +33,7 @@ public interface ArticleService extends IService<ArticlePO> {
      * @param pageReq 分页信息
      * @return 首页文章列表
      */
-    PageVO<ArticleHomeVO> pageListHomeArticles(PageReq pageReq);
+    PageVO<ArticleHomeVO> pageHomeArticles(PageReq pageReq);
 
     /**
      * 分页查询后台文章
@@ -42,7 +42,7 @@ public interface ArticleService extends IService<ArticlePO> {
      * @param articleQueryReq 文章查询信息
      * @return 后台文章列表
      */
-    PageVO<ArticleBackVO> pageListBackArticles(@Valid PageReq pageReq, ArticleQueryReq articleQueryReq);
+    PageVO<ArticleBackVO> pageBackArticles(@Valid PageReq pageReq, ArticleQueryReq articleQueryReq);
 
     /**
      * 保存文章
@@ -59,5 +59,14 @@ public interface ArticleService extends IService<ArticlePO> {
      * @param isTop     是否置顶
      * @return 是否成功
      */
-    boolean updateArticleTop(Long articleId, Boolean isTop);
+    boolean updateArticleIsTop(Long articleId, Boolean isTop);
+
+    /**
+     * 恢复或删除文章
+     *
+     * @param articleId 文章id
+     * @param isDeleted 是否删除
+     * @return 是否成功
+     */
+    boolean updateArticleIsDeleted(Long articleId, Boolean isDeleted);
 }
