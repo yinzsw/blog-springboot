@@ -37,11 +37,11 @@ public class ArticleMtmTagManagerImpl extends ServiceImpl<ArticleMtmTagMapper, A
         Map<Long, List<Long>> articleTagIdMapping = MybatisPlusUtils.mappingGroup(ArticleMtmTagPO::getArticleId, ArticleMtmTagPO::getTagId, articleIds);
         Set<Long> tagIds = articleTagIdMapping.values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
         Map<Long, TagPO> tagMapping = MybatisPlusUtils.mappingMap(TagPO::getId, tagIds);
+
         Map<Long, List<TagPO>> articleTagMapping = articleTagIdMapping.keySet().stream().collect(Collectors.toMap(
                 Function.identity(),
                 articleId -> articleTagIdMapping.get(articleId).stream().map(tagMapping::get).collect(Collectors.toList())
         ));
-
         return CompletableFuture.completedFuture(articleTagMapping);
     }
 
@@ -72,6 +72,17 @@ public class ArticleMtmTagManagerImpl extends ServiceImpl<ArticleMtmTagMapper, A
                 .map(tagPO -> new ArticleMtmTagPO(articleId, tagPO.getId()))
                 .collect(Collectors.toList());
         return saveBatch(articleMtmTagPOList);
+    }
+
+    @Override
+    public boolean deleteByArticleId(List<Long> articleIds) {
+        return Db.lambdaUpdate(ArticleMtmTagPO.class).in(ArticleMtmTagPO::getArticleId, articleIds).remove();
+    }
+
+    @Override
+    public List<TagPO> getTags(Long articleId) {
+        List<Long> tagIds = MybatisPlusUtils.mappingList(ArticleMtmTagPO::getArticleId, ArticleMtmTagPO::getTagId, articleId);
+        return Db.lambdaQuery(TagPO.class).in(TagPO::getId, tagIds).list();
     }
 }
 

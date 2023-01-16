@@ -10,6 +10,7 @@ import top.yinzsw.blog.model.request.ArticleReq;
 import top.yinzsw.blog.model.vo.ArticleArchiveVO;
 import top.yinzsw.blog.model.vo.ArticleBackVO;
 import top.yinzsw.blog.model.vo.ArticleHomeVO;
+import top.yinzsw.blog.model.vo.ArticleVO;
 
 import java.util.List;
 import java.util.Map;
@@ -56,4 +57,6 @@ public interface ArticleConverter {
     @Mapping(target = "isDeleted", ignore = true)
     @Mapping(target = "createTime", ignore = true)
     ArticlePO toArticlePO(ArticleReq articleReq, Long userId, Long categoryId);
+
+    ArticleVO toArticleVO(ArticlePO articlePO, String categoryName, List<TagPO> tags);
 }

@@ -30,4 +30,12 @@ public interface ArticleManager {
      * @return 文章分类对象
      */
     CategoryPO saveArticleCategoryWileNotExist(String categoryName);
+
+    /**
+     * 获取分类信息
+     *
+     * @param categoryId 分类id
+     * @return 分类信息
+     */
+    CategoryPO getCategory(Long categoryId);
 }

@@ -14,10 +14,7 @@ import top.yinzsw.blog.extension.validation.MatchFileType;
 import top.yinzsw.blog.model.request.ArticleQueryReq;
 import top.yinzsw.blog.model.request.ArticleReq;
 import top.yinzsw.blog.model.request.PageReq;
-import top.yinzsw.blog.model.vo.ArticleArchiveVO;
-import top.yinzsw.blog.model.vo.ArticleBackVO;
-import top.yinzsw.blog.model.vo.ArticleHomeVO;
-import top.yinzsw.blog.model.vo.PageVO;
+import top.yinzsw.blog.model.vo.*;
 import top.yinzsw.blog.service.ArticleService;
 
 import javax.validation.Valid;
@@ -91,8 +88,15 @@ public class ArticleController {
 
     @Operation(summary = "物理删除文章")
     @DeleteMapping("{articleIds:\\d+(?:,\\d+)*}")
-    public boolean deleteArticles(@Parameter(description = "用户角色id列表", required = true)
+    public boolean deleteArticles(@Parameter(description = "文章id列表", required = true)
                                   @PathVariable("articleIds") List<Long> articleIds) {
         return articleService.deleteArticles(articleIds);
+    }
+
+    @Operation(summary = "查看后台文章")
+    @GetMapping("{articleId:\\d+}")
+    public ArticleVO getBackArticle(@Parameter(description = "文章id", required = true)
+                                    @PathVariable("articleId") Long articleId) {
+        return articleService.getBackArticle(articleId);
     }
 }

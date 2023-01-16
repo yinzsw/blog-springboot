@@ -5,10 +5,7 @@ import top.yinzsw.blog.model.po.ArticlePO;
 import top.yinzsw.blog.model.request.ArticleQueryReq;
 import top.yinzsw.blog.model.request.ArticleReq;
 import top.yinzsw.blog.model.request.PageReq;
-import top.yinzsw.blog.model.vo.ArticleArchiveVO;
-import top.yinzsw.blog.model.vo.ArticleBackVO;
-import top.yinzsw.blog.model.vo.ArticleHomeVO;
-import top.yinzsw.blog.model.vo.PageVO;
+import top.yinzsw.blog.model.vo.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -78,4 +75,12 @@ public interface ArticleService extends IService<ArticlePO> {
      * @return 是否成功
      */
     boolean deleteArticles(List<Long> articleIds);
+
+    /**
+     * 查看后台文章
+     *
+     * @param articleId 文章id
+     * @return 文章
+     */
+    ArticleVO getBackArticle(Long articleId);
 }

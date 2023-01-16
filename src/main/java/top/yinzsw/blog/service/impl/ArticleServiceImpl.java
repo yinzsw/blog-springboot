@@ -9,6 +9,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import top.yinzsw.blog.core.context.HttpContext;
 import top.yinzsw.blog.enums.ArticleStatusEnum;
+import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.manager.ArticleManager;
 import top.yinzsw.blog.manager.ArticleMtmTagManager;
 import top.yinzsw.blog.manager.RedisManager;
@@ -17,21 +18,16 @@ import top.yinzsw.blog.model.converter.ArticleConverter;
 import top.yinzsw.blog.model.dto.ArticleMappingDTO;
 import top.yinzsw.blog.model.po.ArticlePO;
 import top.yinzsw.blog.model.po.CategoryPO;
+import top.yinzsw.blog.model.po.TagPO;
 import top.yinzsw.blog.model.po.WebsiteConfigPO;
 import top.yinzsw.blog.model.request.ArticleQueryReq;
 import top.yinzsw.blog.model.request.ArticleReq;
 import top.yinzsw.blog.model.request.PageReq;
-import top.yinzsw.blog.model.vo.ArticleArchiveVO;
-import top.yinzsw.blog.model.vo.ArticleBackVO;
-import top.yinzsw.blog.model.vo.ArticleHomeVO;
-import top.yinzsw.blog.model.vo.PageVO;
+import top.yinzsw.blog.model.vo.*;
 import top.yinzsw.blog.service.ArticleService;
 import top.yinzsw.blog.util.CommonUtils;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -159,9 +155,22 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
         return lambdaUpdate().set(ArticlePO::getIsDeleted, isDeleted).eq(ArticlePO::getId, articleId).update();
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean deleteArticles(List<Long> articleIds) {
+        articleMtmTagManager.deleteByArticleId(articleIds);
         return lambdaUpdate().eq(ArticlePO::getIsDeleted, true).in(ArticlePO::getId, articleIds).remove();
+    }
+
+    @Override
+    public ArticleVO getBackArticle(Long articleId) {
+        ArticlePO articlePO = getById(articleId);
+        Optional.ofNullable(articlePO)
+                .orElseThrow(() -> new BizException(String.format("id为%d的文章不存在", articleId)));
+
+        CategoryPO categoryPO = articleManager.getCategory(articlePO.getCategoryId());
+        List<TagPO> tagPOList = articleMtmTagManager.getTags(articleId);
+        return articleConverter.toArticleVO(articlePO, categoryPO.getCategoryName(), tagPOList);
     }
 }
 

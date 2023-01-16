@@ -39,4 +39,20 @@ public interface ArticleMtmTagManager extends IService<ArticleMtmTagPO> {
      * @return 是否成功
      */
     boolean saveArticleTagsWileNotExist(List<String> tagNames, Long articleId);
+
+    /**
+     * 通过文章id删除 文章与标签的映射关系
+     *
+     * @param articleIds 文章id列表
+     * @return 是否成功
+     */
+    boolean deleteByArticleId(List<Long> articleIds);
+
+    /**
+     * 获取标签列表
+     *
+     * @param articleId 文章id
+     * @return 标签列表
+     */
+    List<TagPO> getTags(Long articleId);
 }

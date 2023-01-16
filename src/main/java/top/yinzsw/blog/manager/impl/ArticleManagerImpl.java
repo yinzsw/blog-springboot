@@ -45,4 +45,9 @@ public class ArticleManagerImpl implements ArticleManager {
                     return categoryPO;
                 });
     }
+
+    @Override
+    public CategoryPO getCategory(Long categoryId) {
+        return Db.lambdaQuery(CategoryPO.class).eq(CategoryPO::getId, categoryId).one();
+    }
 }
