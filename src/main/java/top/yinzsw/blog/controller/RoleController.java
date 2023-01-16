@@ -14,7 +14,6 @@ import top.yinzsw.blog.model.vo.UserRoleVO;
 import top.yinzsw.blog.service.RoleService;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 /**
@@ -52,10 +51,9 @@ public class RoleController {
     }
 
     @Operation(summary = "删除角色")
-    @DeleteMapping
+    @DeleteMapping("{roleIds:\\d+(?:,\\d+)*}")
     public boolean deleteRoles(@Parameter(description = "角色id列表", required = true)
-                               @NotEmpty(message = "角色id不能为空")
-                               @RequestParam("roleIdList") List<Long> roleIdList) {
-        return roleService.deleteRoles(roleIdList);
+                               @PathVariable("roleIds") List<Long> roleIds) {
+        return roleService.deleteRoles(roleIds);
     }
 }

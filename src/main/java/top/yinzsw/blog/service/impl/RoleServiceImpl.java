@@ -109,14 +109,14 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements 
     }
 
     @Override
-    public boolean deleteRoles(List<Long> roleIdList) {
+    public boolean deleteRoles(List<Long> roleIds) {
         // 判断角色下是否有用户
-        List<Long> userIds = userMtmRoleManager.listUserIdsByRoleId(roleIdList);
+        List<Long> userIds = userMtmRoleManager.listUserIdsByRoleId(roleIds);
         if (!CollectionUtils.isEmpty(userIds)) {
             throw new BizException(String.format("角色id下共存在%d位用户, 不能删除!", userIds.size()));
         }
 
-        return lambdaUpdate().in(RolePO::getId, roleIdList).remove();
+        return lambdaUpdate().in(RolePO::getId, roleIds).remove();
     }
 
     private List<String> getEnabledRoleNamesByIds(List<Long> roleIds) {

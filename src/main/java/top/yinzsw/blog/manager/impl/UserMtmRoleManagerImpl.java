@@ -36,6 +36,7 @@ public class UserMtmRoleManagerImpl extends ServiceImpl<UserMtmRoleMapper, UserM
         List<UserMtmRolePO> userMtmRolePOList = roleIds.stream()
                 .map(roleId -> new UserMtmRolePO(userId, roleId))
                 .collect(Collectors.toList());
+        // TODO 尝试更新用户token
         return saveBatch(userMtmRolePOList);
     }
 }
