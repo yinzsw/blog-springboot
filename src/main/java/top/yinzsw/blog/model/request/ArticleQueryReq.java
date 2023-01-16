@@ -52,4 +52,10 @@ public class ArticleQueryReq {
      */
     @Parameter(description = "文章类型")
     private ArticleTypeEnum articleType;
+
+    /**
+     * 是否删除
+     */
+    @Parameter(description = "是否删除")
+    private Boolean isDeleted;
 }

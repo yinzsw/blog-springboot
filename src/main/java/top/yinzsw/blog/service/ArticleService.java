@@ -11,6 +11,7 @@ import top.yinzsw.blog.model.vo.ArticleHomeVO;
 import top.yinzsw.blog.model.vo.PageVO;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * @author yinzsW
@@ -69,4 +70,12 @@ public interface ArticleService extends IService<ArticlePO> {
      * @return 是否成功
      */
     boolean updateArticleIsDeleted(Long articleId, Boolean isDeleted);
+
+    /**
+     * 批量删除文章
+     *
+     * @param articleIds 文章id
+     * @return 是否成功
+     */
+    boolean deleteArticles(List<Long> articleIds);
 }

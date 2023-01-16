@@ -21,6 +21,7 @@ import top.yinzsw.blog.model.vo.PageVO;
 import top.yinzsw.blog.service.ArticleService;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 文章控制器
@@ -82,9 +83,16 @@ public class ArticleController {
 
     @Operation(summary = "上传文章图片")
     @PatchMapping(value = "image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public String saveArticleImages(@Parameter(description = "文章图片", required = true)
-                                    @MatchFileType(mimeType = "image/*", message = "仅支持上传图片类型{mimeType}的文件")
-                                    @RequestPart("image") MultipartFile image) {
+    public String uploadFileArticleImage(@Parameter(description = "文章图片", required = true)
+                                         @MatchFileType(mimeType = "image/*", message = "仅支持上传图片类型{mimeType}的文件")
+                                         @RequestPart("image") MultipartFile image) {
         return uploadProvider.uploadFile(FilePathEnum.ARTICLE.getPath(), image);
+    }
+
+    @Operation(summary = "物理删除文章")
+    @DeleteMapping("{articleIds:\\d+(?:,\\d+)*}")
+    public boolean deleteArticles(@Parameter(description = "用户角色id列表", required = true)
+                                  @PathVariable("articleIds") List<Long> articleIds) {
+        return articleService.deleteArticles(articleIds);
     }
 }

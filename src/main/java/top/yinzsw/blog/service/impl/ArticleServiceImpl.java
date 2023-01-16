@@ -53,6 +53,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
         Page<ArticlePO> articlePOPage = lambdaQuery()
                 .select(ArticlePO::getId, ArticlePO::getArticleTitle, ArticlePO::getCreateTime)
                 .eq(ArticlePO::getArticleStatus, ArticleStatusEnum.PUBLIC)
+                .eq(ArticlePO::getIsDeleted, false)
                 .orderByDesc(ArticlePO::getCreateTime)
                 .page(pageReq.getPager());
 
@@ -68,6 +69,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
                         ArticlePO::getArticleContent, ArticlePO::getArticleCover, ArticlePO::getArticleType,
                         ArticlePO::getIsTop, ArticlePO::getCreateTime)
                 .eq(ArticlePO::getArticleStatus, ArticleStatusEnum.PUBLIC)
+                .eq(ArticlePO::getIsDeleted, false)
                 .orderByDesc(ArticlePO::getIsTop)
                 .page(pageReq.getPager());
 
@@ -96,6 +98,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
                 .eq(Objects.nonNull(articleQueryReq.getCategoryId()), ArticlePO::getCategoryId, articleQueryReq.getCategoryId())
                 .eq(Objects.nonNull(articleQueryReq.getArticleStatus()), ArticlePO::getArticleStatus, articleQueryReq.getArticleStatus())
                 .eq(Objects.nonNull(articleQueryReq.getArticleType()), ArticlePO::getArticleType, articleQueryReq.getArticleType())
+                .eq(Objects.nonNull(articleQueryReq.getIsDeleted()), ArticlePO::getIsDeleted, articleQueryReq.getIsDeleted())
                 .in(Objects.nonNull(articleQueryReq.getTagId()), ArticlePO::getId, articleMtmTagManager.listArticleIdsByTagId(articleQueryReq.getTagId()))
                 .like(Objects.nonNull(articleQueryReq.getKeywords()), ArticlePO::getArticleTitle, articleQueryReq.getKeywords())
                 .page(pageReq.getPager());
@@ -154,6 +157,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
     @Override
     public boolean updateArticleIsDeleted(Long articleId, Boolean isDeleted) {
         return lambdaUpdate().set(ArticlePO::getIsDeleted, isDeleted).eq(ArticlePO::getId, articleId).update();
+    }
+
+    @Override
+    public boolean deleteArticles(List<Long> articleIds) {
+        return lambdaUpdate().eq(ArticlePO::getIsDeleted, true).in(ArticlePO::getId, articleIds).remove();
     }
 }
 
