@@ -41,23 +41,30 @@ public class ArticleController {
         return articleService.pageArchivesArticles(pageReq);
     }
 
-    @Operation(summary = "查看首页文章(分页)")
+    @Operation(summary = "查看前台文章")
+    @GetMapping("home/{articleId:\\d+}")
+    public ArticleHomeVO getHomeArticle(@Parameter(description = "文章id", required = true)
+                                        @PathVariable("articleId") Long articleId) {
+        return articleService.getHomeArticle(articleId);
+    }
+
+    @Operation(summary = "查看前台文章(分页)")
     @GetMapping("home/page")
-    public PageVO<ArticleHomeVO> pageHomeArticles(@Valid PageReq pageReq) {
+    public PageVO<ArticleDigestHomeVO> pageHomeArticles(@Valid PageReq pageReq) {
         return articleService.pageHomeArticles(pageReq);
     }
 
     @Operation(summary = "查看后台文章")
     @GetMapping("back/{articleId:\\d+}")
-    public ArticleVO getBackArticle(@Parameter(description = "文章id", required = true)
-                                    @PathVariable("articleId") Long articleId) {
+    public ArticleBackVO getBackArticle(@Parameter(description = "文章id", required = true)
+                                        @PathVariable("articleId") Long articleId) {
         return articleService.getBackArticle(articleId);
     }
 
     @Operation(summary = "查看后台文章(分页)")
     @GetMapping("back/page")
-    public PageVO<ArticleBackVO> pageBackArticles(@Valid PageReq pageReq,
-                                                  @Valid ArticleQueryReq articleQueryReq) {
+    public PageVO<ArticleDigestBackVO> pageBackArticles(@Valid PageReq pageReq,
+                                                        @Valid ArticleQueryReq articleQueryReq) {
         return articleService.pageBackArticles(pageReq, articleQueryReq);
     }
 

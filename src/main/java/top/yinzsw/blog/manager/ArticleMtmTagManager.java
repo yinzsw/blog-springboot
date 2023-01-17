@@ -16,12 +16,28 @@ import java.util.concurrent.CompletableFuture;
 public interface ArticleMtmTagManager extends IService<ArticleMtmTagPO> {
 
     /**
+     * 根据文章的标签获取相关文章
+     *
+     * @param articleId 文章id
+     * @return 推荐文章id列表
+     */
+    List<Long> getRelatedArticleIds(Long articleId);
+
+    /**
      * 根据文章id获取映射表
      *
      * @param articleIds 文章id列表
      * @return 映射表[articleId=tagPO]
      */
     CompletableFuture<Map<Long, List<TagPO>>> getMappingByArticleId(List<Long> articleIds);
+
+    /**
+     * 获取标签列表
+     *
+     * @param articleId 文章id
+     * @return 标签列表
+     */
+    List<TagPO> getTags(Long articleId);
 
     /**
      * 根据标签id获取文章id列表
@@ -47,12 +63,4 @@ public interface ArticleMtmTagManager extends IService<ArticleMtmTagPO> {
      * @return 是否成功
      */
     boolean deleteByArticleId(List<Long> articleIds);
-
-    /**
-     * 获取标签列表
-     *
-     * @param articleId 文章id
-     * @return 标签列表
-     */
-    List<TagPO> getTags(Long articleId);
 }

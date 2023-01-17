@@ -9,18 +9,21 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SetOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import top.yinzsw.blog.constant.RedisConst;
 import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.manager.RedisManager;
+import top.yinzsw.blog.model.dto.ArticleHotIndexDTO;
 import top.yinzsw.blog.model.dto.UserLikedDTO;
 import top.yinzsw.blog.model.po.WebsiteConfigPO;
-import top.yinzsw.blog.util.CommonUtils;
 import top.yinzsw.blog.util.MybatisPlusUtils;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * redis通用业务处理实现
@@ -76,26 +79,23 @@ public class RedisManagerImpl implements RedisManager, RedisConst {
     }
 
     @Override
-    public Map<Long, Long> getArticleLikeCount(List<Long> articleIds) {
-        List<String> articleIdsKey = articleIds.stream().map(Object::toString).collect(Collectors.toList());
-        List<Long> articlesLikedCount = redisTemplate.<String, Long>opsForHash().multiGet(ARTICLE_LIKE_COUNT, articleIdsKey);
-        articlesLikedCount = articlesLikedCount.stream()
-                .map(count -> Optional.ofNullable(count).orElse(0L))
-                .collect(Collectors.toList());
-        return CommonUtils.mergeList(articleIds, articlesLikedCount);
+    public ArticleHotIndexDTO getArticleHotIndex(Long articleId) {
+        return getArticleHotIndex(List.of(articleId)).get(articleId);
     }
 
     @Override
-    public Map<Long, Long> getArticleViewCount(List<Long> articleIds) {
-        List<Double> articlesViewScore = redisTemplate.opsForZSet().score(ARTICLE_VIEW_COUNT, articleIds.toArray());
-        if (CollectionUtils.isEmpty(articlesViewScore)) {
-            return CommonUtils.mergeList(articleIds, Collections.nCopies(articleIds.size(), 0L));
-        }
-
-        List<Long> articlesViewCount = articlesViewScore.stream()
-                .map(count -> Optional.ofNullable(count).orElse(0D).longValue())
-                .collect(Collectors.toList());
-        return CommonUtils.mergeList(articleIds, articlesViewCount);
+    public Map<Long, ArticleHotIndexDTO> getArticleHotIndex(List<Long> articleIds) {
+        Object[] articleIdsKeys = articleIds.stream().map(Object::toString).toArray();
+        List<Double> articlesLikeScore = stringRedisTemplate.opsForZSet().score(ARTICLE_LIKE_COUNT, articleIdsKeys);
+        List<Double> articlesViewScore = stringRedisTemplate.opsForZSet().score(ARTICLE_VIEW_COUNT, articleIdsKeys);
+        return IntStream.range(0, articleIds.size()).boxed().collect(Collectors.toMap(articleIds::get, idx -> {
+            ArticleHotIndexDTO articleHotIndexDTO = new ArticleHotIndexDTO();
+            Optional.ofNullable(articlesLikeScore).flatMap(likes -> Optional.ofNullable(likes.get(idx)))
+                    .map(Double::longValue).ifPresent(articleHotIndexDTO::setLikeCount);
+            Optional.ofNullable(articlesViewScore).flatMap(views -> Optional.ofNullable(views.get(idx)))
+                    .map(Double::longValue).ifPresent(articleHotIndexDTO::setViewsCount);
+            return articleHotIndexDTO;
+        }));
     }
 
     @Override

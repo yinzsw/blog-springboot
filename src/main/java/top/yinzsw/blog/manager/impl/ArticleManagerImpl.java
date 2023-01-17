@@ -35,6 +35,11 @@ public class ArticleManagerImpl implements ArticleManager {
     }
 
     @Override
+    public CategoryPO getCategory(Long categoryId) {
+        return Db.lambdaQuery(CategoryPO.class).eq(CategoryPO::getId, categoryId).one();
+    }
+
+    @Override
     public CategoryPO saveArticleCategoryWileNotExist(String categoryName) {
         return Db.lambdaQuery(CategoryPO.class)
                 .eq(CategoryPO::getCategoryName, categoryName)
@@ -44,10 +49,5 @@ public class ArticleManagerImpl implements ArticleManager {
                     Db.save(categoryPO);
                     return categoryPO;
                 });
-    }
-
-    @Override
-    public CategoryPO getCategory(Long categoryId) {
-        return Db.lambdaQuery(CategoryPO.class).eq(CategoryPO::getId, categoryId).one();
     }
 }

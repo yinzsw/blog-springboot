@@ -24,18 +24,18 @@ public interface ArticleManager {
     CompletableFuture<Map<Long, String>> getCategoryMappingByCategoryId(List<Long> categoryIds);
 
     /**
-     * 保存没有添加的文章分类
-     *
-     * @param categoryName 文章分类名
-     * @return 文章分类对象
-     */
-    CategoryPO saveArticleCategoryWileNotExist(String categoryName);
-
-    /**
      * 获取分类信息
      *
      * @param categoryId 分类id
      * @return 分类信息
      */
     CategoryPO getCategory(Long categoryId);
+
+    /**
+     * 保存没有添加的文章分类
+     *
+     * @param categoryName 文章分类名
+     * @return 文章分类对象
+     */
+    CategoryPO saveArticleCategoryWileNotExist(String categoryName);
 }

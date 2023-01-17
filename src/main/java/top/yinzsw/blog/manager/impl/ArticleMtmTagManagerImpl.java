@@ -27,6 +27,18 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ArticleMtmTagManagerImpl extends ServiceImpl<ArticleMtmTagMapper, ArticleMtmTagPO> implements ArticleMtmTagManager {
 
+    @Override
+    public List<Long> getRelatedArticleIds(Long articleId) {
+        List<Long> tagIds = MybatisPlusUtils.mappingList(ArticleMtmTagPO::getArticleId, ArticleMtmTagPO::getTagId, articleId);
+        return Db.lambdaQuery(ArticleMtmTagPO.class)
+                .ne(ArticleMtmTagPO::getArticleId, articleId)
+                .in(ArticleMtmTagPO::getTagId, tagIds)
+                .list().stream()
+                .map(ArticleMtmTagPO::getArticleId)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
     @Async
     @Override
     public CompletableFuture<Map<Long, List<TagPO>>> getMappingByArticleId(List<Long> articleIds) {
@@ -46,6 +58,12 @@ public class ArticleMtmTagManagerImpl extends ServiceImpl<ArticleMtmTagMapper, A
     }
 
     @Override
+    public List<TagPO> getTags(Long articleId) {
+        List<Long> tagIds = MybatisPlusUtils.mappingList(ArticleMtmTagPO::getArticleId, ArticleMtmTagPO::getTagId, articleId);
+        return Db.lambdaQuery(TagPO.class).in(TagPO::getId, tagIds).list();
+    }
+
+    @Override
     public List<Long> listArticleIdsByTagId(Long tagId) {
         if (Objects.isNull(tagId)) {
             return null;
@@ -56,20 +74,25 @@ public class ArticleMtmTagManagerImpl extends ServiceImpl<ArticleMtmTagMapper, A
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean saveArticleTagsWileNotExist(List<String> tagNames, Long articleId) {
-        //清除已经存在的标签名
+
+        //获取未保存的标签名
         List<TagPO> existTagPOList = Db.lambdaQuery(TagPO.class).in(TagPO::getTagName, tagNames).list();
-        if (!CollectionUtils.isEmpty(existTagPOList)) {
-            List<String> existTagNames = existTagPOList.stream().map(TagPO::getTagName).collect(Collectors.toList());
-            tagNames.removeAll(existTagNames);
+        List<TagPO> newTagPOList = tagNames.stream()
+                .filter(tagName -> existTagPOList.stream().map(TagPO::getTagName).noneMatch(tagName::equalsIgnoreCase))
+                .map(tageName -> new TagPO().setTagName(tageName))
+                .collect(Collectors.toList());
+
+        //保存新的标签名
+        if (!CollectionUtils.isEmpty(newTagPOList)) {
+            Db.saveBatch(newTagPOList);
         }
 
-        //保存标签
-        List<TagPO> tagPOList = tagNames.stream().map(tageName -> new TagPO().setTagName(tageName)).collect(Collectors.toList());
-        Db.saveBatch(tagPOList);
-
-        //将标签与文章建立映射关系
-        List<ArticleMtmTagPO> articleMtmTagPOList = tagPOList.stream()
-                .map(tagPO -> new ArticleMtmTagPO(articleId, tagPO.getId()))
+        //更新标签与文章映射关系
+        deleteByArticleId(List.of(articleId));
+        List<ArticleMtmTagPO> articleMtmTagPOList = newTagPOList.stream()
+                .map(TagPO::getId)
+                .collect(Collectors.toCollection(() -> existTagPOList.stream().map(TagPO::getId).collect(Collectors.toList()))).stream()
+                .map(tagId -> new ArticleMtmTagPO(articleId, tagId))
                 .collect(Collectors.toList());
         return saveBatch(articleMtmTagPOList);
     }
@@ -77,12 +100,6 @@ public class ArticleMtmTagManagerImpl extends ServiceImpl<ArticleMtmTagMapper, A
     @Override
     public boolean deleteByArticleId(List<Long> articleIds) {
         return Db.lambdaUpdate(ArticleMtmTagPO.class).in(ArticleMtmTagPO::getArticleId, articleIds).remove();
-    }
-
-    @Override
-    public List<TagPO> getTags(Long articleId) {
-        List<Long> tagIds = MybatisPlusUtils.mappingList(ArticleMtmTagPO::getArticleId, ArticleMtmTagPO::getTagId, articleId);
-        return Db.lambdaQuery(TagPO.class).in(TagPO::getId, tagIds).list();
     }
 }
 

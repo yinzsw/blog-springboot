@@ -2,6 +2,7 @@ package top.yinzsw.blog.manager;
 
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import top.yinzsw.blog.exception.BizException;
+import top.yinzsw.blog.model.dto.ArticleHotIndexDTO;
 import top.yinzsw.blog.model.dto.UserLikedDTO;
 import top.yinzsw.blog.model.po.WebsiteConfigPO;
 
@@ -42,20 +43,20 @@ public interface RedisManager {
     UserLikedDTO getUserLikeInfo(Long userId);
 
     /**
-     * 根据文章id获取文章点赞量
+     * 获取文章热度信息
      *
-     * @param articleIds 文章id列表
-     * @return 文章id与点赞数映射表
+     * @param articleId 文章id
+     * @return 热度信息
      */
-    Map<Long, Long> getArticleLikeCount(List<Long> articleIds);
+    ArticleHotIndexDTO getArticleHotIndex(Long articleId);
 
     /**
-     * 根据文章id获取文章浏览量
+     * 获取文章热度信息
      *
-     * @param articleIds 文章id列表
-     * @return 文章id与浏览量映射表
+     * @param articleIds 文章id
+     * @return 热度信息映射表
      */
-    Map<Long, Long> getArticleViewCount(List<Long> articleIds);
+    Map<Long, ArticleHotIndexDTO> getArticleHotIndex(List<Long> articleIds);
 
     /**
      * 保存网站配置文件

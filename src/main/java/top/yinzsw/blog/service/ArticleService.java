@@ -26,20 +26,28 @@ public interface ArticleService extends IService<ArticlePO> {
     PageVO<ArticleArchiveVO> pageArchivesArticles(PageReq pageReq);
 
     /**
+     * 查看首页文章
+     *
+     * @param articleId 文章id
+     * @return 首页文章
+     */
+    ArticleHomeVO getHomeArticle(Long articleId);
+
+    /**
      * 分页查询首页文章
      *
      * @param pageReq 分页信息
      * @return 首页文章列表
      */
-    PageVO<ArticleHomeVO> pageHomeArticles(PageReq pageReq);
+    PageVO<ArticleDigestHomeVO> pageHomeArticles(PageReq pageReq);
 
     /**
      * 查看后台文章
      *
      * @param articleId 文章id
-     * @return 文章
+     * @return 后台文章
      */
-    ArticleVO getBackArticle(Long articleId);
+    ArticleBackVO getBackArticle(Long articleId);
 
     /**
      * 分页查询后台文章
@@ -48,7 +56,7 @@ public interface ArticleService extends IService<ArticlePO> {
      * @param articleQueryReq 文章查询信息
      * @return 后台文章列表
      */
-    PageVO<ArticleBackVO> pageBackArticles(@Valid PageReq pageReq, ArticleQueryReq articleQueryReq);
+    PageVO<ArticleDigestBackVO> pageBackArticles(@Valid PageReq pageReq, ArticleQueryReq articleQueryReq);
 
     /**
      * 修改置顶状态

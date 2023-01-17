@@ -8,14 +8,13 @@ import lombok.experimental.Accessors;
 import top.yinzsw.blog.enums.ArticleStatusEnum;
 import top.yinzsw.blog.enums.ArticleTypeEnum;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
  * 后台文章
  *
  * @author yinzsW
- * @since 23/01/13
+ * @since 23/01/16
  */
 @Data
 @NoArgsConstructor
@@ -23,6 +22,7 @@ import java.util.List;
 @Accessors(chain = true)
 @Schema(description = "后台文章")
 public class ArticleBackVO {
+
     /**
      * 文章id
      */
@@ -30,34 +30,40 @@ public class ArticleBackVO {
     private Long id;
 
     /**
-     * 文章标题
+     * 文章分类id
+     */
+    @Schema(title = "文章分类id")
+    private Long categoryId;
+
+    /**
+     * 文章分类
+     */
+    @Schema(title = "文章分类")
+    private String categoryName;
+
+    /**
+     * 标题
      */
     @Schema(title = "文章标题")
     private String articleTitle;
 
     /**
-     * 文章封面
+     * 内容
      */
-    @Schema(title = "文章封面")
-    private String articleCover;
+    @Schema(title = "文章内容")
+    private String articleContent;
 
     /**
-     * 文章分类名
+     * 文章封面
      */
-    @Schema(title = "文章分类名")
-    private String categoryName;
+    @Schema(title = "文章缩略图")
+    private String articleCover;
 
     /**
      * 文章标签
      */
     @Schema(title = "文章标签")
-    private List<TagVO> tagList;
-
-    /**
-     * 文章状态
-     */
-    @Schema(title = "文章状态")
-    private ArticleStatusEnum articleStatus;
+    private List<TagVO> tags;
 
     /**
      * 文章类型
@@ -66,32 +72,20 @@ public class ArticleBackVO {
     private ArticleTypeEnum articleType;
 
     /**
+     * 文章状态 1.公开 2.私密 3.评论可见
+     */
+    @Schema(title = "文章状态")
+    private ArticleStatusEnum articleStatus;
+
+    /**
+     * 原文链接
+     */
+    @Schema(title = "原文链接")
+    private String originalUrl;
+
+    /**
      * 是否置顶
      */
     @Schema(title = "是否置顶")
     private Boolean isTop;
-
-    /**
-     * 是否删除
-     */
-    @Schema(title = "是否删除")
-    private Boolean isDeleted;
-
-    /**
-     * 发表时间
-     */
-    @Schema(title = "发表时间")
-    private LocalDateTime createTime;
-
-    /**
-     * 点赞量
-     */
-    @Schema(title = "点赞量")
-    private Long likeCount;
-
-    /**
-     * 浏览量
-     */
-    @Schema(title = "浏览量")
-    private Long viewsCount;
 }

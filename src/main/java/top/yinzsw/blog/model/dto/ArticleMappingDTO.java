@@ -32,12 +32,7 @@ public class ArticleMappingDTO {
     private Map<Long, List<TagPO>> tagMapping;
 
     /**
-     * 文章id->点赞量
+     * 文章id->热度信息
      */
-    private Map<Long, Long> likeCountMapping;
-
-    /**
-     * 文章id->浏览量
-     */
-    private Map<Long, Long> viewCountMapping;
+    private Map<Long, ArticleHotIndexDTO> articleHotIndexMapping;
 }

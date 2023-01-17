@@ -86,6 +86,6 @@ public class ArticleReq {
     /**
      * 是否置顶 0否 1是
      */
-    @Parameter(description = "是否置顶 0否 1是")
+    @Parameter(description = "是否置顶")
     private Boolean isTop;
 }
