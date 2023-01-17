@@ -34,6 +34,13 @@ public interface ArticleService extends IService<ArticlePO> {
     ArticleHomeVO getHomeArticle(Long articleId);
 
     /**
+     * 获取首页置顶文章
+     *
+     * @return 置顶文章列表
+     */
+    List<ArticleDigestHomeVO> listHomeTopArticles();
+
+    /**
      * 分页查询首页文章
      *
      * @param pageReq 分页信息
@@ -91,4 +98,5 @@ public interface ArticleService extends IService<ArticlePO> {
      * @return 是否成功
      */
     boolean deleteArticles(List<Long> articleIds);
+
 }

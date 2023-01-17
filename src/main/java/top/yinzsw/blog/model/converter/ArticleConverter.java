@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 public interface ArticleConverter {
     List<ArticleArchiveVO> toArticleArchiveVO(List<ArticlePO> articlePOList);
 
-    ArticleDigestHomeVO toArticleDigestHomeVO(ArticlePO articlePO, String categoryName, List<TagPO> tagList);
+    ArticleDigestHomeVO toArticleDigestHomeVO(ArticlePO articlePO, String categoryName, List<TagPO> tags);
 
     default List<ArticleDigestHomeVO> toArticleDigestHomeVO(List<ArticlePO> articlePOList,
                                                             Map<Long, String> categoryMapping,

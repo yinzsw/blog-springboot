@@ -30,6 +30,7 @@ import top.yinzsw.blog.service.ArticleService;
 import top.yinzsw.blog.util.CommonUtils;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -73,26 +74,48 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
                 .eq(ArticlePO::getIsDeleted, false)
                 .eq(ArticlePO::getArticleStatus, ArticleStatusEnum.PUBLIC);
 
-        //查询相关文章
-        List<Long> relatedArticleIds = articleMtmTagManager.getRelatedArticleIds(articleId);
-        if (!CollectionUtils.isEmpty(relatedArticleIds)) {
-            List<ArticlePO> relatedArticlesOf6 = commonLambdaQuery.in(ArticlePO::getId, relatedArticleIds)
-                    .orderByDesc(ArticlePO::getId).last("LIMIT 6").list();
-            List<ArticleOutlineHomeVO> relatedRecommendVOList = articleConverter.toArticleOutlineHomeVO(relatedArticlesOf6);
-            articleHomeVO.setRelatedRecommendArticles(relatedRecommendVOList);
-        }
+        var queryTask1 = CompletableFuture.runAsync(() -> {
+            //查询相关文章
+            List<Long> relatedArticleIds = articleMtmTagManager.getRelatedArticleIds(articleId);
+            if (!CollectionUtils.isEmpty(relatedArticleIds)) {
+                List<ArticlePO> relatedArticlesOf6 = commonLambdaQuery.in(ArticlePO::getId, relatedArticleIds)
+                        .orderByDesc(ArticlePO::getId).last("LIMIT 6").list();
+                List<ArticleOutlineHomeVO> relatedRecommendVOList = articleConverter.toArticleOutlineHomeVO(relatedArticlesOf6);
+                articleHomeVO.setRelatedRecommendArticles(relatedRecommendVOList);
+            }
+        });
 
-        //查询最新文章
-        List<ArticlePO> newestArticlesOf5 = commonLambdaQuery.orderByDesc(ArticlePO::getId).last("LIMIT 5").list();
-        List<ArticleOutlineHomeVO> newestRecommendVOList = articleConverter.toArticleOutlineHomeVO(newestArticlesOf5);
-        articleHomeVO.setNewestRecommendArticles(newestRecommendVOList);
+        var queryTask2 = CompletableFuture.runAsync(() -> {
+            //查询最新文章
+            List<ArticlePO> newestArticlesOf5 = commonLambdaQuery.orderByDesc(ArticlePO::getId).last("LIMIT 5").list();
+            List<ArticleOutlineHomeVO> newestRecommendVOList = articleConverter.toArticleOutlineHomeVO(newestArticlesOf5);
+            articleHomeVO.setNewestRecommendArticles(newestRecommendVOList);
 
-        // 查询上一篇和下一篇文章
-        ArticlePO prevArticlePO = commonLambdaQuery.gt(ArticlePO::getId, articleId).orderByAsc(ArticlePO::getId).last("LIMIT 1").one();
-        ArticlePO nextArticlePO = commonLambdaQuery.lt(ArticlePO::getId, articleId).orderByDesc(ArticlePO::getId).last("LIMIT 1").one();
-        ArticleOutlineHomeVO prevArticleOutlineHomeVO = articleConverter.toArticleOutlineHomeVO(prevArticlePO);
-        ArticleOutlineHomeVO nextArticleOutlineHomeVO = articleConverter.toArticleOutlineHomeVO(nextArticlePO);
-        return articleHomeVO.setPrevArticle(prevArticleOutlineHomeVO).setNextArticle(nextArticleOutlineHomeVO);
+            // 查询上一篇和下一篇文章
+            ArticlePO prevArticlePO = commonLambdaQuery.gt(ArticlePO::getId, articleId).orderByAsc(ArticlePO::getId).last("LIMIT 1").one();
+            ArticlePO nextArticlePO = commonLambdaQuery.lt(ArticlePO::getId, articleId).orderByDesc(ArticlePO::getId).last("LIMIT 1").one();
+            ArticleOutlineHomeVO prevArticleOutlineHomeVO = articleConverter.toArticleOutlineHomeVO(prevArticlePO);
+            ArticleOutlineHomeVO nextArticleOutlineHomeVO = articleConverter.toArticleOutlineHomeVO(nextArticlePO);
+            articleHomeVO.setPrevArticle(prevArticleOutlineHomeVO).setNextArticle(nextArticleOutlineHomeVO);
+        });
+
+        CommonUtils.biCompletableFuture(queryTask1, queryTask2, (unused, unused2) -> unused);
+        return articleHomeVO;
+    }
+
+    @Override
+    public List<ArticleDigestHomeVO> listHomeTopArticles() {
+        List<ArticlePO> topArticlePOList = lambdaQuery()
+                .eq(ArticlePO::getArticleStatus, ArticleStatusEnum.PUBLIC)
+                .eq(ArticlePO::getIsDeleted, false)
+                .eq(ArticlePO::getIsTop, true)
+                .orderByDesc(ArticlePO::getUpdateTime)
+                .list();
+
+        List<Long> categoryIds = topArticlePOList.stream().map(ArticlePO::getCategoryId).collect(Collectors.toList());
+        List<Long> articleIds = topArticlePOList.stream().map(ArticlePO::getId).collect(Collectors.toList());
+        return CommonUtils.biCompletableFuture(articleManager.getCategoryMappingByCategoryId(categoryIds), articleMtmTagManager.getMappingByArticleId(articleIds),
+                (categoryMapping, tagMapping) -> articleConverter.toArticleDigestHomeVO(topArticlePOList, categoryMapping, tagMapping));
     }
 
     @Override
@@ -168,8 +191,12 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
         return new PageVO<>(articleDigestBackVOList, totalCount);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updateArticleIsTop(Long articleId, Boolean isTop) {
+        if (isTop) {
+            articleManager.cancelOverTopArticle();
+        }
         return lambdaUpdate().set(ArticlePO::getIsTop, isTop).eq(ArticlePO::getId, articleId).update();
     }
 
@@ -190,6 +217,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
         if (!StringUtils.hasText(articleReq.getArticleCover())) {
             String articleCover = redisManager.getWebSiteConfig(WebsiteConfigPO::getArticleCover);
             articleReq.setArticleCover(articleCover);
+        }
+
+        //取消多余置顶文章
+        if (articleReq.getIsTop()) {
+            articleManager.cancelOverTopArticle();
         }
 
         //保存或更新文章

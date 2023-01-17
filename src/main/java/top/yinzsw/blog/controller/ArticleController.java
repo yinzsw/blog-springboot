@@ -48,6 +48,12 @@ public class ArticleController {
         return articleService.getHomeArticle(articleId);
     }
 
+    @Operation(summary = "查看前台置顶文章")
+    @GetMapping("home/top")
+    public List<ArticleDigestHomeVO> listHomeTopArticles() {
+        return articleService.listHomeTopArticles();
+    }
+
     @Operation(summary = "查看前台文章(分页)")
     @GetMapping("home/page")
     public PageVO<ArticleDigestHomeVO> pageHomeArticles(@Valid PageReq pageReq) {

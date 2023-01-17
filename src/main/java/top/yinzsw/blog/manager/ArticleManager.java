@@ -32,6 +32,11 @@ public interface ArticleManager {
     CategoryPO getCategory(Long categoryId);
 
     /**
+     * 取消多余的置顶文章
+     */
+    void cancelOverTopArticle();
+
+    /**
      * 保存没有添加的文章分类
      *
      * @param categoryName 文章分类名

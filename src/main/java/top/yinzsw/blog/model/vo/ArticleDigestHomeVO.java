@@ -81,5 +81,5 @@ public class ArticleDigestHomeVO {
      * 文章标签列表
      */
     @Schema(title = "文章标签列表")
-    private List<TagVO> tagList;
+    private List<TagVO> tags;
 }
