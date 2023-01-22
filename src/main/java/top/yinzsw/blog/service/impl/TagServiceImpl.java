@@ -11,6 +11,7 @@ import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.vo.PageVO;
 import top.yinzsw.blog.model.vo.TagVO;
 import top.yinzsw.blog.service.TagService;
+import top.yinzsw.blog.util.VerifyUtils;
 
 import java.util.List;
 
@@ -27,8 +28,10 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, TagPO> implements Tag
     @Override
     public PageVO<TagVO> pageTags(PageReq pageReq) {
         Page<TagPO> tagPOPage = lambdaQuery().select(TagPO::getId, TagPO::getTagName).page(pageReq.getPager());
-        List<TagVO> tagVOList = tagConverter.toTagVO(tagPOPage.getRecords());
 
+        VerifyUtils.checkIPage(tagPOPage);
+
+        List<TagVO> tagVOList = tagConverter.toTagVO(tagPOPage.getRecords());
         return new PageVO<>(tagVOList, tagPOPage.getTotal());
     }
 }

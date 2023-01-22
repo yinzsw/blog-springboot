@@ -1,64 +1,58 @@
 package top.yinzsw.blog.manager.impl;
 
-import com.baomidou.mybatisplus.extension.toolkit.Db;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Async;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
+import top.yinzsw.blog.core.context.HttpContext;
+import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.manager.ArticleManager;
-import top.yinzsw.blog.model.po.ArticlePO;
-import top.yinzsw.blog.model.po.CategoryPO;
-import top.yinzsw.blog.util.MybatisPlusUtils;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
- * 文章通用业务处理层实现
+ * 文章数据映射模型
  *
  * @author yinzsW
- * @since 23/01/13
+ * @since 23/01/18
  */
 @Service
 @RequiredArgsConstructor
 public class ArticleManagerImpl implements ArticleManager {
-    @Async
+    private final StringRedisTemplate stringRedisTemplate;
+    private final HttpContext httpContext;
+
     @Override
-    public CompletableFuture<Map<Long, String>> getCategoryMappingByCategoryId(List<Long> categoryIds) {
-        if (CollectionUtils.isEmpty(categoryIds)) {
-            return CompletableFuture.completedFuture(Collections.emptyMap());
+    public Map<Long, Long> getLikesCountMap(Long... articleIds) {
+        List<Double> articlesLikeScore = stringRedisTemplate.opsForZSet().score(ArticleManager.ARTICLE_LIKE_COUNT, (Object[]) articleIds);
+        return getMap(articlesLikeScore, articleIds);
+    }
+
+    @Override
+    public Map<Long, Long> getViewsCountMap(Long... articleIds) {
+        List<Double> articlesViewScore = stringRedisTemplate.opsForZSet().score(ArticleManager.ARTICLE_VIEW_COUNT, (Object[]) articleIds);
+        return getMap(articlesViewScore, articleIds);
+    }
+
+    @Override
+    public void updateViewsCount(Long articleId) {
+        //todo 更新文章浏览量
+        try {
+            //登录用户处理
+            httpContext.getCurrentContextDTO();
+        } catch (BizException e) {
+            //游客处理
+            throw new RuntimeException(e);
         }
-
-        Map<Long, String> categoryMapping = MybatisPlusUtils.mappingMap(CategoryPO::getId, CategoryPO::getCategoryName, categoryIds);
-        return CompletableFuture.completedFuture(categoryMapping);
     }
 
-    @Override
-    public CategoryPO getCategory(Long categoryId) {
-        return Db.lambdaQuery(CategoryPO.class).eq(CategoryPO::getId, categoryId).one();
-    }
-
-    @Override
-    public void cancelOverTopArticle() {
-        List<ArticlePO> topArticlePOList = Db.lambdaQuery(ArticlePO.class).eq(ArticlePO::getIsTop, true).orderByDesc(ArticlePO::getUpdateTime).list();
-        if (topArticlePOList.size() > 3) {
-            List<Long> cancelTopArticleIds = topArticlePOList.subList(2, topArticlePOList.size()).stream().map(ArticlePO::getId).collect(Collectors.toList());
-            Db.lambdaUpdate(ArticlePO.class).set(ArticlePO::getIsTop, false).in(ArticlePO::getId, cancelTopArticleIds).update();
-        }
-    }
-
-    @Override
-    public CategoryPO saveArticleCategoryWileNotExist(String categoryName) {
-        return Db.lambdaQuery(CategoryPO.class)
-                .eq(CategoryPO::getCategoryName, categoryName)
-                .oneOpt()
-                .orElseGet(() -> {
-                    CategoryPO categoryPO = new CategoryPO().setCategoryName(categoryName);
-                    Db.save(categoryPO);
-                    return categoryPO;
-                });
+    private static Map<Long, Long> getMap(List<Double> articlesScore, Long[] articleIds) {
+        return IntStream.range(0, articleIds.length).boxed().collect(Collectors.toMap(idx -> articleIds[idx], idx -> Optional
+                .ofNullable(articlesScore)
+                .flatMap(scores -> Optional.ofNullable(scores.get(idx)))
+                .map(Double::longValue).orElse(0L)));
     }
 }

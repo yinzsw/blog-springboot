@@ -22,7 +22,7 @@ import java.util.List;
 @AllArgsConstructor
 @Accessors(chain = true)
 @Schema(description = "后台文章摘要")
-public class ArticleDigestBackVO {
+public class ArticleDigestBackgroundVO {
     /**
      * 文章id
      */
@@ -51,7 +51,7 @@ public class ArticleDigestBackVO {
      * 文章标签
      */
     @Schema(title = "文章标签")
-    private List<TagVO> tagList;
+    private List<TagVO> tags;
 
     /**
      * 文章状态

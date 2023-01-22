@@ -5,23 +5,23 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import top.yinzsw.blog.enums.ArticleStatusEnum;
 import top.yinzsw.blog.enums.ArticleTypeEnum;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 后台文章
+ * 首页文章摘要
  *
  * @author yinzsW
- * @since 23/01/16
+ * @since 23/01/13
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-@Schema(description = "后台文章")
-public class ArticleBackVO {
+@Schema(description = "首页文章摘要")
+public class ArticleDigestVO {
 
     /**
      * 文章id
@@ -36,34 +36,28 @@ public class ArticleBackVO {
     private Long categoryId;
 
     /**
-     * 文章分类
+     * 文章分类名
      */
-    @Schema(title = "文章分类")
+    @Schema(title = "文章分类名")
     private String categoryName;
 
     /**
-     * 标题
+     * 文章标题
      */
     @Schema(title = "文章标题")
     private String articleTitle;
 
     /**
-     * 内容
+     * 文章内容
      */
     @Schema(title = "文章内容")
     private String articleContent;
 
     /**
-     * 文章封面
+     * 文章缩略图
      */
     @Schema(title = "文章缩略图")
     private String articleCover;
-
-    /**
-     * 文章标签
-     */
-    @Schema(title = "文章标签")
-    private List<TagVO> tags;
 
     /**
      * 文章类型
@@ -72,20 +66,20 @@ public class ArticleBackVO {
     private ArticleTypeEnum articleType;
 
     /**
-     * 文章状态 1.公开 2.私密 3.评论可见
-     */
-    @Schema(title = "文章状态")
-    private ArticleStatusEnum articleStatus;
-
-    /**
-     * 原文链接
-     */
-    @Schema(title = "原文链接")
-    private String originalUrl;
-
-    /**
      * 是否置顶
      */
     @Schema(title = "是否置顶")
     private Boolean isTop;
+
+    /**
+     * 发表时间
+     */
+    @Schema(title = "文章发表时间")
+    private LocalDateTime createTime;
+
+    /**
+     * 文章标签列表
+     */
+    @Schema(title = "文章标签列表")
+    private List<TagVO> tags;
 }

@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
-import top.yinzsw.blog.manager.RedisManager;
+import top.yinzsw.blog.manager.WebConfigManager;
 
 /**
  * 监听SpringBoot启动
@@ -18,13 +18,13 @@ import top.yinzsw.blog.manager.RedisManager;
 @Service
 @RequiredArgsConstructor
 public class AppStartEventListener implements ApplicationListener<ApplicationStartedEvent> {
-    private final RedisManager redisManager;
+    private final WebConfigManager webConfigManager;
 
     @SneakyThrows
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
         log.info("网站配置文件加载中...");
-        redisManager.initWebSiteConfig();
+        webConfigManager.initWebSiteConfig();
         log.info("网站配置文件加载完毕");
     }
 }

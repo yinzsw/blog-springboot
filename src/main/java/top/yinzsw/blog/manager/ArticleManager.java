@@ -1,10 +1,6 @@
 package top.yinzsw.blog.manager;
 
-import top.yinzsw.blog.model.po.CategoryPO;
-
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * 文章通用业务处理层
@@ -16,31 +12,31 @@ import java.util.concurrent.CompletableFuture;
 public interface ArticleManager {
 
     /**
-     * 根据分类id获取映射表
-     *
-     * @param categoryIds 分类id
-     * @return 映射表[categoryId=categoryName]
+     * 文章点击量
      */
-    CompletableFuture<Map<Long, String>> getCategoryMappingByCategoryId(List<Long> categoryIds);
+    String ARTICLE_VIEW_COUNT = "blog:article:views";
 
     /**
-     * 获取分类信息
-     *
-     * @param categoryId 分类id
-     * @return 分类信息
+     * 文章点赞量
      */
-    CategoryPO getCategory(Long categoryId);
+    String ARTICLE_LIKE_COUNT = "blog:article:likes";
+
 
     /**
-     * 取消多余的置顶文章
+     * 获取文章点赞量信息
+     *
+     * @param articleIds 文章id列表
+     * @return 文章点赞信息[文章id=点赞量]
      */
-    void cancelOverTopArticle();
+    Map<Long, Long> getLikesCountMap(Long... articleIds);
 
     /**
-     * 保存没有添加的文章分类
+     * 获取文章浏览量信息
      *
-     * @param categoryName 文章分类名
-     * @return 文章分类对象
+     * @param articleIds 文章id列表
+     * @return 文章点赞信息[文章id=浏览量]
      */
-    CategoryPO saveArticleCategoryWileNotExist(String categoryName);
+    Map<Long, Long> getViewsCountMap(Long... articleIds);
+
+    void updateViewsCount(Long articleId);
 }

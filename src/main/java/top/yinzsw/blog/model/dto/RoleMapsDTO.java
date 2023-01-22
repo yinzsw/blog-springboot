@@ -5,24 +5,28 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.util.List;
+import java.util.Map;
+
 /**
- * 文章热度指数信息
+ * 角色映射信息模型
  *
  * @author yinzsW
- * @since 23/01/17
+ * @since 23/01/22
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-public class ArticleHotIndexDTO {
-    /**
-     * 点赞量
-     */
-    private Long likeCount;
+public class RoleMapsDTO {
 
     /**
-     * 浏览量
+     * 角色id->菜单id列表
      */
-    private Long viewsCount;
+    private Map<Long, List<Long>> menuIdsMap;
+
+    /**
+     * 角色id->资源id列表
+     */
+    private Map<Long, List<Long>> resourceIdsMap;
 }

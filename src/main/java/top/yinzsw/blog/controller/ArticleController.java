@@ -8,8 +8,6 @@ import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import top.yinzsw.blog.core.upload.UploadProvider;
-import top.yinzsw.blog.enums.FilePathEnum;
 import top.yinzsw.blog.extension.validation.MatchFileType;
 import top.yinzsw.blog.model.request.ArticleQueryReq;
 import top.yinzsw.blog.model.request.ArticleReq;
@@ -33,53 +31,64 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ArticleController {
     private final ArticleService articleService;
-    private final UploadProvider uploadProvider;
 
-    @Operation(summary = "查看文章归档(分页)")
-    @GetMapping("archives/page")
+    @Operation(summary = "查看文章归档")
+    @GetMapping("archives")
     public PageVO<ArticleArchiveVO> pageArchivesArticles(@Valid PageReq pageReq) {
         return articleService.pageArchivesArticles(pageReq);
     }
 
-    @Operation(summary = "查看前台文章")
-    @GetMapping("home/{articleId:\\d+}")
-    public ArticleHomeVO getHomeArticle(@Parameter(description = "文章id", required = true)
-                                        @PathVariable("articleId") Long articleId) {
-        return articleService.getHomeArticle(articleId);
+    @Operation(summary = "查看文章详情")
+    @GetMapping("{articleId:\\d+}")
+    public ArticleVO getArticle(@Parameter(description = "文章id", required = true)
+                                @PathVariable("articleId") Long articleId) {
+        return articleService.getArticle(articleId);
     }
 
-    @Operation(summary = "查看前台置顶文章")
-    @GetMapping("home/top")
-    public List<ArticleDigestHomeVO> listHomeTopArticles() {
-        return articleService.listHomeTopArticles();
+    @Operation(summary = "查看文章列表")
+    @GetMapping("isTop/{isTop:true|false}")
+    public PageVO<ArticleDigestVO> pageArticles(@Valid PageReq pageReq,
+                                                @Parameter(description = "是否置顶", required = true)
+                                                @PathVariable("isTop") Boolean isTop) {
+        return articleService.pageArticles(pageReq, isTop);
     }
 
-    @Operation(summary = "查看前台文章(分页)")
-    @GetMapping("home/page")
-    public PageVO<ArticleDigestHomeVO> pageHomeArticles(@Valid PageReq pageReq) {
-        return articleService.pageHomeArticles(pageReq);
+    @Operation(summary = "查看文章预览(分类ID)")
+    @GetMapping("category/{categoryId:\\d+}")
+    public PageVO<ArticlePreviewVO> pagePreviewArticles(@Valid PageReq pageReq,
+                                                        @Parameter(description = "分类id", required = true)
+                                                        @PathVariable("categoryId") Long categoryId) {
+        return articleService.pagePreviewArticles(pageReq, categoryId);
     }
 
-    @Operation(summary = "查看后台文章")
-    @GetMapping("back/{articleId:\\d+}")
-    public ArticleBackVO getBackArticle(@Parameter(description = "文章id", required = true)
-                                        @PathVariable("articleId") Long articleId) {
-        return articleService.getBackArticle(articleId);
+    @Operation(summary = "查看文章预览(标签ID)")
+    @GetMapping("tag/{tagIds:\\d+(?:,\\d+)*}")
+    public PageVO<ArticlePreviewVO> pagePreviewArticles(@Valid PageReq pageReq,
+                                                        @Parameter(description = "标签id", required = true)
+                                                        @PathVariable("tagIds") List<Long> tagIds) {
+        return articleService.pagePreviewArticles(pageReq, tagIds);
     }
 
-    @Operation(summary = "查看后台文章(分页)")
-    @GetMapping("back/page")
-    public PageVO<ArticleDigestBackVO> pageBackArticles(@Valid PageReq pageReq,
-                                                        @Valid ArticleQueryReq articleQueryReq) {
-        return articleService.pageBackArticles(pageReq, articleQueryReq);
+    @Operation(summary = "查看文章详情(后台)")
+    @GetMapping("background/{articleId:\\d+}")
+    public ArticleBackgroundVO getBackgroundArticle(@Parameter(description = "文章id", required = true)
+                                                    @PathVariable("articleId") Long articleId) {
+        return articleService.getBackgroundArticle(articleId);
+    }
+
+    @Operation(summary = "查看文章列表(后台)")
+    @GetMapping("background")
+    public PageVO<ArticleDigestBackgroundVO> pageBackgroundArticles(@Valid PageReq pageReq,
+                                                                    @Valid ArticleQueryReq articleQueryReq) {
+        return articleService.pageBackgroundArticles(pageReq, articleQueryReq);
     }
 
     @Operation(summary = "上传文章图片")
-    @PatchMapping(value = "image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public String uploadFileArticleImage(@Parameter(description = "文章图片", required = true)
                                          @MatchFileType(mimeType = "image/*", message = "仅支持上传图片类型{mimeType}的文件")
                                          @RequestPart("image") MultipartFile image) {
-        return uploadProvider.uploadFile(FilePathEnum.ARTICLE.getPath(), image);
+        return articleService.uploadFileArticleImage(image);
     }
 
     @Operation(summary = "修改文章置顶状态")

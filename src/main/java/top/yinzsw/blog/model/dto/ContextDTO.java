@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-public class ClaimsDTO {
+public class ContextDTO {
 
     /**
      * 用户id

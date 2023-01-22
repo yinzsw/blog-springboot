@@ -1,19 +1,13 @@
 package top.yinzsw.blog.model.converter;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingConstants;
-import top.yinzsw.blog.model.dto.ArticleHotIndexDTO;
-import top.yinzsw.blog.model.dto.ArticleMappingDTO;
+import org.mapstruct.*;
+import top.yinzsw.blog.model.dto.ArticleMapsDTO;
 import top.yinzsw.blog.model.po.ArticlePO;
 import top.yinzsw.blog.model.po.TagPO;
 import top.yinzsw.blog.model.request.ArticleReq;
 import top.yinzsw.blog.model.vo.*;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * 文章数据模型转换器
@@ -23,56 +17,58 @@ import java.util.stream.Collectors;
  */
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface ArticleConverter {
+
     List<ArticleArchiveVO> toArticleArchiveVO(List<ArticlePO> articlePOList);
 
-    ArticleDigestHomeVO toArticleDigestHomeVO(ArticlePO articlePO, String categoryName, List<TagPO> tags);
+    ArticleVO toArticleVO(ArticlePO articlePO, @Context ArticleMapsDTO articleMapsDTO);
 
-    default List<ArticleDigestHomeVO> toArticleDigestHomeVO(List<ArticlePO> articlePOList,
-                                                            Map<Long, String> categoryMapping,
-                                                            Map<Long, List<TagPO>> tagMapping) {
-        return articlePOList.stream().map(articlePO -> {
-            Optional.ofNullable(articlePO.getArticleContent()).ifPresent(articleContent -> {
-                int endIndex = Math.min(articleContent.length(), 512);
-                articlePO.setArticleContent(articleContent.substring(0, endIndex));
-            });
-            String categoryName = categoryMapping.get(articlePO.getCategoryId());
-            List<TagPO> tagPOList = tagMapping.get(articlePO.getId());
+    ArticleOutlineVO toArticleOutlineVO(ArticlePO articlePO);
 
-            return toArticleDigestHomeVO(articlePO, categoryName, tagPOList);
-        }).collect(Collectors.toList());
-    }
+    List<ArticleOutlineVO> toArticleOutlineVO(List<ArticlePO> articlePOList);
 
-    ArticleDigestBackVO toArticleDigestBackVO(ArticlePO articlePO, String categoryName, List<TagPO> tagList, Long likeCount, Long viewsCount);
+    List<ArticlePreviewVO> toArticlePreviewVO(List<ArticlePO> articlePOList, @Context ArticleMapsDTO articleMapsDTO);
 
-    default List<ArticleDigestBackVO> toArticleDigestBackVO(List<ArticlePO> articlePOList, ArticleMappingDTO articleMappingDTO) {
-        return articlePOList.stream().map(articlePO -> {
-            String categoryName = articleMappingDTO.getCategoryNameMapping().get(articlePO.getCategoryId());
-            Long articleId = articlePO.getId();
-            List<TagPO> tagPOList = articleMappingDTO.getTagMapping().get(articleId);
+    List<ArticleDigestVO> toArticleDigestVO(List<ArticlePO> articlePOList, @Context ArticleMapsDTO articleMapsDTO);
 
-            ArticleHotIndexDTO articleHotIndexDTO = articleMappingDTO.getArticleHotIndexMapping().get(articleId);
-            Long likeCount = articleHotIndexDTO.getLikeCount();
-            Long viewsCount = articleHotIndexDTO.getViewsCount();
-            return toArticleDigestBackVO(articlePO, categoryName, tagPOList, likeCount, viewsCount);
-        }).collect(Collectors.toList());
-    }
+    ArticleBackgroundVO toArticleBackgroundVO(ArticlePO articlePO, @Context ArticleMapsDTO articleMapsDTO);
 
+    List<ArticleDigestBackgroundVO> toArticleDigestBackgroundVO(List<ArticlePO> articlePOList, @Context ArticleMapsDTO articleMapsDTO);
 
-    @Mapping(target = "updateTime", ignore = true)
-    @Mapping(target = "isDeleted", ignore = true)
-    @Mapping(target = "createTime", ignore = true)
     ArticlePO toArticlePO(ArticleReq articleReq, Long userId, Long categoryId);
 
-    ArticleBackVO toArticleBackVO(ArticlePO articlePO, String categoryName, List<TagPO> tags);
+    ///////////////////////////////////Context//////////////////////////////////////////////
+    List<TagVO> toTagVO(List<TagPO> tagPOList);
 
-    ArticleOutlineHomeVO toArticleOutlineHomeVO(ArticlePO articlePO);
+    @SuppressWarnings("unchecked")
+    @ObjectFactory
+    default <T> T defaultCreator(ArticlePO origin,
+                                 @Context ArticleMapsDTO articleMapsDTO,
+                                 @TargetType Class<T> targetType) {
+        Long articleId = origin.getId();
+        Long categoryId = origin.getCategoryId();
 
-    List<ArticleOutlineHomeVO> toArticleOutlineHomeVO(List<ArticlePO> articlePOList);
+        String categoryName = articleMapsDTO.getCategoryNameMap().get(categoryId);
+        List<TagVO> tags = toTagVO(articleMapsDTO.getTagsMap().get(articleId));
 
+        Long likeCount = articleMapsDTO.getLikeCountMap().get(articleId);
+        Long viewCount = articleMapsDTO.getViewCountMap().get(articleId);
 
-    @Mapping(target = "relatedRecommendArticles", ignore = true)
-    @Mapping(target = "prevArticle", ignore = true)
-    @Mapping(target = "nextArticle", ignore = true)
-    @Mapping(target = "newestRecommendArticles", ignore = true)
-    ArticleHomeVO toArticleHomeVO(ArticlePO articlePO, String categoryName, List<TagPO> tags, ArticleHotIndexDTO articleHotIndexDTO);
+        if (targetType.isAssignableFrom(ArticleVO.class)) {
+            return (T) new ArticleVO().setCategoryName(categoryName).setTags(tags).setViewsCount(viewCount).setLikeCount(likeCount);
+        }
+        if (targetType.isAssignableFrom(ArticlePreviewVO.class)) {
+            return (T) new ArticlePreviewVO().setCategoryName(categoryName).setTags(tags);
+        }
+        if (targetType.isAssignableFrom(ArticleDigestVO.class)) {
+            return (T) new ArticleDigestVO().setCategoryName(categoryName).setTags(tags);
+        }
+        if (targetType.isAssignableFrom(ArticleBackgroundVO.class)) {
+            return (T) new ArticleBackgroundVO().setCategoryName(categoryName).setTags(tags);
+        }
+        if (targetType.isAssignableFrom(ArticleDigestBackgroundVO.class)) {
+            return (T) new ArticleDigestBackgroundVO().setCategoryName(categoryName).setTags(tags).setViewsCount(viewCount).setLikeCount(likeCount);
+        }
+
+        throw new UnsupportedOperationException();
+    }
 }

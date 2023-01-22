@@ -8,7 +8,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import top.yinzsw.blog.core.context.HttpContext;
-import top.yinzsw.blog.manager.RedisManager;
 import top.yinzsw.blog.manager.UserManager;
 import top.yinzsw.blog.model.converter.UserConverter;
 import top.yinzsw.blog.model.dto.UserLikedDTO;
@@ -30,7 +29,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService, UserDetailsPasswordService {
     private final UserManager userManager;
-    private final RedisManager redisManager;
     private final RoleService roleService;
     private final HttpContext httpContext;
     private final UserConverter userConverter;
@@ -50,8 +48,7 @@ public class UserDetailsServiceImpl implements UserDetailsService, UserDetailsPa
         List<String> roleList = roleService.getRoleNamesByUserId(userId);
 
         // 查询用户点赞信息
-        UserLikedDTO userLikedDTO = redisManager.getUserLikeInfo(userId);
-
+        UserLikedDTO userLikedDTO = userManager.getUserLikeInfo(userId);
         return userConverter.toUserDetailDTO(userPO, roleList, userLikedDTO);
     }
 

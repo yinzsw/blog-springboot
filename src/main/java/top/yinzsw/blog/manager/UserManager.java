@@ -1,5 +1,7 @@
 package top.yinzsw.blog.manager;
 
+import top.yinzsw.blog.exception.BizException;
+import top.yinzsw.blog.model.dto.UserLikedDTO;
 import top.yinzsw.blog.model.po.UserPO;
 
 import java.time.LocalDateTime;
@@ -12,6 +14,57 @@ import java.time.LocalDateTime;
  */
 
 public interface UserManager {
+
+    /**
+     * 邮箱验证码过期时间(分钟)
+     */
+    int USER_EMAIL_CODE_EXPIRE_TIME = 15;
+
+    /**
+     * 邮箱验证码
+     */
+    String USER_EMAIL_CODE_PREFIX = "blog:user:email_code:";
+
+    /**
+     * 用户点赞过的说说
+     */
+    String USER_LIKED_TALKS_PREFIX = "blog:user:liked_talks:";
+
+    /**
+     * 用户点赞过的文章
+     */
+    String USER_LIKED_ARTICLES_PREFIX = "blog:user:liked_articles:";
+
+    /**
+     * 用户点赞过的评论
+     */
+    String USER_LIKED_COMMENTS_PREFIX = "blog:user:liked_comments:";
+
+    /**
+     * 保存邮箱验证码
+     *
+     * @param email 邮箱
+     * @param code  验证码
+     */
+    void saveEmailVerificationCode(String email, String code);
+
+    /**
+     * 校验邮箱验证码
+     *
+     * @param email 邮箱
+     * @param code  验证码
+     */
+    void checkEmailVerificationCode(String email, String code) throws BizException;
+
+    /**
+     * 根据用户id查找用户点赞信息
+     *
+     * @param userId 用户id
+     * @return 点赞信息
+     */
+    UserLikedDTO getUserLikeInfo(Long userId);
+
+/////////////////////////////////////////////////////MYSQL//////////////////////////////////////////////////////////////
 
     /**
      * 格局用户名或邮箱查询用户

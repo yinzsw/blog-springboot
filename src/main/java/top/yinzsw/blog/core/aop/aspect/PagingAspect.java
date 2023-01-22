@@ -23,8 +23,8 @@ public class PagingAspect {
     @Before(value = "top.yinzsw.blog.core.aop.PointCutProvider.isSelfPagingApi()")
     public void beforeAdvice(JoinPoint joinPoint) {
         Arrays.stream(joinPoint.getArgs())
-                .filter(PageReq::instanceOf)
-                .map(PageReq::valueOf)
+                .filter(o -> o instanceof PageReq)
+                .map(o -> (PageReq) o)
                 .findFirst()
                 .ifPresent(pageReq -> pageReq
                         .setPage(Optional.ofNullable(pageReq.getPage()).orElse(1L))

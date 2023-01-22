@@ -25,7 +25,7 @@ public class ArticleArchiveVO {
      * 文章id
      */
     @Schema(title = "文章id")
-    private Integer id;
+    private Long id;
 
     /**
      * 文章标题

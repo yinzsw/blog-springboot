@@ -1,13 +1,13 @@
 package top.yinzsw.blog.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.web.multipart.MultipartFile;
 import top.yinzsw.blog.model.po.ArticlePO;
 import top.yinzsw.blog.model.request.ArticleQueryReq;
 import top.yinzsw.blog.model.request.ArticleReq;
 import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.vo.*;
 
-import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -31,22 +31,34 @@ public interface ArticleService extends IService<ArticlePO> {
      * @param articleId 文章id
      * @return 首页文章
      */
-    ArticleHomeVO getHomeArticle(Long articleId);
-
-    /**
-     * 获取首页置顶文章
-     *
-     * @return 置顶文章列表
-     */
-    List<ArticleDigestHomeVO> listHomeTopArticles();
+    ArticleVO getArticle(Long articleId);
 
     /**
      * 分页查询首页文章
      *
      * @param pageReq 分页信息
+     * @param isTop   是否置顶
      * @return 首页文章列表
      */
-    PageVO<ArticleDigestHomeVO> pageHomeArticles(PageReq pageReq);
+    PageVO<ArticleDigestVO> pageArticles(PageReq pageReq, Boolean isTop);
+
+    /**
+     * 根据分类id查看文章预览
+     *
+     * @param pageReq    分页信息
+     * @param categoryId 分类id
+     * @return 文章预览信息
+     */
+    PageVO<ArticlePreviewVO> pagePreviewArticles(PageReq pageReq, Long categoryId);
+
+    /**
+     * 根据标签id查看文章预览
+     *
+     * @param pageReq 分页信息
+     * @param tagIds  标签id列表
+     * @return 文章预览信息
+     */
+    PageVO<ArticlePreviewVO> pagePreviewArticles(PageReq pageReq, List<Long> tagIds);
 
     /**
      * 查看后台文章
@@ -54,7 +66,7 @@ public interface ArticleService extends IService<ArticlePO> {
      * @param articleId 文章id
      * @return 后台文章
      */
-    ArticleBackVO getBackArticle(Long articleId);
+    ArticleBackgroundVO getBackgroundArticle(Long articleId);
 
     /**
      * 分页查询后台文章
@@ -63,7 +75,15 @@ public interface ArticleService extends IService<ArticlePO> {
      * @param articleQueryReq 文章查询信息
      * @return 后台文章列表
      */
-    PageVO<ArticleDigestBackVO> pageBackArticles(@Valid PageReq pageReq, ArticleQueryReq articleQueryReq);
+    PageVO<ArticleDigestBackgroundVO> pageBackgroundArticles(PageReq pageReq, ArticleQueryReq articleQueryReq);
+
+    /**
+     * 上传文章图片
+     *
+     * @param image 图片
+     * @return 图片地址
+     */
+    String uploadFileArticleImage(MultipartFile image);
 
     /**
      * 修改置顶状态
@@ -98,5 +118,4 @@ public interface ArticleService extends IService<ArticlePO> {
      * @return 是否成功
      */
     boolean deleteArticles(List<Long> articleIds);
-
 }

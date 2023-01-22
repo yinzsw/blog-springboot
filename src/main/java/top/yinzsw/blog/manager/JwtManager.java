@@ -2,7 +2,7 @@ package top.yinzsw.blog.manager;
 
 import top.yinzsw.blog.enums.TokenTypeEnum;
 import top.yinzsw.blog.exception.BizException;
-import top.yinzsw.blog.model.dto.ClaimsDTO;
+import top.yinzsw.blog.model.dto.ContextDTO;
 import top.yinzsw.blog.model.vo.TokenVO;
 
 import java.util.List;
@@ -33,5 +33,5 @@ public interface JwtManager {
      * @return token声明信息
      * @throws BizException 业务异常
      */
-    ClaimsDTO parseTokenInfo(String token, TokenTypeEnum expectTokenType) throws BizException;
+    ContextDTO parseTokenInfo(String token, TokenTypeEnum expectTokenType) throws BizException;
 }

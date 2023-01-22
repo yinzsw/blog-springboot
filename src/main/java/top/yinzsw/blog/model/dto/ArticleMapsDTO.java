@@ -10,29 +10,33 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 文章映射信息传输对象
+ * 文章映射信息模型
  *
  * @author yinzsW
- * @since 23/01/15
+ * @since 23/01/22
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-public class ArticleMappingDTO {
-
+public class ArticleMapsDTO {
     /**
      * 分类id->分类名
      */
-    private Map<Long, String> categoryNameMapping;
+    private Map<Long, String> categoryNameMap;
 
     /**
      * 文章id->标签列表
      */
-    private Map<Long, List<TagPO>> tagMapping;
+    private Map<Long, List<TagPO>> tagsMap;
 
     /**
-     * 文章id->热度信息
+     * 文章id->点赞量
      */
-    private Map<Long, ArticleHotIndexDTO> articleHotIndexMapping;
+    private Map<Long, Long> likeCountMap;
+
+    /**
+     * 文章id->浏览量
+     */
+    private Map<Long, Long> viewCountMap;
 }

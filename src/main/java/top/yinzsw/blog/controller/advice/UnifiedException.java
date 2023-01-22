@@ -18,11 +18,14 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import top.yinzsw.blog.enums.ResponseCodeEnum;
 import top.yinzsw.blog.exception.BizException;
+import top.yinzsw.blog.exception.EmptyPageException;
+import top.yinzsw.blog.model.vo.PageVO;
 import top.yinzsw.blog.model.vo.ResponseVO;
 
 import javax.servlet.ServletException;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -153,6 +156,11 @@ public class UnifiedException {
     @ExceptionHandler(BizException.class)
     public ResponseVO<?> bizExceptionHandler(BizException e) {
         return ResponseVO.fail(e.getCode(), e.getMessage());
+    }
+
+    @ExceptionHandler(EmptyPageException.class)
+    public ResponseVO<?> emptyPageExceptionHandler(EmptyPageException e) {
+        return ResponseVO.success(new PageVO<>(Collections.emptyList(), e.getTotalCount()));
     }
 
     @ExceptionHandler(DataAccessException.class)

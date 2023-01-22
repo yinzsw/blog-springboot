@@ -7,14 +7,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import top.yinzsw.blog.constant.MQConst;
-import top.yinzsw.blog.constant.RedisConst;
 import top.yinzsw.blog.core.context.HttpContext;
 import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.manager.JwtManager;
-import top.yinzsw.blog.manager.RedisManager;
 import top.yinzsw.blog.manager.UserManager;
 import top.yinzsw.blog.model.converter.UserConverter;
-import top.yinzsw.blog.model.dto.ClaimsDTO;
+import top.yinzsw.blog.model.dto.ContextDTO;
 import top.yinzsw.blog.model.dto.EmailCodeDTO;
 import top.yinzsw.blog.model.vo.TokenVO;
 import top.yinzsw.blog.model.vo.UserInfoVO;
@@ -36,7 +34,6 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserManager userManager;
     private final JwtManager jwtManager;
-    private final RedisManager redisManager;
     private final HttpContext httpContext;
     private final UserConverter userConverter;
     private final RabbitTemplate rabbitTemplate;
@@ -61,8 +58,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public TokenVO refreshToken() {
-        ClaimsDTO currentClaimsDTO = httpContext.getCurrentClaimsDTO();
-        return jwtManager.createTokenVO(currentClaimsDTO.getUid(), currentClaimsDTO.getRoles());
+        ContextDTO currentContextDTO = httpContext.getCurrentContextDTO();
+        return jwtManager.createTokenVO(currentContextDTO.getUid(), currentContextDTO.getRoles());
     }
 
     @Override
@@ -73,8 +70,8 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public boolean sendEmailCode(String email) {
         String code = UUID.randomUUID().toString().substring(0, 6).toUpperCase();
-        rabbitTemplate.convertAndSend(MQConst.EMAIL_EXCHANGE, MQConst.EMAIL_CODE_KEY, new EmailCodeDTO(email, code, RedisConst.USER_EMAIL_CODE_EXPIRE_TIME));
-        redisManager.saveEmailVerificationCode(email, code);
+        rabbitTemplate.convertAndSend(MQConst.EMAIL_EXCHANGE, MQConst.EMAIL_CODE_KEY, new EmailCodeDTO(email, code, UserManager.USER_EMAIL_CODE_EXPIRE_TIME));
+        userManager.saveEmailVerificationCode(email, code);
         return true;
     }
 }

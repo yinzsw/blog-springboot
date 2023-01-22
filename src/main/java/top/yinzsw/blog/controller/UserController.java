@@ -9,7 +9,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import top.yinzsw.blog.extension.validation.MatchFileType;
-import top.yinzsw.blog.manager.UserMtmRoleManager;
 import top.yinzsw.blog.model.request.PasswordByEmailReq;
 import top.yinzsw.blog.model.request.PasswordByOldReq;
 import top.yinzsw.blog.model.request.UserInfoReq;
@@ -32,7 +31,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    private final UserMtmRoleManager userMtmRoleManager;
 
     @Operation(summary = "更新用户头像")
     @PatchMapping(value = "avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -85,6 +83,7 @@ public class UserController {
                                    @PathVariable("userId") Long userId,
                                    @Parameter(description = "用户角色id列表", required = true)
                                    @PathVariable("roleIds") List<Long> roleIds) {
-        return userMtmRoleManager.updateUserRoles(userId, roleIds);
+        return userService.updateUserRoles(userId, roleIds);
+//        userMtmRoleManager.updateUserRoles(userId, roleIds);
     }
 }

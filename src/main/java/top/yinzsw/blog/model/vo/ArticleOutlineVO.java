@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Accessors(chain = true)
 @Schema(description = "文章信息大纲")
-public class ArticleOutlineHomeVO {
+public class ArticleOutlineVO {
 
     /**
      * 文章id

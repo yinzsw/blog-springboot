@@ -7,6 +7,8 @@ import top.yinzsw.blog.model.request.PasswordByEmailReq;
 import top.yinzsw.blog.model.request.PasswordByOldReq;
 import top.yinzsw.blog.model.request.UserInfoReq;
 
+import java.util.List;
+
 /**
  * @author yinzsW
  * @description 针对表【user(用户表)】的数据库操作Service
@@ -63,4 +65,13 @@ public interface UserService extends IService<UserPO> {
      * @return 是否更新成功
      */
     boolean updateUserInfo(UserInfoReq userInfoReq);
+
+    /**
+     * 更新用户角色列表
+     *
+     * @param userId  用户id
+     * @param roleIds 角色列表
+     * @return 是否成功
+     */
+    boolean updateUserRoles(Long userId, List<Long> roleIds);
 }

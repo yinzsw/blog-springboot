@@ -21,7 +21,7 @@ import java.util.List;
 @AllArgsConstructor
 @Accessors(chain = true)
 @Schema(description = "首页文章")
-public class ArticleHomeVO {
+public class ArticleVO {
 
     /**
      * 文章id
@@ -105,23 +105,23 @@ public class ArticleHomeVO {
      * 上一篇文章
      */
     @Schema(title = "上一篇文章")
-    private ArticleOutlineHomeVO prevArticle;
+    private ArticleOutlineVO prevArticle;
 
     /**
      * 下一篇文章
      */
     @Schema(title = "下一篇文章")
-    private ArticleOutlineHomeVO nextArticle;
-
-    /**
-     * 相关文章推荐列表
-     */
-    @Schema(title = "相关文章推荐列表")
-    private List<ArticleOutlineHomeVO> relatedRecommendArticles;
+    private ArticleOutlineVO nextArticle;
 
     /**
      * 最新文章推荐列表
      */
     @Schema(title = "最新文章推荐列表")
-    private List<ArticleOutlineHomeVO> newestRecommendArticles;
+    private List<ArticleOutlineVO> newestRecommendArticles;
+
+    /**
+     * 相关文章推荐列表
+     */
+    @Schema(title = "相关文章推荐列表")
+    private List<ArticleOutlineVO> relatedRecommendArticles;
 }
