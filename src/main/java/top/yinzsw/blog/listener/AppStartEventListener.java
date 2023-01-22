@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
+import top.yinzsw.blog.manager.ResourceManager;
 import top.yinzsw.blog.manager.WebConfigManager;
 
 /**
@@ -19,6 +20,7 @@ import top.yinzsw.blog.manager.WebConfigManager;
 @RequiredArgsConstructor
 public class AppStartEventListener implements ApplicationListener<ApplicationStartedEvent> {
     private final WebConfigManager webConfigManager;
+    private final ResourceManager resourceManager;
 
     @SneakyThrows
     @Override
@@ -26,5 +28,9 @@ public class AppStartEventListener implements ApplicationListener<ApplicationSta
         log.info("网站配置文件加载中...");
         webConfigManager.initWebSiteConfig();
         log.info("网站配置文件加载完毕");
+
+        log.info("网站资源信息加载中...");
+        resourceManager.initResources();
+        log.info("网站资源信息加载完毕");
     }
 }

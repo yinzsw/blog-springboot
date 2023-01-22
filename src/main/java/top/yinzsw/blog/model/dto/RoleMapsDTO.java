@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -23,10 +24,10 @@ public class RoleMapsDTO {
     /**
      * 角色id->菜单id列表
      */
-    private Map<Long, List<Long>> menuIdsMap;
+    private Map<Long, List<Long>> menuIdsMap = Collections.emptyMap();
 
     /**
      * 角色id->资源id列表
      */
-    private Map<Long, List<Long>> resourceIdsMap;
+    private Map<Long, List<Long>> resourceIdsMap = Collections.emptyMap();
 }

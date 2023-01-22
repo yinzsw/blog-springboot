@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import top.yinzsw.blog.model.po.TagPO;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -23,20 +24,20 @@ public class ArticleMapsDTO {
     /**
      * 分类id->分类名
      */
-    private Map<Long, String> categoryNameMap;
+    private Map<Long, String> categoryNameMap = Collections.emptyMap();
 
     /**
      * 文章id->标签列表
      */
-    private Map<Long, List<TagPO>> tagsMap;
+    private Map<Long, List<TagPO>> tagsMap = Collections.emptyMap();
 
     /**
      * 文章id->点赞量
      */
-    private Map<Long, Long> likeCountMap;
+    private Map<Long, Long> likeCountMap = Collections.emptyMap();
 
     /**
      * 文章id->浏览量
      */
-    private Map<Long, Long> viewCountMap;
+    private Map<Long, Long> viewCountMap = Collections.emptyMap();
 }
