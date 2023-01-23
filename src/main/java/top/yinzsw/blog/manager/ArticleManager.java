@@ -17,6 +17,11 @@ public interface ArticleManager {
     String ARTICLE_VIEW_COUNT = "blog:article:views";
 
     /**
+     * 文章点击量 防刷保护
+     */
+    String ARTICLE_VIEW_ANTI_PREFIX = "blog:article:views:anti:";
+
+    /**
      * 文章点赞量
      */
     String ARTICLE_LIKE_COUNT = "blog:article:likes";

@@ -6,10 +6,15 @@ import org.springframework.stereotype.Service;
 import top.yinzsw.blog.core.context.HttpContext;
 import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.manager.ArticleManager;
+import top.yinzsw.blog.model.dto.ContextDTO;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -27,14 +32,12 @@ public class ArticleManagerImpl implements ArticleManager {
 
     @Override
     public Map<Long, Long> getLikesCountMap(Long... articleIds) {
-        List<Double> articlesLikeScore = stringRedisTemplate.opsForZSet().score(ARTICLE_LIKE_COUNT, (Object[]) articleIds);
-        return getMap(articlesLikeScore, articleIds);
+        return getScoreMapByKey(ARTICLE_LIKE_COUNT, articleIds);
     }
 
     @Override
     public Map<Long, Long> getViewsCountMap(Long... articleIds) {
-        List<Double> articlesViewScore = stringRedisTemplate.opsForZSet().score(ARTICLE_VIEW_COUNT, (Object[]) articleIds);
-        return getMap(articlesViewScore, articleIds);
+        return getScoreMapByKey(ARTICLE_VIEW_COUNT, articleIds);
     }
 
     @Override
@@ -44,19 +47,29 @@ public class ArticleManagerImpl implements ArticleManager {
 
     @Override
     public void updateViewsCount(Long articleId) {
-        //todo 更新文章浏览量
-        try {
-            //登录用户处理
-            httpContext.getCurrentContextDTO();
-        } catch (BizException e) {
-            //游客处理
-            throw new RuntimeException(e);
+        Supplier<String> suffixSupplier = () -> {
+            try {
+                ContextDTO contextDTO = httpContext.getCurrentContextDTO();
+                String sign = contextDTO.getSign();
+                Long uid = contextDTO.getUid();
+                return sign + " " + uid;
+            } catch (BizException e) {
+                return LocalDate.now() + " " + httpContext.getUserIpAddress();
+            }
+        };
+        String antiKey = ARTICLE_VIEW_ANTI_PREFIX + suffixSupplier.get();
+        Boolean hasKey = stringRedisTemplate.hasKey(antiKey);
+        if (Boolean.FALSE.equals(hasKey)) {
+            stringRedisTemplate.opsForValue().set(antiKey, "", Duration.ofHours(1));
+            stringRedisTemplate.opsForZSet().incrementScore(ARTICLE_VIEW_COUNT, String.valueOf(articleId), 1L);
         }
     }
 
-    private static Map<Long, Long> getMap(List<Double> articlesScore, Long[] articleIds) {
+    private Map<Long, Long> getScoreMapByKey(String key, Long[] articleIds) {
+        Object[] ids = Arrays.stream(articleIds).map(Object::toString).toArray();
+        List<Double> score = stringRedisTemplate.opsForZSet().score(key, ids);
         return IntStream.range(0, articleIds.length).boxed().collect(Collectors.toMap(idx -> articleIds[idx], idx -> Optional
-                .ofNullable(articlesScore)
+                .ofNullable(score)
                 .flatMap(scores -> Optional.ofNullable(scores.get(idx)))
                 .map(Double::longValue).orElse(0L)));
     }
