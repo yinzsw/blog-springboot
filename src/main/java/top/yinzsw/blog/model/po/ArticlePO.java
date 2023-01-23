@@ -93,7 +93,7 @@ public class ArticlePO implements Serializable {
     /**
      * 文章内容摘要
      */
-    @TableField(value = "SUBSTR(article_content, 1, 512)", insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
+    @TableField(value = "SUBSTR(article_content, 1, 256)", insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
     private String articleContentDigest;
 
     @TableField(exist = false)

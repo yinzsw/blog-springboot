@@ -54,16 +54,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
     private final ArticleConverter articleConverter;
 
     @Override
-    public void listSearchArticles(String keywords) {
+    public List<ArticleSearchVO> listSearchArticles(String keywords) {
         List<ArticlePO> articlePOList = lambdaQuery()
-                .select(ArticlePO::getId, ArticlePO::getArticleTitle, ArticlePO::getArticleContent,
-                        ArticlePO::getArticleStatus, ArticlePO::getIsDeleted)
+                .select(ArticlePO::getId, ArticlePO::getArticleTitle, ArticlePO::getArticleStatus, ArticlePO::getArticleContentDigest)
                 .eq(ArticlePO::getIsDeleted, false)
                 .eq(ArticlePO::getArticleStatus, ArticleStatusEnum.PUBLIC)
-                .and(q -> q.like(ArticlePO::getArticleTitle, keywords).or().like(ArticlePO::getArticleContent, keywords))
+                .and(q -> q.apply("MATCH(article_title, article_content) AGAINST({0} IN BOOLEAN MODE)", keywords))
+                .last("LIMIT 30")
                 .list();
-        //todo 高亮处理
-        log.info("{}", articlePOList);
+        return articleConverter.toArticleSearchVO(articlePOList);
     }
 
     @Override

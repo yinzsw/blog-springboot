@@ -80,21 +80,6 @@ public class HttpContext {
     }
 
     /**
-     * 得到本机ip地址
-     *
-     * @return 本机ip, 当解析ip失败时返回{@code null}
-     */
-    private String getLocalHost() {
-        InetAddress localHost;
-        try {
-            localHost = InetAddress.getLocalHost();
-        } catch (UnknownHostException e) {
-            return null;
-        }
-        return localHost.getHostAddress();
-    }
-
-    /**
      * 得到当前用户认证信息
      *
      * @return 用户认证信息
@@ -131,5 +116,20 @@ public class HttpContext {
         httpServletResponse.setContentType(MediaType.APPLICATION_JSON_VALUE);
         String jsonResponseBody = objectMapper.writeValueAsString(responseBody);
         httpServletResponse.getWriter().write(jsonResponseBody);
+    }
+
+    /**
+     * 得到本机ip地址
+     *
+     * @return 本机ip, 当解析ip失败时返回{@code null}
+     */
+    private String getLocalHost() {
+        InetAddress localHost;
+        try {
+            localHost = InetAddress.getLocalHost();
+        } catch (UnknownHostException e) {
+            return null;
+        }
+        return localHost.getHostAddress();
     }
 }

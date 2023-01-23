@@ -48,9 +48,9 @@ public class ArticleDigestVO {
     private String articleTitle;
 
     /**
-     * 文章内容
+     * 文章内容摘要
      */
-    @Schema(title = "文章内容")
+    @Schema(title = "文章内容摘要")
     private String articleContentDigest;
 
     /**
