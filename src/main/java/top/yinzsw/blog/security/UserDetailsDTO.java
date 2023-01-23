@@ -1,9 +1,9 @@
 package top.yinzsw.blog.security;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,7 +12,6 @@ import top.yinzsw.blog.enums.LoginTypeEnum;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -22,9 +21,9 @@ import java.util.stream.Collectors;
  * @since 22/12/15
  */
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 public class UserDetailsDTO implements UserDetails {
 
     /**
@@ -100,17 +99,17 @@ public class UserDetailsDTO implements UserDetails {
     /**
      * 点赞说说集合
      */
-    private Set<Object> talkLikeSet;
+    private List<Long> likedTalkSet;
 
     /**
      * 点赞文章集合
      */
-    private Set<Object> articleLikeSet;
+    private List<Long> likedArticleSet;
 
     /**
      * 点赞评论集合
      */
-    private Set<Object> commentLikeSet;
+    private List<Long> likedCommentSet;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

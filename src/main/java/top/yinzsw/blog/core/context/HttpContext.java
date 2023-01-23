@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import top.yinzsw.blog.enums.ResponseCodeEnum;
 import top.yinzsw.blog.exception.BizException;
-import top.yinzsw.blog.model.dto.ClaimsDTO;
+import top.yinzsw.blog.model.dto.ContextDTO;
 import top.yinzsw.blog.model.vo.ResponseVO;
 
 import javax.servlet.http.HttpServletRequest;
@@ -99,13 +99,13 @@ public class HttpContext {
      *
      * @return 用户认证信息
      */
-    public ClaimsDTO getCurrentClaimsDTO() {
+    public ContextDTO getCurrentContextDTO() {
         Principal userPrincipal = httpServletRequest.getUserPrincipal();
         if (userPrincipal instanceof UsernamePasswordAuthenticationToken) {
             var authenticationToken = (UsernamePasswordAuthenticationToken) userPrincipal;
             Object principal = authenticationToken.getPrincipal();
-            if (principal instanceof ClaimsDTO) {
-                return (ClaimsDTO) principal;
+            if (principal instanceof ContextDTO) {
+                return (ContextDTO) principal;
             }
         }
         throw new BizException(ResponseCodeEnum.UNAUTHENTICATED);

@@ -14,7 +14,6 @@ import top.yinzsw.blog.model.vo.UserRoleVO;
 import top.yinzsw.blog.service.RoleService;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 /**
@@ -34,28 +33,27 @@ public class RoleController {
     @Operation(summary = "获取角色列表")
     @GetMapping("list")
     public List<UserRoleVO> listRoles() {
-        return roleService.listUserRoles();
+        return roleService.listRoles();
     }
 
     @Operation(summary = "获取角色列表(分页)")
     @GetMapping("page")
-    public PageVO<RoleVO> pageListRoles(@Valid PageReq pageReq,
-                                        @Parameter(description = "用户名关键词")
-                                        @RequestParam("keywords") String keywords) {
-        return roleService.pageListRoles(pageReq, keywords);
+    public PageVO<RoleVO> pageRoles(@Valid PageReq pageReq,
+                                    @Parameter(description = "用户名关键词")
+                                    @RequestParam("keywords") String keywords) {
+        return roleService.pageRoles(pageReq, keywords);
     }
 
     @Operation(summary = "保存或更新角色")
     @PutMapping
-    public Boolean saveOrUpdateRole(@Valid @RequestBody RoleReq roleReq) {
+    public boolean saveOrUpdateRole(@Valid @RequestBody RoleReq roleReq) {
         return roleService.saveOrUpdateRole(roleReq);
     }
 
     @Operation(summary = "删除角色")
-    @DeleteMapping
-    public Boolean deleteRoles(@Parameter(description = "角色id列表", required = true)
-                               @NotEmpty(message = "角色id不能为空")
-                               @RequestParam("roleIdList") List<Long> roleIdList) {
-        return roleService.deleteRoles(roleIdList);
+    @DeleteMapping("{roleIds:\\d+(?:,\\d+)*}")
+    public boolean deleteRoles(@Parameter(description = "角色id列表", required = true)
+                               @PathVariable("roleIds") List<Long> roleIds) {
+        return roleService.deleteRoles(roleIds);
     }
 }

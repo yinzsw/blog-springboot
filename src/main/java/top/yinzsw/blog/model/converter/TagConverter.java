@@ -15,5 +15,5 @@ import java.util.List;
  */
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface TagConverter {
-    List<TagVO> toTagVO(List<TagPO> tagPO);
+    List<TagVO> toTagVO(List<TagPO> tagPOList);
 }

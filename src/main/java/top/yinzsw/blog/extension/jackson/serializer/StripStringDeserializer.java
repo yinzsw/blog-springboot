@@ -8,6 +8,12 @@ import org.springframework.boot.jackson.JsonComponent;
 import java.io.IOException;
 import java.util.Objects;
 
+/**
+ * String类型数据反序列化处理
+ *
+ * @author yinzsW
+ * @since 23/01/15
+ **/
 @JsonComponent
 public class StripStringDeserializer extends StringDeserializer {
 

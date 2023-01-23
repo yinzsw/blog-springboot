@@ -73,4 +73,7 @@ upload:
   domain-url: ${UPLOAD.DOMAIN_URL}
   access-key: ${UPLOAD.ACCESS_KEY}
   access-key-secret: ${UPLOAD.ACCESS_KEY_SECRET}
-jwt-key: ${JWT.KEY}
+blog:
+  jwt-key: ${JWT.KEY}
+  initialization: false
+

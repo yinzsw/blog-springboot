@@ -2,9 +2,9 @@ package top.yinzsw.blog.model.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -17,9 +17,9 @@ import javax.validation.constraints.Size;
  * @since 22/12/31
  */
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 @Schema(description = "更新密码(邮箱验证码)")
 public class PasswordByEmailReq {
 

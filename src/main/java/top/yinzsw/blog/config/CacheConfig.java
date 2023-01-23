@@ -9,7 +9,6 @@ import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.cache.RedisCacheWriter;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair;
-import top.yinzsw.blog.constant.RedisConst;
 import top.yinzsw.blog.extension.redis.serializer.ProtostuffRedisSerializer;
 
 import java.time.Duration;
@@ -32,7 +31,7 @@ public class CacheConfig {
         RedisCacheWriter writer = RedisCacheWriter.nonLockingRedisCacheWriter(redisConnectionFactory);
         RedisCacheConfiguration configuration = RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofDays(3))
-                .computePrefixWith(cacheName -> RedisConst.CACHE_PREFIX + cacheName + ":")
+                .computePrefixWith(cacheName -> String.format("blog:cache:%s:", cacheName))
                 .serializeValuesWith(SerializationPair.fromSerializer(protostuffRedisSerializer));
         return new RedisCacheManager(writer, configuration);
     }

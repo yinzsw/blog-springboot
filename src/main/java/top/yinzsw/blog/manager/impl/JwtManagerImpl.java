@@ -8,7 +8,7 @@ import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.util.ByteUtils;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 import top.yinzsw.blog.core.context.HttpContext;
@@ -16,7 +16,7 @@ import top.yinzsw.blog.enums.ResponseCodeEnum;
 import top.yinzsw.blog.enums.TokenTypeEnum;
 import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.manager.JwtManager;
-import top.yinzsw.blog.model.dto.ClaimsDTO;
+import top.yinzsw.blog.model.dto.ContextDTO;
 import top.yinzsw.blog.model.vo.TokenVO;
 
 import java.security.Key;
@@ -29,11 +29,12 @@ import java.util.function.Function;
  * @author yinzsW
  * @since 22/12/21
  */
-@Component
+@Service
 @RequiredArgsConstructor
 public class JwtManagerImpl implements JwtManager {
     private final static String X_CLAIM = "xcm";
-    private @Value("${jwt-key}") String jwtKey;
+    private final static String UNKNOWN = "unknown";
+    private @Value("${blog.jwt-key}") String jwtKey;
     private final HttpContext httpContext;
 
     @Override
@@ -43,7 +44,7 @@ public class JwtManagerImpl implements JwtManager {
         Key jwk = Keys.hmacShaKeyFor(jwtKey.getBytes());
 
         Function<TokenTypeEnum, String> generateToken = tokenTypeEnum -> Jwts.builder()
-                .claim(X_CLAIM, ClaimsDTO.builder().uid(userId).roles(roles).sign(sign).type(tokenTypeEnum).build())
+                .claim(X_CLAIM, new ContextDTO().setUid(userId).setRoles(roles).setSign(sign).setType(tokenTypeEnum))
                 .setIssuedAt(new Date(currentTimeMillis))
                 .setExpiration(new Date(currentTimeMillis + tokenTypeEnum.getTtl()))
                 .signWith(jwk)
@@ -55,8 +56,8 @@ public class JwtManagerImpl implements JwtManager {
     }
 
     private String getSign() {
-        String userAgent = Optional.ofNullable(httpContext.getUserAgent()).orElse("IP");
-        String userIpAddress = Optional.ofNullable(httpContext.getUserIpAddress()).orElse("UA");
+        String userAgent = Optional.ofNullable(httpContext.getUserAgent()).orElse(UNKNOWN);
+        String userIpAddress = Optional.ofNullable(httpContext.getUserIpAddress()).orElse(UNKNOWN);
 
         byte[] dataBytes = String.join("", userAgent.concat(userIpAddress)).getBytes();
         byte[] keyBytes = Keys.hmacShaKeyFor(jwtKey.getBytes()).getEncoded();
@@ -68,14 +69,14 @@ public class JwtManagerImpl implements JwtManager {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
-    public ClaimsDTO parseTokenInfo(String token, TokenTypeEnum expectTokenType) throws BizException {
+    public ContextDTO parseTokenInfo(String token, TokenTypeEnum expectTokenType) throws BizException {
         if (!StringUtils.hasText(token)) {
             throw new BizException(ResponseCodeEnum.TOKEN_ERROR, "token不能为空");
         }
 
         Key jwk = Keys.hmacShaKeyFor(jwtKey.getBytes());
         JwtParser jwtParser = Jwts.parserBuilder()
-                .deserializeJsonWith(new JacksonDeserializer(Maps.of(X_CLAIM, ClaimsDTO.class).build()))
+                .deserializeJsonWith(new JacksonDeserializer(Maps.of(X_CLAIM, ContextDTO.class).build()))
                 .setSigningKey(jwk).build();
 
         Jws<Claims> claimsJws;
@@ -88,15 +89,13 @@ public class JwtManagerImpl implements JwtManager {
         }
 
         Claims claims = claimsJws.getBody();
-        ClaimsDTO claimsDTO = claims.get(X_CLAIM, ClaimsDTO.class);
-
-        if (!getSign().equals(claimsDTO.getSign())) {
+        ContextDTO contextDTO = claims.get(X_CLAIM, ContextDTO.class);
+        if (!getSign().equals(contextDTO.getSign())) {
             throw new BizException(ResponseCodeEnum.TOKEN_ERROR, "非法的token解析");
         }
-
-        if (Objects.isNull(expectTokenType) || !expectTokenType.equals(claimsDTO.getType())) {
+        if (Objects.isNull(expectTokenType) || !expectTokenType.equals(contextDTO.getType())) {
             throw new BizException(ResponseCodeEnum.TOKEN_ERROR, "不是期待的token类型");
         }
-        return claimsDTO;
+        return contextDTO;
     }
 }

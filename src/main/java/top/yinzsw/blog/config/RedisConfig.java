@@ -21,12 +21,11 @@ public class RedisConfig {
     private final LettuceConnectionFactory redisConnectionFactory;
     private final ProtostuffRedisSerializer protostuffRedisSerializer;
 
-
     @Bean
-    public RedisTemplate<String, Object> redisTemplate() {
+    public RedisTemplate<String, ?> redisTemplate() {
         var stringRedisSerializer = new StringRedisSerializer();
 
-        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+        RedisTemplate<String, ?> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
         redisTemplate.setKeySerializer(stringRedisSerializer);
         redisTemplate.setValueSerializer(protostuffRedisSerializer);

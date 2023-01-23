@@ -33,7 +33,7 @@ public interface AuthService {
      *
      * @return 是否成功
      */
-    Boolean logout();
+    boolean logout();
 
     /**
      * 发送验证邮件
@@ -41,5 +41,5 @@ public interface AuthService {
      * @param email 邮箱
      * @return 是否成功
      */
-    Boolean sendEmailCode(String email);
+    boolean sendEmailCode(String email);
 }

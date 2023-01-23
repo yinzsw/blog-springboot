@@ -18,11 +18,14 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import top.yinzsw.blog.enums.ResponseCodeEnum;
 import top.yinzsw.blog.exception.BizException;
+import top.yinzsw.blog.exception.EmptyPageException;
+import top.yinzsw.blog.model.vo.PageVO;
 import top.yinzsw.blog.model.vo.ResponseVO;
 
 import javax.servlet.ServletException;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -137,11 +140,10 @@ public class UnifiedException {
     /**
      * 文件上传大小异常
      *
-     * @param e 文件上传大小异常
      * @return 上传失败信息
      */
     @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseVO<?> uploadExceptionHandler(MaxUploadSizeExceededException e) {
+    public ResponseVO<?> uploadExceptionHandler() {
         return ResponseVO.fail(ResponseCodeEnum.FILE_UPLOAD_ERROR, String.format("上传文件大小不能超过%s", maxUploadFileSize));
     }
 
@@ -156,8 +158,14 @@ public class UnifiedException {
         return ResponseVO.fail(e.getCode(), e.getMessage());
     }
 
+    @ExceptionHandler(EmptyPageException.class)
+    public ResponseVO<?> emptyPageExceptionHandler(EmptyPageException e) {
+        return ResponseVO.success(new PageVO<>(Collections.emptyList(), e.getTotalCount()));
+    }
+
     @ExceptionHandler(DataAccessException.class)
     public ResponseVO<?> daoExceptionHandler(DataAccessException e) {
+        log.error(e.getMessage());
         return ResponseVO.fail(ResponseCodeEnum.DAO_ERROR);
     }
 

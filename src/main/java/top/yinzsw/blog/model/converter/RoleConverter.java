@@ -1,14 +1,12 @@
 package top.yinzsw.blog.model.converter;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingConstants;
+import org.mapstruct.*;
+import top.yinzsw.blog.model.dto.RoleMapsDTO;
 import top.yinzsw.blog.model.po.RolePO;
 import top.yinzsw.blog.model.vo.RoleVO;
 import top.yinzsw.blog.model.vo.UserRoleVO;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 角色数据模型转换器
@@ -21,12 +19,22 @@ public interface RoleConverter {
 
     List<UserRoleVO> toUserRoleVO(List<RolePO> rolePOList);
 
-    RoleVO toRoleVO(RolePO rolePOList, List<Long> menuIdList, List<Long> resourceIdList);
+    List<RoleVO> toRoleVO(List<RolePO> rolePOList, @Context RoleMapsDTO roleMapsDTO);
 
-    default List<RoleVO> toRoleVO(List<RolePO> rolePOList, Map<Long, List<Long>> menuIdMapping, Map<Long, List<Long>> resourceIdMapping) {
-        return rolePOList.stream()
-                .map(rolePO -> toRoleVO(rolePO, menuIdMapping.get(rolePO.getId()), resourceIdMapping.get(rolePO.getId())))
-                .collect(Collectors.toList());
+    @SuppressWarnings("unchecked")
+    @ObjectFactory
+    default <T> T defaultCreator(RolePO origin,
+                                 @Context RoleMapsDTO roleMapsDTO,
+                                 @TargetType Class<T> targetType) {
+        Long roleId = origin.getId();
+        List<Long> menuIds = roleMapsDTO.getMenuIdsMap().get(roleId);
+        List<Long> resourceIds = roleMapsDTO.getResourceIdsMap().get(roleId);
+
+        if (targetType.isAssignableFrom(RoleVO.class)) {
+            return (T) new RoleVO().setMenuIdList(menuIds).setResourceIdList(resourceIds);
+        }
+
+        throw new UnsupportedOperationException();
     }
 }
 

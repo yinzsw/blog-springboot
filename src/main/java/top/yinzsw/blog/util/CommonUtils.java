@@ -1,57 +1,34 @@
 package top.yinzsw.blog.util;
 
+import org.springframework.util.CollectionUtils;
+
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * 公共工具类
+ * 通用工具类
  *
  * @author yinzsW
- * @since 23/01/02
+ * @since 23/01/23
  */
 
 public class CommonUtils {
-    private static final Pattern EMAIL_REGEXP = Pattern.compile("^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$");
-    private static final Pattern ALPHA_REGEXP = Pattern.compile("^[a-zA-Z]+$");
 
     /**
-     * 判断字符穿是否是邮箱
+     * 集合元素类型转换
      *
-     * @param email 字符串
-     * @return 是否是邮箱
+     * @param collection 集合
+     * @param function   元素转换策略
+     * @param <T>        原始集合元素类型
+     * @param <R>        转换后的集合元素类型
+     * @return 新的元素类型的列表
      */
-    public static boolean isEmail(String email) {
-        return EMAIL_REGEXP.matcher(email).matches();
+    public static <T, R> List<R> toList(Collection<T> collection, Function<T, R> function) {
+        return CollectionUtils.isEmpty(collection) ?
+                Collections.emptyList() :
+                collection.stream().map(function).collect(Collectors.toList());
     }
-
-    /**
-     * 判断字符串是不是全字母
-     *
-     * @param alpha 字符串
-     * @return 是否为全字母
-     */
-    public static boolean isAlpha(String alpha) {
-        return ALPHA_REGEXP.matcher(alpha).matches();
-    }
-
-    /**
-     * 根据List<T>和响应规则获取一个映射表
-     *
-     * @param list        原始列表
-     * @param keyFn       Map 键规则
-     * @param valueItemFn Map 值列表项规则
-     * @param <T>         列表泛型
-     * @param <K>         Map 键类型
-     * @param <D>         Map 值列表项类型
-     * @return mapping 映射表
-     */
-    public static <T, K, D> Map<K, List<D>> getMapping(List<T> list,
-                                                       Function<? super T, ? extends K> keyFn,
-                                                       Function<? super T, ? extends D> valueItemFn) {
-        return list.stream().collect(Collectors.groupingBy(keyFn, Collectors.mapping(valueItemFn, Collectors.toList())));
-    }
-
 }

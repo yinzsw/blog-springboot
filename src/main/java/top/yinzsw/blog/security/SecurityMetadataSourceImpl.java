@@ -7,7 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.stereotype.Component;
-import top.yinzsw.blog.model.dto.ClaimsDTO;
+import top.yinzsw.blog.model.dto.ContextDTO;
 import top.yinzsw.blog.service.RoleService;
 
 import java.util.Collection;
@@ -28,12 +28,12 @@ public class SecurityMetadataSourceImpl implements FilterInvocationSecurityMetad
     @Override
     public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (Objects.isNull(principal) || !(principal instanceof ClaimsDTO)) {
+        if (Objects.isNull(principal) || !(principal instanceof ContextDTO)) {
             return null;
         }
 
         // 查询可以访问此资源的角色列表
-        Long rid = ((ClaimsDTO) principal).getRid();
+        Long rid = ((ContextDTO) principal).getRid();
         List<String> roleNames = roleService.getRoleNamesByResourceId(rid);
         return SecurityConfig.createList(roleNames.toArray(new String[0]));
     }

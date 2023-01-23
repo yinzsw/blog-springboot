@@ -13,7 +13,7 @@ import top.yinzsw.blog.core.context.HttpContext;
 import top.yinzsw.blog.enums.TokenTypeEnum;
 import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.manager.JwtManager;
-import top.yinzsw.blog.model.dto.ClaimsDTO;
+import top.yinzsw.blog.model.dto.ContextDTO;
 import top.yinzsw.blog.model.po.ResourcePO;
 import top.yinzsw.blog.model.vo.ResponseVO;
 import top.yinzsw.blog.service.ResourceService;
@@ -68,9 +68,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         //jwt token校验
         String token = request.getHeader(X_TOKEN);
         TokenTypeEnum tokenTypeEnum = REFRESH_URI.equalsIgnoreCase(uri) ? TokenTypeEnum.REFRESH : TokenTypeEnum.ACCESS;
-        ClaimsDTO claimsDTO;
+        ContextDTO contextDTO;
         try {
-            claimsDTO = jwtManager.parseTokenInfo(token, tokenTypeEnum);
+            contextDTO = jwtManager.parseTokenInfo(token, tokenTypeEnum);
         } catch (BizException e) {
             httpContext.setResponseBody(ResponseVO.fail(e.getCode(), e.getMessage()));
             return;
@@ -80,8 +80,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // 校验成功处理
-        claimsDTO.setRid(resourcePO.getId());
-        var authenticationToken = new UsernamePasswordAuthenticationToken(claimsDTO, null, claimsDTO.getAuthorities());
+        var authenticationToken = new UsernamePasswordAuthenticationToken(contextDTO.setRid(resourcePO.getId()), null, contextDTO.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         filterChain.doFilter(request, response);
     }

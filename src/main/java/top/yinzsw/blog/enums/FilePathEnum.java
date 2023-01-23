@@ -15,7 +15,8 @@ public enum FilePathEnum {
     /**
      * 头像路径
      */
-    AVATAR("avatar", "头像路径");
+    AVATAR("avatar", "头像路径"),
+    ARTICLE("article", "文章图片路径");
 
     private final String path;
     private final String desc;
