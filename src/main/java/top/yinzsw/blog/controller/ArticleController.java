@@ -34,9 +34,9 @@ public class ArticleController {
 
     @Operation(summary = "搜索相关文章")
     @GetMapping("search/{keywords}")
-    public void listSearchArticles(@Parameter(description = "搜索关键字", required = true)
-                                   @PathVariable("keywords") String keywords) {
-        articleService.listSearchArticles(keywords);
+    public List<ArticleSearchVO> listSearchArticles(@Parameter(description = "搜索关键字", required = true)
+                                                    @PathVariable("keywords") String keywords) {
+        return articleService.listSearchArticles(keywords);
     }
 
     @Operation(summary = "查看文章归档")

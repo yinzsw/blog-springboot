@@ -18,6 +18,8 @@ import java.util.List;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface ArticleConverter {
 
+    List<ArticleSearchVO> toArticleSearchVO(List<ArticlePO> articlePOList);
+
     List<ArticleArchiveVO> toArticleArchiveVO(List<ArticlePO> articlePOList);
 
     ArticleVO toArticleVO(ArticlePO articlePO, @Context ArticleMapsDTO articleMapsDTO);
@@ -35,8 +37,8 @@ public interface ArticleConverter {
     List<ArticleDigestBackgroundVO> toArticleDigestBackgroundVO(List<ArticlePO> articlePOList, @Context ArticleMapsDTO articleMapsDTO);
 
     ArticlePO toArticlePO(ArticleReq articleReq, Long userId, Long categoryId);
-
     ///////////////////////////////////Context//////////////////////////////////////////////
+
     List<TagVO> toTagVO(List<TagPO> tagPOList);
 
     @SuppressWarnings("unchecked")

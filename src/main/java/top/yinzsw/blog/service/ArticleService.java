@@ -21,8 +21,9 @@ public interface ArticleService extends IService<ArticlePO> {
      * 根据关键词搜索文章
      *
      * @param keywords 关键词
+     * @return 搜索文章列表
      */
-    void listSearchArticles(String keywords);
+    List<ArticleSearchVO> listSearchArticles(String keywords);
 
     /**
      * 分页查询文章归档列表

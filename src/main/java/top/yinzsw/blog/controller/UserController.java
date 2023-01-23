@@ -84,6 +84,5 @@ public class UserController {
                                    @Parameter(description = "用户角色id列表", required = true)
                                    @PathVariable("roleIds") List<Long> roleIds) {
         return userService.updateUserRoles(userId, roleIds);
-//        userMtmRoleManager.updateUserRoles(userId, roleIds);
     }
 }
