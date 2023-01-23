@@ -54,12 +54,12 @@ public class ArticlePO implements Serializable {
     private String articleContent;
 
     /**
-     * 状态值 1公开 2私密 3评论可见
+     * 状态值 1公开 2私密 3.评论可见
      */
     private ArticleStatusEnum articleStatus;
 
     /**
-     * 文章类型 1原创 2转载 3翻译
+     * 文章类型 1原创 2转载 3.翻译
      */
     private ArticleTypeEnum articleType;
 
@@ -89,6 +89,12 @@ public class ArticlePO implements Serializable {
      */
     @TableField(insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
     private LocalDateTime updateTime;
+
+    /**
+     * 文章内容摘要
+     */
+    @TableField(value = "SUBSTR(article_content, 1, 512)", insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
+    private String articleContentDigest;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

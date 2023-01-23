@@ -3,7 +3,7 @@ package top.yinzsw.blog.core.upload.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import top.yinzsw.blog.core.upload.UploadConfig;
@@ -21,7 +21,7 @@ import java.nio.file.Path;
  * @author yinzsW
  * @since 22/12/29
  */
-@Configuration
+@Service
 @RequiredArgsConstructor
 @ConditionalOnBean(UploadConfig.class)
 @ConditionalOnProperty(prefix = "upload", name = "mode", havingValue = "local")

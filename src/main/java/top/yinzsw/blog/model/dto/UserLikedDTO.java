@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * 用户点赞信息
@@ -22,15 +22,15 @@ public class UserLikedDTO {
     /**
      * 点赞说说集合
      */
-    private Set<Long> likedTalkSet;
+    private List<Long> likedTalkSet;
 
     /**
      * 点赞文章集合
      */
-    private Set<Long> likedArticleSet;
+    private List<Long> likedArticleSet;
 
     /**
      * 点赞评论集合
      */
-    private Set<Long> likedCommentSet;
+    private List<Long> likedCommentSet;
 }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapp
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -15,6 +16,7 @@ import top.yinzsw.blog.enums.ArticleStatusEnum;
 import top.yinzsw.blog.enums.FilePathEnum;
 import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.manager.ArticleManager;
+import top.yinzsw.blog.manager.UserManager;
 import top.yinzsw.blog.manager.WebConfigManager;
 import top.yinzsw.blog.manager.mapping.ArticleMapping;
 import top.yinzsw.blog.mapper.ArticleMapper;
@@ -39,15 +41,30 @@ import java.util.stream.Collectors;
  * @description 针对表【article(文章表)】的数据库操作Service实现
  * @createDate 2023-01-12 23:17:07
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> implements ArticleService {
     private final HttpContext httpContext;
+    private final UserManager userManager;
     private final UploadProvider uploadProvider;
     private final ArticleMapping articleMapping;
     private final ArticleManager articleManager;
     private final WebConfigManager webConfigManager;
     private final ArticleConverter articleConverter;
+
+    @Override
+    public void listSearchArticles(String keywords) {
+        List<ArticlePO> articlePOList = lambdaQuery()
+                .select(ArticlePO::getId, ArticlePO::getArticleTitle, ArticlePO::getArticleContent,
+                        ArticlePO::getArticleStatus, ArticlePO::getIsDeleted)
+                .eq(ArticlePO::getIsDeleted, false)
+                .eq(ArticlePO::getArticleStatus, ArticleStatusEnum.PUBLIC)
+                .and(q -> q.like(ArticlePO::getArticleTitle, keywords).or().like(ArticlePO::getArticleContent, keywords))
+                .list();
+        //todo 高亮处理
+        log.info("{}", articlePOList);
+    }
 
     @Override
     public PageVO<ArticleArchiveVO> pageArchivesArticles(PageReq pageReq) {
@@ -107,7 +124,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
         // 分页获取文章
         Page<ArticlePO> articlePOPage = lambdaQuery()
                 .select(ArticlePO::getId, ArticlePO::getCategoryId, ArticlePO::getArticleTitle,
-                        ArticlePO::getArticleContent, ArticlePO::getArticleCover, ArticlePO::getArticleType,
+                        ArticlePO::getArticleContentDigest, ArticlePO::getArticleCover, ArticlePO::getArticleType,
                         ArticlePO::getIsTop, ArticlePO::getCreateTime)
                 .eq(ArticlePO::getIsTop, isTop)
                 .eq(ArticlePO::getArticleStatus, ArticleStatusEnum.PUBLIC)
@@ -196,6 +213,24 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
     @Override
     public String uploadFileArticleImage(MultipartFile image) {
         return uploadProvider.uploadFile(FilePathEnum.ARTICLE.getPath(), image);
+    }
+
+    @Override
+    public boolean likeArticle(Long articleId, Boolean like) {
+        Long uid = httpContext.getCurrentContextDTO().getUid();
+        String articleSid = articleId.toString();
+        if (like && !userManager.isLikedArticle(uid, articleSid)) {
+            userManager.saveLikedArticle(uid, articleSid);
+            articleManager.updateLikeCount(articleId, 1L);
+            return true;
+        }
+
+        if (!like && userManager.isLikedArticle(uid, articleSid)) {
+            userManager.deleteLikedArticle(uid, articleSid);
+            articleManager.updateLikeCount(articleId, -1L);
+            return true;
+        }
+        return false;
     }
 
     @Transactional(rollbackFor = Exception.class)

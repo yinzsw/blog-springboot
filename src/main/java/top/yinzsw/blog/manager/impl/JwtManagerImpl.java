@@ -34,7 +34,7 @@ import java.util.function.Function;
 public class JwtManagerImpl implements JwtManager {
     private final static String X_CLAIM = "xcm";
     private final static String UNKNOWN = "unknown";
-    private @Value("${jwt-key}") String jwtKey;
+    private @Value("${blog.jwt-key}") String jwtKey;
     private final HttpContext httpContext;
 
     @Override

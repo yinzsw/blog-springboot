@@ -27,14 +27,19 @@ public class ArticleManagerImpl implements ArticleManager {
 
     @Override
     public Map<Long, Long> getLikesCountMap(Long... articleIds) {
-        List<Double> articlesLikeScore = stringRedisTemplate.opsForZSet().score(ArticleManager.ARTICLE_LIKE_COUNT, (Object[]) articleIds);
+        List<Double> articlesLikeScore = stringRedisTemplate.opsForZSet().score(ARTICLE_LIKE_COUNT, (Object[]) articleIds);
         return getMap(articlesLikeScore, articleIds);
     }
 
     @Override
     public Map<Long, Long> getViewsCountMap(Long... articleIds) {
-        List<Double> articlesViewScore = stringRedisTemplate.opsForZSet().score(ArticleManager.ARTICLE_VIEW_COUNT, (Object[]) articleIds);
+        List<Double> articlesViewScore = stringRedisTemplate.opsForZSet().score(ARTICLE_VIEW_COUNT, (Object[]) articleIds);
         return getMap(articlesViewScore, articleIds);
+    }
+
+    @Override
+    public void updateLikeCount(Long articleId, Long delta) {
+        stringRedisTemplate.opsForZSet().incrementScore(ARTICLE_LIKE_COUNT, String.valueOf(articleId), delta);
     }
 
     @Override

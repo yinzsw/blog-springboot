@@ -2,7 +2,6 @@ package top.yinzsw.blog.manager.impl;
 
 import com.baomidou.mybatisplus.extension.toolkit.Db;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SetOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Async;
@@ -13,13 +12,14 @@ import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.manager.UserManager;
 import top.yinzsw.blog.model.dto.UserLikedDTO;
 import top.yinzsw.blog.model.po.UserPO;
+import top.yinzsw.blog.util.CommonUtils;
 import top.yinzsw.blog.util.VerifyUtils;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * 用户通用业务处理层实现
@@ -31,7 +31,6 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class UserManagerImpl implements UserManager {
     private final IpClient ipClient;
-    private final RedisTemplate<String, ?> redisTemplate;
     private final StringRedisTemplate stringRedisTemplate;
 
     @Override
@@ -52,15 +51,30 @@ public class UserManagerImpl implements UserManager {
 
     @Override
     public UserLikedDTO getUserLikeInfo(Long userId) {
-        @SuppressWarnings("unchecked")
-        SetOperations<String, Long> opsForSet = (SetOperations<String, Long>) redisTemplate.opsForSet();
-        Set<Long> likedTalks = opsForSet.members(USER_LIKED_TALKS_PREFIX + userId);
-        Set<Long> likedArticles = opsForSet.members(USER_LIKED_ARTICLES_PREFIX + userId);
-        Set<Long> likedComments = opsForSet.members(USER_LIKED_COMMENTS_PREFIX + userId);
+        SetOperations<String, String> opsForSet = stringRedisTemplate.opsForSet();
+        List<Long> likedTalks = CommonUtils.toList(opsForSet.members(USER_LIKED_TALKS_PREFIX + userId), Long::valueOf);
+        List<Long> likedArticles = CommonUtils.toList(opsForSet.members(USER_LIKED_ARTICLES_PREFIX + userId), Long::valueOf);
+        List<Long> likedComments = CommonUtils.toList(opsForSet.members(USER_LIKED_COMMENTS_PREFIX + userId), Long::valueOf);
+
         return new UserLikedDTO()
                 .setLikedTalkSet(likedTalks)
                 .setLikedArticleSet(likedArticles)
                 .setLikedCommentSet(likedComments);
+    }
+
+    @Override
+    public boolean isLikedArticle(Long uid, String articleId) {
+        return Boolean.TRUE.equals(stringRedisTemplate.opsForSet().isMember(USER_LIKED_ARTICLES_PREFIX + uid, articleId));
+    }
+
+    @Override
+    public void saveLikedArticle(Long uid, String articleId) {
+        stringRedisTemplate.opsForSet().add(USER_LIKED_ARTICLES_PREFIX + uid, articleId);
+    }
+
+    @Override
+    public void deleteLikedArticle(Long uid, String articleId) {
+        stringRedisTemplate.opsForSet().remove(USER_LIKED_ARTICLES_PREFIX + uid, articleId);
     }
 
     @Override

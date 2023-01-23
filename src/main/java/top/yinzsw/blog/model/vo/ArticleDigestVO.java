@@ -51,7 +51,7 @@ public class ArticleDigestVO {
      * 文章内容
      */
     @Schema(title = "文章内容")
-    private String articleContent;
+    private String articleContentDigest;
 
     /**
      * 文章缩略图

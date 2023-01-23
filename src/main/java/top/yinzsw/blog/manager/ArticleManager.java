@@ -38,5 +38,18 @@ public interface ArticleManager {
      */
     Map<Long, Long> getViewsCountMap(Long... articleIds);
 
+    /**
+     * 修改文章点赞数
+     *
+     * @param articleId 文章id
+     * @param delta     递增值
+     */
+    void updateLikeCount(Long articleId, Long delta);
+
+    /**
+     * 修改文章浏览量
+     *
+     * @param articleId 文章id
+     */
     void updateViewsCount(Long articleId);
 }

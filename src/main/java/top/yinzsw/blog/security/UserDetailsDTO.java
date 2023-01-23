@@ -12,7 +12,6 @@ import top.yinzsw.blog.enums.LoginTypeEnum;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -100,17 +99,17 @@ public class UserDetailsDTO implements UserDetails {
     /**
      * 点赞说说集合
      */
-    private Set<Long> likedTalkSet;
+    private List<Long> likedTalkSet;
 
     /**
      * 点赞文章集合
      */
-    private Set<Long> likedArticleSet;
+    private List<Long> likedArticleSet;
 
     /**
      * 点赞评论集合
      */
-    private Set<Long> likedCommentSet;
+    private List<Long> likedCommentSet;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

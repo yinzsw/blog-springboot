@@ -64,6 +64,31 @@ public interface UserManager {
      */
     UserLikedDTO getUserLikeInfo(Long userId);
 
+    /**
+     * 判断文章是否已经被用户点赞过
+     *
+     * @param uid       用户id
+     * @param articleId 文章id
+     * @return 状态
+     */
+    boolean isLikedArticle(Long uid, String articleId);
+
+    /**
+     * 保存点赞的文章
+     *
+     * @param uid       用户id
+     * @param articleId 文章id
+     */
+    void saveLikedArticle(Long uid, String articleId);
+
+    /**
+     * 删除点赞过的文章
+     *
+     * @param uid       用户id
+     * @param articleId 文章id
+     */
+    void deleteLikedArticle(Long uid, String articleId);
+
 /////////////////////////////////////////////////////MYSQL//////////////////////////////////////////////////////////////
 
     /**

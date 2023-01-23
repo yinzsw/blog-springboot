@@ -32,6 +32,13 @@ import java.util.List;
 public class ArticleController {
     private final ArticleService articleService;
 
+    @Operation(summary = "搜索相关文章")
+    @GetMapping("search/{keywords}")
+    public void listSearchArticles(@Parameter(description = "搜索关键字", required = true)
+                                   @PathVariable("keywords") String keywords) {
+        articleService.listSearchArticles(keywords);
+    }
+
     @Operation(summary = "查看文章归档")
     @GetMapping("archives")
     public PageVO<ArticleArchiveVO> pageArchivesArticles(@Valid PageReq pageReq) {
@@ -89,6 +96,15 @@ public class ArticleController {
                                          @MatchFileType(mimeType = "image/*", message = "仅支持上传图片类型{mimeType}的文件")
                                          @RequestPart("image") MultipartFile image) {
         return articleService.uploadFileArticleImage(image);
+    }
+
+    @Operation(summary = "点赞文章")
+    @PatchMapping("{articleId:\\d+}/like/{like:true|false}")
+    public boolean likeArticle(@Parameter(description = "文章id", required = true)
+                               @PathVariable("articleId") Long articleId,
+                               @Parameter(description = "点赞状态", required = true)
+                               @PathVariable("like") Boolean like) {
+        return articleService.likeArticle(articleId, like);
     }
 
     @Operation(summary = "修改文章置顶状态")

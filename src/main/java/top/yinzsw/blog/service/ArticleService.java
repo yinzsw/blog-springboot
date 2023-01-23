@@ -18,6 +18,13 @@ import java.util.List;
 public interface ArticleService extends IService<ArticlePO> {
 
     /**
+     * 根据关键词搜索文章
+     *
+     * @param keywords 关键词
+     */
+    void listSearchArticles(String keywords);
+
+    /**
      * 分页查询文章归档列表
      *
      * @param pageReq 分页信息
@@ -84,6 +91,15 @@ public interface ArticleService extends IService<ArticlePO> {
      * @return 图片地址
      */
     String uploadFileArticleImage(MultipartFile image);
+
+    /**
+     * 文章点赞或取消点赞
+     *
+     * @param articleId 文章id
+     * @param like      点赞状态
+     * @return 是否成功
+     */
+    boolean likeArticle(Long articleId, Boolean like);
 
     /**
      * 修改置顶状态
