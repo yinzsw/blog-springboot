@@ -1,9 +1,7 @@
 package top.yinzsw.blog.service.impl;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.baomidou.mybatisplus.extension.toolkit.SimpleQuery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.dao.DuplicateKeyException;
@@ -11,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import top.yinzsw.blog.exception.BizException;
+import top.yinzsw.blog.manager.RoleManager;
 import top.yinzsw.blog.manager.mapping.RoleMapping;
 import top.yinzsw.blog.mapper.RoleMapper;
 import top.yinzsw.blog.model.converter.RoleConverter;
@@ -23,7 +22,6 @@ import top.yinzsw.blog.model.vo.UserRoleVO;
 import top.yinzsw.blog.service.RoleService;
 import top.yinzsw.blog.util.VerifyUtils;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -36,18 +34,19 @@ import java.util.List;
 @CacheConfig(cacheNames = "role")
 public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements RoleService {
     private final RoleMapping roleMapping;
+    private final RoleManager roleManager;
     private final RoleConverter roleConverter;
 
     @Override
     public List<String> getRoleNamesByUserId(Long userId) {
         List<Long> roleIds = roleMapping.listRoleIdsByUserId(userId);
-        return getEnabledRoleNamesByIds(roleIds);
+        return roleManager.getEnabledRoleNamesByIds(roleIds);
     }
 
     @Override
     public List<String> getRoleNamesByResourceId(Long resourceId) {
         List<Long> roleIds = roleMapping.listRoleIdsByResourceId(resourceId);
-        return getEnabledRoleNamesByIds(roleIds);
+        return roleManager.getEnabledRoleNamesByIds(roleIds);
     }
 
     @Override
@@ -72,6 +71,11 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements 
                 .mapMenuIds().mapResourceIds().parallelBuild()
                 .mappingList(roleConverter::toRoleVO);
         return new PageVO<>(roleVOList, rolePOPage.getTotal());
+    }
+
+    @Override
+    public boolean updateRoleIsDisabled(Long roleId, Boolean isDisabled) {
+        return lambdaUpdate().set(RolePO::getIsDisabled, isDisabled).eq(RolePO::getId, roleId).update();
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -107,17 +111,6 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements 
         }
 
         return lambdaUpdate().in(RolePO::getId, roleIds).remove();
-    }
-
-    private List<String> getEnabledRoleNamesByIds(List<Long> roleIds) {
-        if (CollectionUtils.isEmpty(roleIds)) {
-            return Collections.emptyList();
-        }
-
-        return SimpleQuery.list(Wrappers.<RolePO>lambdaQuery()
-                .select(RolePO::getRoleLabel)
-                .eq(RolePO::getIsDisabled, false)
-                .in(RolePO::getId, roleIds), RolePO::getRoleLabel);
     }
 }
 

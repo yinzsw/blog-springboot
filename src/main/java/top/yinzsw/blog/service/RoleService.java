@@ -50,6 +50,15 @@ public interface RoleService extends IService<RolePO> {
     PageVO<RoleVO> pageRoles(PageReq pageReq, String keywords);
 
     /**
+     * 更新角色禁用状态
+     *
+     * @param roleId     角色id
+     * @param isDisabled 禁用状态
+     * @return 是否成功
+     */
+    boolean updateRoleIsDisabled(Long roleId, Boolean isDisabled);
+
+    /**
      * 保存或更新角色
      *
      * @param roleReq 角色信息

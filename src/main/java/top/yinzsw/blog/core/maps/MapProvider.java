@@ -1,11 +1,13 @@
 package top.yinzsw.blog.core.maps;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.LambdaUtils;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import org.apache.ibatis.reflection.property.PropertyNamer;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * 映射数据提供器
@@ -58,6 +60,16 @@ public interface MapProvider<M, K> {
      * @return 值列表
      */
     <V> List<V> getValues(SFunction<M, V> valueFn);
+
+    /**
+     * 获取值列表
+     *
+     * @param valueFn 值策略
+     * @param extraFn 额外条件
+     * @param <V>     值类型
+     * @return 值列表
+     */
+    <V> List<V> getValues(SFunction<M, V> valueFn, Function<LambdaQueryWrapper<M>, LambdaQueryWrapper<M>> extraFn);
 
     /**
      * 根据setter function 获取对象属性名
