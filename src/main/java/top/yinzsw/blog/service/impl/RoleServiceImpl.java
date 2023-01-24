@@ -58,7 +58,6 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements 
 
     @Override
     public PageVO<RoleVO> pageRoles(PageReq pageReq, String keywords) {
-        // 根据关键词查找角色列表
         boolean isAlpha = VerifyUtils.getIsAlpha(keywords);
         Page<RolePO> rolePOPage = lambdaQuery()
                 .select(RolePO::getId, RolePO::getRoleName,
@@ -69,18 +68,15 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements 
 
         VerifyUtils.checkIPage(rolePOPage);
 
-        // 角色id<->菜单id列表 角色id<->资源id列表
         List<RoleVO> roleVOList = roleMapping.builder(rolePOPage.getRecords())
                 .mapMenuIds().mapResourceIds().parallelBuild()
                 .mappingList(roleConverter::toRoleVO);
-
         return new PageVO<>(roleVOList, rolePOPage.getTotal());
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean saveOrUpdateRole(RoleReq roleReq) {
-        // 更新角色信息
         RolePO rolePO = new RolePO()
                 .setId(roleReq.getRoleId())
                 .setRoleName(roleReq.getRoleName())
@@ -91,13 +87,12 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements 
             throw new BizException(String.format("角色名 %s/%s 已经存在, 请更换", roleReq.getRoleName(), roleReq.getRoleLabel()));
         }
 
-        // 更新 角色<->资源, 角色<->菜单 映射关系
-        if (CollectionUtils.isEmpty(roleReq.getMenuIdList())) {
-            roleMapping.deleteMenusMapping(rolePO.getId());
+        roleMapping.deleteMenusMapping(rolePO.getId());
+        roleMapping.deleteResourcesMapping(rolePO.getId());
+        if (!CollectionUtils.isEmpty(roleReq.getMenuIdList())) {
             roleMapping.saveMenus(rolePO.getId(), roleReq.getMenuIdList());
         }
         if (!CollectionUtils.isEmpty(roleReq.getResourceIdList())) {
-            roleMapping.deleteResourcesMapping(rolePO.getId());
             roleMapping.saveResources(rolePO.getId(), roleReq.getResourceIdList());
         }
         return true;
@@ -105,7 +100,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements 
 
     @Override
     public boolean deleteRoles(List<Long> roleIds) {
-        // 判断角色下是否有用户
+        // 防止删除角色后, 导致部分用户无法正常使用
         List<Long> userIds = roleMapping.listUserIds(roleIds);
         if (!CollectionUtils.isEmpty(userIds)) {
             throw new BizException(String.format("角色id下共存在%d位用户, 不能删除!", userIds.size()));

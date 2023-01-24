@@ -56,4 +56,5 @@ public class RoleController {
                                @PathVariable("roleIds") List<Long> roleIds) {
         return roleService.deleteRoles(roleIds);
     }
+    //TODO 角色禁用
 }

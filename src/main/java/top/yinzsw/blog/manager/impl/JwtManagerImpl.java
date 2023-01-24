@@ -55,6 +55,11 @@ public class JwtManagerImpl implements JwtManager {
         return new TokenVO(accessToken, refreshToken);
     }
 
+    /**
+     * UA+IP+jwtKey 生成新的sign
+     *
+     * @return sign
+     */
     private String getSign() {
         String userAgent = Optional.ofNullable(httpContext.getUserAgent()).orElse(UNKNOWN);
         String userIpAddress = Optional.ofNullable(httpContext.getUserIpAddress()).orElse(UNKNOWN);
@@ -91,7 +96,7 @@ public class JwtManagerImpl implements JwtManager {
         Claims claims = claimsJws.getBody();
         ContextDTO contextDTO = claims.get(X_CLAIM, ContextDTO.class);
         if (!getSign().equals(contextDTO.getSign())) {
-            throw new BizException(ResponseCodeEnum.TOKEN_ERROR, "非法的token解析");
+            throw new BizException(ResponseCodeEnum.TOKEN_ERROR, "非法的token解析操作");
         }
         if (Objects.isNull(expectTokenType) || !expectTokenType.equals(contextDTO.getType())) {
             throw new BizException(ResponseCodeEnum.TOKEN_ERROR, "不是期待的token类型");

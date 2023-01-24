@@ -87,7 +87,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
                 .mapCategory(articlePO.getCategoryId()).mapTags(articleId).mapHotIndex(articleId).parallelBuild()
                 .mappingOne(articleConverter::toArticleVO);
 
-        //链式查询包装器
+        //复用查询包装器
         LambdaQueryChainWrapper<ArticlePO> commonLambdaQuery = lambdaQuery()
                 .select(ArticlePO::getId, ArticlePO::getArticleTitle,
                         ArticlePO::getArticleCover, ArticlePO::getCreateTime)
@@ -114,13 +114,13 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
             List<ArticleOutlineVO> relatedRecommendVOList = articleConverter.toArticleOutlineVO(relatedArticlesOf6);
             articleVO.setRelatedRecommendArticles(relatedRecommendVOList);
         }
+        //更新浏览量
         articleManager.updateViewsCount(articleId);
         return articleVO;
     }
 
     @Override
     public PageVO<ArticleDigestVO> pageArticles(PageReq pageReq, Boolean isTop) {
-        // 分页获取文章
         Page<ArticlePO> articlePOPage = lambdaQuery()
                 .select(ArticlePO::getId, ArticlePO::getCategoryId, ArticlePO::getArticleTitle,
                         ArticlePO::getArticleContentDigest, ArticlePO::getArticleCover, ArticlePO::getArticleType,
@@ -186,8 +186,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
 
     @Override
     public PageVO<ArticleDigestBackgroundVO> pageBackgroundArticles(PageReq pageReq, ArticleQueryReq articleQueryReq) {
-
-        // 分页获取文章
         Page<ArticlePO> articlePOPage = lambdaQuery()
                 .select(ArticlePO::getId, ArticlePO::getCategoryId, ArticlePO::getArticleTitle,
                         ArticlePO::getArticleCover, ArticlePO::getArticleStatus, ArticlePO::getArticleType,
@@ -242,7 +240,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
             }
 
             if (topArticlePOList.size() >= 3) {
-                topArticlePOList.removeIf(articlePO -> articlePO.getId().equals(articleId));
                 List<Long> willCancelTopArticleIds = topArticlePOList.subList(2, topArticlePOList.size()).stream()
                         .map(ArticlePO::getId).collect(Collectors.toList());
                 lambdaUpdate().set(ArticlePO::getIsTop, false).in(ArticlePO::getId, willCancelTopArticleIds).update();
