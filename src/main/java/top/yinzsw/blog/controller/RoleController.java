@@ -44,6 +44,15 @@ public class RoleController {
         return roleService.pageRoles(pageReq, keywords);
     }
 
+    @Operation(summary = "更新角色禁用状态")
+    @PatchMapping("{roleId:\\d+}/{isDisabled:true|false}")
+    public boolean updateRoleIsDisabled(@Parameter(description = "角色id", required = true)
+                                        @PathVariable("roleId") Long roleId,
+                                        @Parameter(description = "禁用状态", required = true)
+                                        @PathVariable("isDisabled") Boolean isDisabled) {
+        return roleService.updateRoleIsDisabled(roleId, isDisabled);
+    }
+
     @Operation(summary = "保存或更新角色")
     @PutMapping
     public boolean saveOrUpdateRole(@Valid @RequestBody RoleReq roleReq) {

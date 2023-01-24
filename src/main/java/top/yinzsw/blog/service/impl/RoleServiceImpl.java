@@ -1,9 +1,7 @@
 package top.yinzsw.blog.service.impl;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.baomidou.mybatisplus.extension.toolkit.SimpleQuery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.dao.DuplicateKeyException;
@@ -11,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import top.yinzsw.blog.exception.BizException;
+import top.yinzsw.blog.manager.RoleManager;
 import top.yinzsw.blog.manager.mapping.RoleMapping;
 import top.yinzsw.blog.mapper.RoleMapper;
 import top.yinzsw.blog.model.converter.RoleConverter;
@@ -23,7 +22,6 @@ import top.yinzsw.blog.model.vo.UserRoleVO;
 import top.yinzsw.blog.service.RoleService;
 import top.yinzsw.blog.util.VerifyUtils;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -36,18 +34,19 @@ import java.util.List;
 @CacheConfig(cacheNames = "role")
 public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements RoleService {
     private final RoleMapping roleMapping;
+    private final RoleManager roleManager;
     private final RoleConverter roleConverter;
 
     @Override
     public List<String> getRoleNamesByUserId(Long userId) {
         List<Long> roleIds = roleMapping.listRoleIdsByUserId(userId);
-        return getEnabledRoleNamesByIds(roleIds);
+        return roleManager.getEnabledRoleNamesByIds(roleIds);
     }
 
     @Override
     public List<String> getRoleNamesByResourceId(Long resourceId) {
         List<Long> roleIds = roleMapping.listRoleIdsByResourceId(resourceId);
-        return getEnabledRoleNamesByIds(roleIds);
+        return roleManager.getEnabledRoleNamesByIds(roleIds);
     }
 
     @Override
@@ -58,7 +57,6 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements 
 
     @Override
     public PageVO<RoleVO> pageRoles(PageReq pageReq, String keywords) {
-        // 根据关键词查找角色列表
         boolean isAlpha = VerifyUtils.getIsAlpha(keywords);
         Page<RolePO> rolePOPage = lambdaQuery()
                 .select(RolePO::getId, RolePO::getRoleName,
@@ -69,18 +67,20 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements 
 
         VerifyUtils.checkIPage(rolePOPage);
 
-        // 角色id<->菜单id列表 角色id<->资源id列表
         List<RoleVO> roleVOList = roleMapping.builder(rolePOPage.getRecords())
                 .mapMenuIds().mapResourceIds().parallelBuild()
                 .mappingList(roleConverter::toRoleVO);
-
         return new PageVO<>(roleVOList, rolePOPage.getTotal());
+    }
+
+    @Override
+    public boolean updateRoleIsDisabled(Long roleId, Boolean isDisabled) {
+        return lambdaUpdate().set(RolePO::getIsDisabled, isDisabled).eq(RolePO::getId, roleId).update();
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean saveOrUpdateRole(RoleReq roleReq) {
-        // 更新角色信息
         RolePO rolePO = new RolePO()
                 .setId(roleReq.getRoleId())
                 .setRoleName(roleReq.getRoleName())
@@ -91,13 +91,12 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements 
             throw new BizException(String.format("角色名 %s/%s 已经存在, 请更换", roleReq.getRoleName(), roleReq.getRoleLabel()));
         }
 
-        // 更新 角色<->资源, 角色<->菜单 映射关系
-        if (CollectionUtils.isEmpty(roleReq.getMenuIdList())) {
-            roleMapping.deleteMenusMapping(rolePO.getId());
+        roleMapping.deleteMenusMapping(rolePO.getId());
+        roleMapping.deleteResourcesMapping(rolePO.getId());
+        if (!CollectionUtils.isEmpty(roleReq.getMenuIdList())) {
             roleMapping.saveMenus(rolePO.getId(), roleReq.getMenuIdList());
         }
         if (!CollectionUtils.isEmpty(roleReq.getResourceIdList())) {
-            roleMapping.deleteResourcesMapping(rolePO.getId());
             roleMapping.saveResources(rolePO.getId(), roleReq.getResourceIdList());
         }
         return true;
@@ -105,24 +104,13 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements 
 
     @Override
     public boolean deleteRoles(List<Long> roleIds) {
-        // 判断角色下是否有用户
+        // 防止删除角色后, 导致部分用户无法正常使用
         List<Long> userIds = roleMapping.listUserIds(roleIds);
         if (!CollectionUtils.isEmpty(userIds)) {
             throw new BizException(String.format("角色id下共存在%d位用户, 不能删除!", userIds.size()));
         }
 
         return lambdaUpdate().in(RolePO::getId, roleIds).remove();
-    }
-
-    private List<String> getEnabledRoleNamesByIds(List<Long> roleIds) {
-        if (CollectionUtils.isEmpty(roleIds)) {
-            return Collections.emptyList();
-        }
-
-        return SimpleQuery.list(Wrappers.<RolePO>lambdaQuery()
-                .select(RolePO::getRoleLabel)
-                .eq(RolePO::getIsDisabled, false)
-                .in(RolePO::getId, roleIds), RolePO::getRoleLabel);
     }
 }
 

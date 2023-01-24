@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import top.yinzsw.blog.enums.ResponseCodeEnum;
@@ -16,7 +16,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.security.Principal;
 import java.util.function.Predicate;
 
 /**
@@ -100,13 +99,9 @@ public class HttpContext {
      * @return 用户认证信息
      */
     public ContextDTO getCurrentContextDTO() {
-        Principal userPrincipal = httpServletRequest.getUserPrincipal();
-        if (userPrincipal instanceof UsernamePasswordAuthenticationToken) {
-            var authenticationToken = (UsernamePasswordAuthenticationToken) userPrincipal;
-            Object principal = authenticationToken.getPrincipal();
-            if (principal instanceof ContextDTO) {
-                return (ContextDTO) principal;
-            }
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof ContextDTO) {
+            return (ContextDTO) principal;
         }
         throw new BizException(ResponseCodeEnum.UNAUTHENTICATED);
     }

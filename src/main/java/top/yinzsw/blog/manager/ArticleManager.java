@@ -28,14 +28,6 @@ public interface ArticleManager {
 
 
     /**
-     * 获取文章点赞量信息
-     *
-     * @param articleIds 文章id列表
-     * @return 文章点赞信息[文章id=点赞量]
-     */
-    Map<Long, Long> getLikesCountMap(Long... articleIds);
-
-    /**
      * 获取文章浏览量信息
      *
      * @param articleIds 文章id列表
@@ -44,12 +36,12 @@ public interface ArticleManager {
     Map<Long, Long> getViewsCountMap(Long... articleIds);
 
     /**
-     * 修改文章点赞数
+     * 获取文章点赞量信息
      *
-     * @param articleId 文章id
-     * @param delta     递增值
+     * @param articleIds 文章id列表
+     * @return 文章点赞信息[文章id=点赞量]
      */
-    void updateLikeCount(Long articleId, Long delta);
+    Map<Long, Long> getLikesCountMap(Long... articleIds);
 
     /**
      * 修改文章浏览量
@@ -57,4 +49,12 @@ public interface ArticleManager {
      * @param articleId 文章id
      */
     void updateViewsCount(Long articleId);
+
+    /**
+     * 修改文章点赞数
+     *
+     * @param articleId 文章id
+     * @param delta     递增值
+     */
+    void updateLikeCount(Long articleId, Long delta);
 }

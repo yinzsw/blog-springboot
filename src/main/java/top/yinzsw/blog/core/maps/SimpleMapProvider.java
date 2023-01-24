@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -53,7 +54,13 @@ public class SimpleMapProvider<M, K> implements MapProvider<M, K> {
 
     @Override
     public final <V> List<V> getValues(SFunction<M, V> valueFn) {
-        List<V> values = SimpleQuery.list(Wrappers.<M>lambdaQuery().select(valueFn).in(keyFn, keys), valueFn);
+        return getValues(valueFn, Function.identity());
+    }
+
+    @Override
+    public final <V> List<V> getValues(SFunction<M, V> valueFn,
+                                       Function<LambdaQueryWrapper<M>, LambdaQueryWrapper<M>> extraFn) {
+        List<V> values = SimpleQuery.list(extraFn.apply(Wrappers.<M>lambdaQuery().select(valueFn).in(keyFn, keys)), valueFn);
         return values.size() > 1 ? values.stream().distinct().collect(Collectors.toList()) : values;
     }
 }

@@ -53,4 +53,5 @@ public class AuthController {
                                  @PathVariable("email") String email) {
         return authService.sendEmailCode(email);
     }
+    //TODO *实现三方登录
 }

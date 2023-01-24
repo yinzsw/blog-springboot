@@ -85,4 +85,10 @@ public class UserController {
                                    @PathVariable("roleIds") List<Long> roleIds) {
         return userService.updateUserRoles(userId, roleIds);
     }
+    //TODO
+    // 1. 查看在线用户
+    // 2. 踢出登录(下线在线用户)
+    // 3. 用户分布区域信息
+    // 4. 用户注册
+    // 5. 分页查询用户列表
 }

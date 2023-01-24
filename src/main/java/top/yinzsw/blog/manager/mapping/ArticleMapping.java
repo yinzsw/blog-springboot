@@ -132,8 +132,8 @@ public class ArticleMapping {
 
         public final Builder mapHotIndex(Long... articleIds) {
             addRunnable(() -> {
-                context.setLikeCountMap(articleManager.getLikesCountMap(articleIds));
                 context.setViewCountMap(articleManager.getViewsCountMap(articleIds));
+                context.setLikeCountMap(articleManager.getLikesCountMap(articleIds));
             });
             return this;
         }

@@ -6,10 +6,8 @@ import org.springframework.stereotype.Service;
 import top.yinzsw.blog.core.context.HttpContext;
 import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.manager.ArticleManager;
-import top.yinzsw.blog.model.dto.ContextDTO;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -49,12 +47,9 @@ public class ArticleManagerImpl implements ArticleManager {
     public void updateViewsCount(Long articleId) {
         Supplier<String> suffixSupplier = () -> {
             try {
-                ContextDTO contextDTO = httpContext.getCurrentContextDTO();
-                String sign = contextDTO.getSign();
-                Long uid = contextDTO.getUid();
-                return sign + " " + uid;
+                return httpContext.getCurrentContextDTO().getUid().toString();
             } catch (BizException e) {
-                return LocalDate.now() + " " + httpContext.getUserIpAddress();
+                return httpContext.getUserIpAddress();
             }
         };
         String antiKey = ARTICLE_VIEW_ANTI_PREFIX + suffixSupplier.get();

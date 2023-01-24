@@ -7,6 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import top.yinzsw.blog.model.dto.ContextDTO;
 import top.yinzsw.blog.service.RoleService;
 
@@ -35,7 +36,9 @@ public class SecurityMetadataSourceImpl implements FilterInvocationSecurityMetad
         // 查询可以访问此资源的角色列表
         Long rid = ((ContextDTO) principal).getRid();
         List<String> roleNames = roleService.getRoleNamesByResourceId(rid);
-        return SecurityConfig.createList(roleNames.toArray(new String[0]));
+        return CollectionUtils.isEmpty(roleNames) ?
+                SecurityConfig.createList("''") :
+                SecurityConfig.createList(roleNames.toArray(new String[0]));
     }
 
     @Override
