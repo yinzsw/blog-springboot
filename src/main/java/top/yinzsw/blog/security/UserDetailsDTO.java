@@ -143,6 +143,6 @@ public class UserDetailsDTO implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return roleList.size() > 0;
     }
 }

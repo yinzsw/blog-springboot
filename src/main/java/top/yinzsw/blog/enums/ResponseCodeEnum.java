@@ -31,7 +31,7 @@ public enum ResponseCodeEnum {
     /**
      * 操作未授权
      */
-    UNAUTHORIZED(33000, "授权未操作"),
+    UNAUTHORIZED(33000, "操作未授权"),
 
     /**
      * token过期

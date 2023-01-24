@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
@@ -34,6 +35,7 @@ public class RoleReq {
      * 角色名(zh)
      */
     @NotBlank(message = "角色名(zh)不能为空")
+    @Length(min = 2, message = "角色名(zh)不能小于{min}")
     @Schema(title = "角色名(zh)")
     private String roleName;
 
@@ -41,6 +43,7 @@ public class RoleReq {
      * 角色名(en)
      */
     @NotBlank(message = "角色名(en)不能为空")
+    @Length(min = 4, message = "角色名(en)不能小于{min}")
     @Schema(title = "角色名(en)")
     private String roleLabel;
 
