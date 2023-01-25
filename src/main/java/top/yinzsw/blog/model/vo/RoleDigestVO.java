@@ -17,7 +17,7 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @Accessors(chain = true)
 @Schema(description = "用户角色模型")
-public class UserRoleVO {
+public class RoleDigestVO {
 
     /**
      * 角色id
@@ -29,5 +29,5 @@ public class UserRoleVO {
      * 角色名
      */
     @Schema(title = "角色名(en)")
-    private String roleLabel;
+    private String roleName;
 }

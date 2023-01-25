@@ -33,7 +33,7 @@ public class ArticleController {
     private final ArticleService articleService;
 
     @Operation(summary = "搜索相关文章")
-    @GetMapping("search/{keywords}")
+    @GetMapping("keywords/{keywords}")
     public List<ArticleSearchVO> listSearchArticles(@Parameter(description = "搜索关键字", required = true)
                                                     @PathVariable("keywords") String keywords) {
         return articleService.listSearchArticles(keywords);

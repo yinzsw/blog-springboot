@@ -20,7 +20,7 @@ import java.util.List;
 @AllArgsConstructor
 @Accessors(chain = true)
 @Schema(description = "用户角色")
-public class RoleVO {
+public class RoleSearchVO {
     /**
      * 角色id
      */

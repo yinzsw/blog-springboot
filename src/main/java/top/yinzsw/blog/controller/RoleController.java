@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.request.RoleReq;
 import top.yinzsw.blog.model.vo.PageVO;
-import top.yinzsw.blog.model.vo.RoleVO;
-import top.yinzsw.blog.model.vo.UserRoleVO;
+import top.yinzsw.blog.model.vo.RoleDigestVO;
+import top.yinzsw.blog.model.vo.RoleSearchVO;
 import top.yinzsw.blog.service.RoleService;
 
 import javax.validation.Valid;
@@ -30,18 +30,18 @@ import java.util.List;
 public class RoleController {
     private final RoleService roleService;
 
-    @Operation(summary = "获取角色列表")
-    @GetMapping("list")
-    public List<UserRoleVO> listRoles() {
-        return roleService.listRoles();
+    @Operation(summary = "获取所有角色")
+    @GetMapping
+    public List<RoleDigestVO> listDigestRoles() {
+        return roleService.listDigestRoles();
     }
 
-    @Operation(summary = "获取角色列表(分页)")
-    @GetMapping("page")
-    public PageVO<RoleVO> pageRoles(@Valid PageReq pageReq,
-                                    @Parameter(description = "用户名关键词")
-                                    @RequestParam("keywords") String keywords) {
-        return roleService.pageRoles(pageReq, keywords);
+    @Operation(summary = "搜索用户角色")
+    @GetMapping("keywords/{keywords}")
+    public PageVO<RoleSearchVO> pageSearchRoles(@Valid PageReq pageReq,
+                                                @Parameter(description = "用户名关键词")
+                                                @PathVariable("keywords") String keywords) {
+        return roleService.pageSearchRoles(pageReq, keywords);
     }
 
     @Operation(summary = "更新角色禁用状态")
