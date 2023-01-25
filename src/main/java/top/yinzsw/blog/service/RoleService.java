@@ -5,8 +5,8 @@ import top.yinzsw.blog.model.po.RolePO;
 import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.request.RoleReq;
 import top.yinzsw.blog.model.vo.PageVO;
-import top.yinzsw.blog.model.vo.RoleVO;
-import top.yinzsw.blog.model.vo.UserRoleVO;
+import top.yinzsw.blog.model.vo.RoleDigestVO;
+import top.yinzsw.blog.model.vo.RoleSearchVO;
 
 import java.util.List;
 
@@ -38,7 +38,7 @@ public interface RoleService extends IService<RolePO> {
      *
      * @return 角色列表
      */
-    List<UserRoleVO> listRoles();
+    List<RoleDigestVO> listDigestRoles();
 
     /**
      * 根据用户名关键词 分页获取所有用户角色信息
@@ -47,7 +47,7 @@ public interface RoleService extends IService<RolePO> {
      * @param keywords 用户名关键词
      * @return 用户角色列表信息
      */
-    PageVO<RoleVO> pageRoles(PageReq pageReq, String keywords);
+    PageVO<RoleSearchVO> pageSearchRoles(PageReq pageReq, String keywords);
 
     /**
      * 更新角色禁用状态

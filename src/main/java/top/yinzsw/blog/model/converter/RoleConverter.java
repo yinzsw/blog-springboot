@@ -3,8 +3,8 @@ package top.yinzsw.blog.model.converter;
 import org.mapstruct.*;
 import top.yinzsw.blog.model.dto.RoleMapsDTO;
 import top.yinzsw.blog.model.po.RolePO;
-import top.yinzsw.blog.model.vo.RoleVO;
-import top.yinzsw.blog.model.vo.UserRoleVO;
+import top.yinzsw.blog.model.vo.RoleDigestVO;
+import top.yinzsw.blog.model.vo.RoleSearchVO;
 
 import java.util.List;
 
@@ -17,9 +17,9 @@ import java.util.List;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface RoleConverter {
 
-    List<UserRoleVO> toUserRoleVO(List<RolePO> rolePOList);
+    List<RoleDigestVO> toRoleDigestVO(List<RolePO> rolePOList);
 
-    List<RoleVO> toRoleVO(List<RolePO> rolePOList, @Context RoleMapsDTO roleMapsDTO);
+    List<RoleSearchVO> toRoleVO(List<RolePO> rolePOList, @Context RoleMapsDTO roleMapsDTO);
 
     @SuppressWarnings("unchecked")
     @ObjectFactory
@@ -30,8 +30,8 @@ public interface RoleConverter {
         List<Long> menuIds = roleMapsDTO.getMenuIdsMap().get(roleId);
         List<Long> resourceIds = roleMapsDTO.getResourceIdsMap().get(roleId);
 
-        if (targetType.isAssignableFrom(RoleVO.class)) {
-            return (T) new RoleVO().setMenuIdList(menuIds).setResourceIdList(resourceIds);
+        if (targetType.isAssignableFrom(RoleSearchVO.class)) {
+            return (T) new RoleSearchVO().setMenuIdList(menuIds).setResourceIdList(resourceIds);
         }
 
         throw new UnsupportedOperationException();

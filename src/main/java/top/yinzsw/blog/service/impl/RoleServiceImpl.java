@@ -17,8 +17,8 @@ import top.yinzsw.blog.model.po.RolePO;
 import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.request.RoleReq;
 import top.yinzsw.blog.model.vo.PageVO;
-import top.yinzsw.blog.model.vo.RoleVO;
-import top.yinzsw.blog.model.vo.UserRoleVO;
+import top.yinzsw.blog.model.vo.RoleDigestVO;
+import top.yinzsw.blog.model.vo.RoleSearchVO;
 import top.yinzsw.blog.service.RoleService;
 import top.yinzsw.blog.util.VerifyUtils;
 
@@ -50,13 +50,13 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements 
     }
 
     @Override
-    public List<UserRoleVO> listRoles() {
-        List<RolePO> rolePOList = lambdaQuery().select(RolePO::getId, RolePO::getRoleLabel).list();
-        return roleConverter.toUserRoleVO(rolePOList);
+    public List<RoleDigestVO> listDigestRoles() {
+        List<RolePO> rolePOList = lambdaQuery().select(RolePO::getId, RolePO::getRoleName).list();
+        return roleConverter.toRoleDigestVO(rolePOList);
     }
 
     @Override
-    public PageVO<RoleVO> pageRoles(PageReq pageReq, String keywords) {
+    public PageVO<RoleSearchVO> pageSearchRoles(PageReq pageReq, String keywords) {
         boolean isAlpha = VerifyUtils.getIsAlpha(keywords);
         Page<RolePO> rolePOPage = lambdaQuery()
                 .select(RolePO::getId, RolePO::getRoleName,
@@ -67,10 +67,10 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements 
 
         VerifyUtils.checkIPage(rolePOPage);
 
-        List<RoleVO> roleVOList = roleMapping.builder(rolePOPage.getRecords())
+        List<RoleSearchVO> roleSearchVOList = roleMapping.builder(rolePOPage.getRecords())
                 .mapMenuIds().mapResourceIds().parallelBuild()
                 .mappingList(roleConverter::toRoleVO);
-        return new PageVO<>(roleVOList, rolePOPage.getTotal());
+        return new PageVO<>(roleSearchVOList, rolePOPage.getTotal());
     }
 
     @Override
