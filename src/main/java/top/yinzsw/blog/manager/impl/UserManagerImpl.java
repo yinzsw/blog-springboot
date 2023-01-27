@@ -11,6 +11,7 @@ import top.yinzsw.blog.client.IpClient;
 import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.manager.UserManager;
 import top.yinzsw.blog.model.dto.UserLikedDTO;
+import top.yinzsw.blog.model.po.UserMtmRolePO;
 import top.yinzsw.blog.model.po.UserPO;
 import top.yinzsw.blog.util.CommonUtils;
 import top.yinzsw.blog.util.VerifyUtils;
@@ -20,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 用户通用业务处理层实现
@@ -90,6 +92,16 @@ public class UserManagerImpl implements UserManager {
                         UserPO::getIntro, UserPO::getWebSite, UserPO::getIsDisabled)
                 .eq(isEmail ? UserPO::getEmail : UserPO::getUsername, identity)
                 .one();
+    }
+
+    @Override
+    public boolean saveRoles(Long userId, List<Long> roleIds) {
+        Db.lambdaUpdate(UserMtmRolePO.class).eq(UserMtmRolePO::getUserId, userId).remove();
+        // TODO 尝试主动更新用户token
+        List<UserMtmRolePO> userMtmRolePOList = roleIds.stream()
+                .map(roleId -> new UserMtmRolePO(userId, roleId))
+                .collect(Collectors.toList());
+        return Db.saveBatch(userMtmRolePOList);
     }
 
     @Override

@@ -44,5 +44,8 @@ public class TagPO implements Serializable {
     private LocalDateTime updateTime;
 
     @TableField(exist = false)
+    public static final String FULL_MATCH = "MATCH(tag_name) AGAINST({0} IN BOOLEAN MODE)";
+
+    @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

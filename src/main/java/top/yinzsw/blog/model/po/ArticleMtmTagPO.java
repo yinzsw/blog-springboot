@@ -1,5 +1,6 @@
 package top.yinzsw.blog.model.po;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -20,6 +21,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Accessors(chain = true)
 public class ArticleMtmTagPO implements Serializable {
+
     /**
      * 文章id
      */
@@ -29,6 +31,9 @@ public class ArticleMtmTagPO implements Serializable {
      * 标签id
      */
     private Long tagId;
+
+    @TableField(value = "COUNT(article_id)", select = false, insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
+    private Long articleCount;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

@@ -93,8 +93,11 @@ public class ArticlePO implements Serializable {
     /**
      * 文章内容摘要
      */
-    @TableField(value = "SUBSTR(article_content, 1, 512)", insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
+    @TableField(value = "SUBSTR(article_content, 1, 256)", select = false, insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
     private String articleContentDigest;
+
+    @TableField(exist = false)
+    public static final String FULL_MATCH = "MATCH(article_title, article_content) AGAINST({0} IN BOOLEAN MODE)";
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

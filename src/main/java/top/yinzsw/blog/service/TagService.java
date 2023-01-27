@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import top.yinzsw.blog.model.po.TagPO;
 import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.vo.PageVO;
+import top.yinzsw.blog.model.vo.TagSearchVO;
 import top.yinzsw.blog.model.vo.TagVO;
 
 /**
@@ -20,4 +21,13 @@ public interface TagService extends IService<TagPO> {
      * @return 标签列表
      */
     PageVO<TagVO> pageTags(PageReq pageReq);
+
+    /**
+     * 根据关键词搜索文章标签
+     *
+     * @param pageReq  分页信息
+     * @param keywords 关键词
+     * @return 标签列表
+     */
+    PageVO<TagSearchVO> pageSearchTags(PageReq pageReq, String keywords);
 }

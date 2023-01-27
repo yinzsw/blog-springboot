@@ -11,6 +11,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import top.yinzsw.blog.core.context.HttpContext;
+import top.yinzsw.blog.core.maps.MappingFactory;
 import top.yinzsw.blog.core.upload.UploadProvider;
 import top.yinzsw.blog.enums.ArticleStatusEnum;
 import top.yinzsw.blog.enums.FilePathEnum;
@@ -18,7 +19,6 @@ import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.manager.ArticleManager;
 import top.yinzsw.blog.manager.UserManager;
 import top.yinzsw.blog.manager.WebConfigManager;
-import top.yinzsw.blog.manager.mapping.ArticleMapping;
 import top.yinzsw.blog.mapper.ArticleMapper;
 import top.yinzsw.blog.model.converter.ArticleConverter;
 import top.yinzsw.blog.model.po.ArticlePO;
@@ -31,6 +31,7 @@ import top.yinzsw.blog.model.vo.*;
 import top.yinzsw.blog.service.ArticleService;
 import top.yinzsw.blog.util.VerifyUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -47,8 +48,8 @@ import java.util.stream.Collectors;
 public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> implements ArticleService {
     private final HttpContext httpContext;
     private final UserManager userManager;
+    private final MappingFactory mappingFactory;
     private final UploadProvider uploadProvider;
-    private final ArticleMapping articleMapping;
     private final ArticleManager articleManager;
     private final WebConfigManager webConfigManager;
     private final ArticleConverter articleConverter;
@@ -59,7 +60,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
                 .select(ArticlePO::getId, ArticlePO::getArticleTitle, ArticlePO::getArticleStatus, ArticlePO::getArticleContentDigest)
                 .eq(ArticlePO::getIsDeleted, false)
                 .eq(ArticlePO::getArticleStatus, ArticleStatusEnum.PUBLIC)
-                .and(q -> q.apply("MATCH(article_title, article_content) AGAINST({0} IN BOOLEAN MODE)", keywords))
+                .and(StringUtils.hasText(keywords), q -> q.apply(ArticlePO.FULL_MATCH, keywords))
                 .last("LIMIT 30")
                 .list();
         return articleConverter.toArticleSearchVO(articlePOList);
@@ -83,8 +84,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
     @Override
     public ArticleVO getArticle(Long articleId) {
         ArticlePO articlePO = getById(articleId);
-        ArticleVO articleVO = articleMapping.builder(List.of(articlePO))
-                .mapCategory(articlePO.getCategoryId()).mapTags(articleId).mapHotIndex(articleId).parallelBuild()
+
+        ArticleVO articleVO = mappingFactory.getArticleMapping(List.of(articlePO))
+                .mapCategory().mapTags().mapHotIndex(articleManager::getHotIndex).parallelRun()
                 .mappingOne(articleConverter::toArticleVO);
 
         //复用查询包装器
@@ -107,13 +109,14 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
         articleVO.setNewestRecommendArticles(newestRecommendVOList);
 
         //查询相关文章
-        List<Long> relatedArticleIds = articleMapping.listRelatedArticleIds(articleId);
+        List<Long> relatedArticleIds = articleManager.listRelatedArticleIds(articleId);
         if (!CollectionUtils.isEmpty(relatedArticleIds)) {
             List<ArticlePO> relatedArticlesOf6 = commonLambdaQuery.in(ArticlePO::getId, relatedArticleIds)
                     .orderByDesc(ArticlePO::getId).last("LIMIT 6").list();
             List<ArticleOutlineVO> relatedRecommendVOList = articleConverter.toArticleOutlineVO(relatedArticlesOf6);
             articleVO.setRelatedRecommendArticles(relatedRecommendVOList);
         }
+
         //更新浏览量
         articleManager.updateViewsCount(articleId);
         return articleVO;
@@ -133,8 +136,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
 
         VerifyUtils.checkIPage(articlePOPage);
 
-        List<ArticleDigestVO> articleDigestVOList = articleMapping.builder(articlePOPage.getRecords())
-                .mapCategory().mapTags().parallelBuild()
+        List<ArticleDigestVO> articleDigestVOList = mappingFactory.getArticleMapping(articlePOPage.getRecords())
+                .mapCategory().mapTags().parallelRun()
                 .mappingList(articleConverter::toArticleDigestVO);
         return new PageVO<>(articleDigestVOList, articlePOPage.getTotal());
     }
@@ -149,8 +152,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
 
         VerifyUtils.checkIPage(articlePOPage);
 
-        List<ArticlePreviewVO> articlePreviewVOList = articleMapping.builder(articlePOPage.getRecords())
-                .mapCategory(categoryId).mapTags().parallelBuild()
+        List<ArticlePreviewVO> articlePreviewVOList = mappingFactory.getArticleMapping(articlePOPage.getRecords())
+                .mapCategory().mapTags().parallelRun()
                 .mappingList(articleConverter::toArticlePreviewVO);
 
         return new PageVO<>(articlePreviewVOList, articlePOPage.getTotal());
@@ -158,8 +161,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
 
     @Override
     public PageVO<ArticlePreviewVO> pagePreviewArticles(PageReq pageReq, List<Long> tagIds) {
-        List<Long> articleIds = articleMapping.listArticleIds(tagIds.toArray(Long[]::new));
-
+        List<Long> articleIds = articleManager.listArticleIds(tagIds);
         Page<ArticlePO> articlePOPage = lambdaQuery()
                 .eq(ArticlePO::getArticleStatus, ArticleStatusEnum.PUBLIC)
                 .eq(ArticlePO::getIsDeleted, false)
@@ -168,8 +170,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
 
         VerifyUtils.checkIPage(articlePOPage);
 
-        List<ArticlePreviewVO> articlePreviewVOList = articleMapping.builder(articlePOPage.getRecords())
-                .mapCategory().mapTags(articleIds.toArray(Long[]::new)).parallelBuild()
+        List<ArticlePreviewVO> articlePreviewVOList = mappingFactory.getArticleMapping(articlePOPage.getRecords())
+                .mapCategory().mapTags().parallelRun()
                 .mappingList(articleConverter::toArticlePreviewVO);
         return new PageVO<>(articlePreviewVOList, articlePOPage.getTotal());
     }
@@ -179,13 +181,14 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
         ArticlePO articlePO = getById(articleId);
         Optional.ofNullable(articlePO).orElseThrow(() -> new BizException(String.format("id为%d的文章不存在", articleId)));
 
-        return articleMapping.builder(List.of(articlePO))
-                .mapCategory(articlePO.getId()).mapTags(articleId).parallelBuild()
+        return mappingFactory.getArticleMapping(List.of(articlePO))
+                .mapCategory().mapTags().parallelRun()
                 .mappingOne(articleConverter::toArticleBackgroundVO);
     }
 
     @Override
     public PageVO<ArticleDigestBackgroundVO> pageBackgroundArticles(PageReq pageReq, ArticleQueryReq articleQueryReq) {
+        List<Long> articleIds = articleManager.listArticleIds(Collections.singletonList(articleQueryReq.getTagId()));
         Page<ArticlePO> articlePOPage = lambdaQuery()
                 .select(ArticlePO::getId, ArticlePO::getCategoryId, ArticlePO::getArticleTitle,
                         ArticlePO::getArticleCover, ArticlePO::getArticleStatus, ArticlePO::getArticleType,
@@ -194,15 +197,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
                 .eq(Objects.nonNull(articleQueryReq.getArticleStatus()), ArticlePO::getArticleStatus, articleQueryReq.getArticleStatus())
                 .eq(Objects.nonNull(articleQueryReq.getArticleType()), ArticlePO::getArticleType, articleQueryReq.getArticleType())
                 .eq(Objects.nonNull(articleQueryReq.getIsDeleted()), ArticlePO::getIsDeleted, articleQueryReq.getIsDeleted())
-                .in(Objects.nonNull(articleQueryReq.getTagId()), ArticlePO::getId, articleMapping.listArticleIds(articleQueryReq.getTagId()))
-                .like(Objects.nonNull(articleQueryReq.getKeywords()), ArticlePO::getArticleTitle, articleQueryReq.getKeywords())
+                .in(Objects.nonNull(articleQueryReq.getTagId()), ArticlePO::getId, articleIds)
+                .and(StringUtils.hasText(articleQueryReq.getKeywords()), q -> q.apply(ArticlePO.FULL_MATCH, articleQueryReq.getKeywords()))
                 .page(pageReq.getPager());
 
         VerifyUtils.checkIPage(articlePOPage);
 
         //获取文章分类信息, 标签信息, 热度信息
-        List<ArticleDigestBackgroundVO> articleDigestBackgroundVOList = articleMapping.builder(articlePOPage.getRecords())
-                .mapCategory().mapTags().mapHotIndex().parallelBuild()
+        List<ArticleDigestBackgroundVO> articleDigestBackgroundVOList = mappingFactory.getArticleMapping(articlePOPage.getRecords())
+                .mapCategory().mapTags().mapHotIndex(articleManager::getHotIndex).parallelRun()
                 .mappingList(articleConverter::toArticleDigestBackgroundVO);
         return new PageVO<>(articleDigestBackgroundVOList, articlePOPage.getTotal());
     }
@@ -257,7 +260,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
     @Override
     public boolean saveOrUpdateArticle(ArticleReq articleReq) {
         //保存文章分类
-        CategoryPO categoryPO = articleMapping.saveCategory(articleReq.getCategoryName());
+
+        CategoryPO categoryPO = articleManager.saveCategory(articleReq.getCategoryName());
 
         //当没有设置文章封面时使用文章默认封面
         if (!StringUtils.hasText(articleReq.getArticleCover())) {
@@ -274,7 +278,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
         saveOrUpdate(articlePO);
 
         //保存文章标签
-        return articleMapping.saveTagsAndMapping(articleReq.getTagNames(), articlePO.getId());
+        return articleManager.saveTagsAndMapping(articleReq.getTagNames(), articlePO.getId());
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -282,9 +286,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
     public boolean deleteArticles(List<Long> articleIds) {
         boolean isRemoveSuccess = lambdaUpdate().eq(ArticlePO::getIsDeleted, true).in(ArticlePO::getId, articleIds).remove();
         if (isRemoveSuccess) {
-            articleMapping.deleteTagsMapping(articleIds);
+            articleManager.deleteTagsMapping(articleIds);
         }
-        return true;
+        return isRemoveSuccess;
     }
 }
 
