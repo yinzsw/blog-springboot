@@ -6,17 +6,21 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import top.yinzsw.blog.core.maps.MappingFactory;
+import top.yinzsw.blog.exception.BizException;
+import top.yinzsw.blog.manager.TagManager;
 import top.yinzsw.blog.mapper.TagMapper;
 import top.yinzsw.blog.model.converter.TagConverter;
 import top.yinzsw.blog.model.po.TagPO;
 import top.yinzsw.blog.model.request.PageReq;
+import top.yinzsw.blog.model.request.TagReq;
 import top.yinzsw.blog.model.vo.PageVO;
-import top.yinzsw.blog.model.vo.TagSearchVO;
+import top.yinzsw.blog.model.vo.TagBackgroundSearchVO;
 import top.yinzsw.blog.model.vo.TagVO;
 import top.yinzsw.blog.service.TagService;
 import top.yinzsw.blog.util.VerifyUtils;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author yinzsW
@@ -26,6 +30,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class TagServiceImpl extends ServiceImpl<TagMapper, TagPO> implements TagService {
+    private final TagManager tagManager;
     private final TagConverter tagConverter;
     private final MappingFactory mappingFactory;
 
@@ -40,7 +45,20 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, TagPO> implements Tag
     }
 
     @Override
-    public PageVO<TagSearchVO> pageSearchTags(PageReq pageReq, String keywords) {
+    public PageVO<TagVO> pageSearchTags(PageReq pageReq, String keywords) {
+        Page<TagPO> tagPOPage = lambdaQuery()
+                .select(TagPO::getId, TagPO::getTagName)
+                .and(StringUtils.hasText(keywords), q -> q.apply(TagPO.FULL_MATCH, keywords))
+                .page(pageReq.getPager());
+
+        VerifyUtils.checkIPage(tagPOPage);
+
+        List<TagVO> tagVOList = tagConverter.toTagVO(tagPOPage.getRecords());
+        return new PageVO<>(tagVOList, tagPOPage.getTotal());
+    }
+
+    @Override
+    public PageVO<TagBackgroundSearchVO> pageBackgroundSearchTags(PageReq pageReq, String keywords) {
         Page<TagPO> tagPOPage = lambdaQuery()
                 .select(TagPO::getId, TagPO::getTagName, TagPO::getCreateTime)
                 .and(StringUtils.hasText(keywords), q -> q.apply(TagPO.FULL_MATCH, keywords))
@@ -48,10 +66,30 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, TagPO> implements Tag
 
         VerifyUtils.checkIPage(tagPOPage);
 
-        List<TagSearchVO> tagSearchVOList = mappingFactory.getTagMapping(tagPOPage.getRecords())
+        List<TagBackgroundSearchVO> tagBackgroundSearchVOList = mappingFactory.getTagMapping(tagPOPage.getRecords())
                 .mapArticleCount().serialRun()
                 .mappingList(tagConverter::toTagSearchVO);
-        return new PageVO<>(tagSearchVOList, tagPOPage.getTotal());
+        return new PageVO<>(tagBackgroundSearchVOList, tagPOPage.getTotal());
+    }
+
+    @Override
+    public boolean saveOrUpdateTag(TagReq tagReq) {
+        TagPO existTagPO = lambdaQuery().select(TagPO::getId).eq(TagPO::getTagName, tagReq.getTagName()).one();
+        if (Objects.nonNull(existTagPO)) {
+            throw new BizException("标签名已存在");
+        }
+
+        TagPO tagPO = tagConverter.toTagPO(tagReq);
+        return saveOrUpdate(tagPO);
+    }
+
+    @Override
+    public boolean deleteTags(List<Long> tagIds) {
+        boolean hasUseArticle = tagManager.hasUseArticle(tagIds);
+        if (hasUseArticle) {
+            throw new BizException("该标签下存在文章, 删除失败");
+        }
+        return lambdaUpdate().in(TagPO::getId, tagIds).remove();
     }
 }
 

@@ -5,17 +5,16 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import top.yinzsw.blog.model.request.PageReq;
+import top.yinzsw.blog.model.request.TagReq;
 import top.yinzsw.blog.model.vo.PageVO;
-import top.yinzsw.blog.model.vo.TagSearchVO;
+import top.yinzsw.blog.model.vo.TagBackgroundSearchVO;
 import top.yinzsw.blog.model.vo.TagVO;
 import top.yinzsw.blog.service.TagService;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 标签控制器
@@ -39,9 +38,30 @@ public class TagController {
 
     @Operation(summary = "搜索文章标签")
     @GetMapping("keywords/{keywords}")
-    public PageVO<TagSearchVO> pageSearchTags(@Valid PageReq pageReq,
-                                              @Parameter(description = "标签名关键词", required = true)
-                                              @PathVariable("keywords") String keywords) {
+    public PageVO<TagVO> pageSearchTags(@Valid PageReq pageReq,
+                                        @Parameter(description = "标签名关键词", required = true)
+                                        @PathVariable("keywords") String keywords) {
         return tagService.pageSearchTags(pageReq, keywords);
+    }
+
+    @Operation(summary = "搜索文章标签(后台)")
+    @GetMapping("background/keywords/{keywords}")
+    public PageVO<TagBackgroundSearchVO> pageBackgroundSearchTags(@Valid PageReq pageReq,
+                                                                  @Parameter(description = "标签名关键词", required = true)
+                                                                  @PathVariable("keywords") String keywords) {
+        return tagService.pageBackgroundSearchTags(pageReq, keywords);
+    }
+
+    @Operation(summary = "添加或修改标签")
+    @PutMapping
+    public boolean saveOrUpdateTag(@Valid @RequestBody TagReq tagReq) {
+        return tagService.saveOrUpdateTag(tagReq);
+    }
+
+    @Operation(summary = "删除标签")
+    @DeleteMapping("{tagIds:\\d+(?:,\\d+)*}")
+    public boolean deleteTags(@Parameter(description = "标签id列表", required = true)
+                              @PathVariable("tagIds") List<Long> tagIds) {
+        return tagService.deleteTags(tagIds);
     }
 }

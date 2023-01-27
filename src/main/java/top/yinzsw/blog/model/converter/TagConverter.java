@@ -3,7 +3,8 @@ package top.yinzsw.blog.model.converter;
 import org.mapstruct.*;
 import top.yinzsw.blog.model.dto.TagMapsDTO;
 import top.yinzsw.blog.model.po.TagPO;
-import top.yinzsw.blog.model.vo.TagSearchVO;
+import top.yinzsw.blog.model.request.TagReq;
+import top.yinzsw.blog.model.vo.TagBackgroundSearchVO;
 import top.yinzsw.blog.model.vo.TagVO;
 
 import java.util.List;
@@ -18,7 +19,12 @@ import java.util.List;
 public interface TagConverter {
     List<TagVO> toTagVO(List<TagPO> tagPOList);
 
-    List<TagSearchVO> toTagSearchVO(List<TagPO> tagPOS, @Context TagMapsDTO tagMapsDTO);
+    List<TagBackgroundSearchVO> toTagSearchVO(List<TagPO> tagPOS, @Context TagMapsDTO tagMapsDTO);
+
+    @Mapping(target = "updateTime", ignore = true)
+    @Mapping(target = "createTime", ignore = true)
+    TagPO toTagPO(TagReq tagReq);
+
 
     @SuppressWarnings("unchecked")
     @ObjectFactory
@@ -28,8 +34,8 @@ public interface TagConverter {
         Long tagId = origin.getId();
         Long count = tagMapsDTO.getMapArticleCount().get(tagId);
 
-        if (targetType.isAssignableFrom(TagSearchVO.class)) {
-            return (T) new TagSearchVO().setArticleCount(count);
+        if (targetType.isAssignableFrom(TagBackgroundSearchVO.class)) {
+            return (T) new TagBackgroundSearchVO().setArticleCount(count);
         }
 
         throw new UnsupportedOperationException();
