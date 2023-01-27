@@ -18,7 +18,7 @@ import java.util.List;
 public interface TagService extends IService<TagPO> {
 
     /**
-     * 分页查询标签开列表
+     * 分页查询标签列表
      *
      * @param pageReq 分页信息
      * @return 标签列表

@@ -2,6 +2,9 @@ package top.yinzsw.blog.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import top.yinzsw.blog.model.po.CategoryPO;
+import top.yinzsw.blog.model.request.PageReq;
+import top.yinzsw.blog.model.vo.CategoryVO;
+import top.yinzsw.blog.model.vo.PageVO;
 
 /**
  * @author yinzsW
@@ -10,4 +13,11 @@ import top.yinzsw.blog.model.po.CategoryPO;
  */
 public interface CategoryService extends IService<CategoryPO> {
 
+    /**
+     * 分页查询分类列表
+     *
+     * @param pageReq 分页信息
+     * @return 分类列表
+     */
+    PageVO<CategoryVO> pageCategories(PageReq pageReq);
 }

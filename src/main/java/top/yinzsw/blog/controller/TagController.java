@@ -17,12 +17,12 @@ import javax.validation.Valid;
 import java.util.List;
 
 /**
- * 标签控制器
+ * 文章标签模块
  *
  * @author yinzsW
  * @since 23/01/12
  */
-@Tag(name = "标签模块")
+@Tag(name = "文章标签模块")
 @Validated
 @RestController
 @RequestMapping("tag")

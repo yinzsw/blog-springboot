@@ -22,7 +22,7 @@ import java.util.List;
  * @author yinzsW
  * @since 23/01/02
  */
-@Tag(name = "角色模块")
+@Tag(name = "用户角色模块")
 @Validated
 @RestController
 @RequestMapping("role")
