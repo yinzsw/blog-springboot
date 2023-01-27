@@ -30,4 +30,13 @@ public interface CategoryService extends IService<CategoryPO> {
      * @return 分类列表
      */
     PageVO<CategoryVO> pageSearchCategories(PageReq pageReq, String keywords);
+
+    /**
+     * 根据关键词获取文章分类
+     *
+     * @param pageReq  分页信息
+     * @param keywords 关键词
+     * @return 分类列表
+     */
+    PageVO<CategoryDetailVO> pageBackgroundSearchCategories(PageReq pageReq, String keywords);
 }

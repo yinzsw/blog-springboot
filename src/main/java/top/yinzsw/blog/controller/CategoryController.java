@@ -44,4 +44,13 @@ public class CategoryController {
                                                    @PathVariable("keywords") String keywords) {
         return categoryService.pageSearchCategories(pageReq, keywords);
     }
+
+    @Operation(summary = "查询分类列表(后台)")
+    @GetMapping("background/keywords/{keywords}")
+    public PageVO<CategoryDetailVO> pageBackgroundSearchCategories(@Valid PageReq pageReq,
+                                                                   @Parameter(description = "标签名关键词", required = true)
+                                                                   @PathVariable("keywords") String keywords) {
+        return categoryService.pageBackgroundSearchCategories(pageReq, keywords);
+    }
+
 }
