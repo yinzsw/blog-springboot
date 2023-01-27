@@ -100,7 +100,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements 
         // 防止删除角色后, 导致部分用户无法正常使用
         boolean hasUseUser = roleManager.hasUseUser(roleIds);
         if (hasUseUser) {
-            throw new BizException("角色id下共存在用户, 不能删除!");
+            throw new BizException("该角色下存在用户, 删除失败");
         }
         return lambdaUpdate().in(RolePO::getId, roleIds).remove();
     }

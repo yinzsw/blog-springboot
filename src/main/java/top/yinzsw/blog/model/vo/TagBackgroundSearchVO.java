@@ -9,7 +9,7 @@ import lombok.experimental.Accessors;
 import java.time.LocalDateTime;
 
 /**
- * 后台文章标签
+ * 后台搜索文章标签
  *
  * @author yinzsW
  * @since 23/01/25
@@ -18,26 +18,30 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-@Schema(description = "文章标签")
-public class TagSearchVO {
+@Schema(description = "后台搜索章标签")
+public class TagBackgroundSearchVO {
 
     /**
      * 标签id
      */
+    @Schema(title = "标签id")
     private Long id;
 
     /**
      * 标签名
      */
+    @Schema(title = "标签名")
     private String tagName;
 
     /**
      * 文章量
      */
+    @Schema(title = "文章数量")
     private Long articleCount;
 
     /**
      * 创建时间
      */
+    @Schema(title = "创建时间")
     private LocalDateTime createTime;
 }
