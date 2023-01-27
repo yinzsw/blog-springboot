@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import top.yinzsw.blog.core.maps.mapping.ArticleMapping;
+import top.yinzsw.blog.core.maps.mapping.CategoryMapping;
 import top.yinzsw.blog.core.maps.mapping.RoleMapping;
 import top.yinzsw.blog.core.maps.mapping.TagMapping;
 import top.yinzsw.blog.model.po.ArticlePO;
+import top.yinzsw.blog.model.po.CategoryPO;
 import top.yinzsw.blog.model.po.RolePO;
 import top.yinzsw.blog.model.po.TagPO;
 
@@ -33,5 +35,9 @@ public class MappingFactory {
 
     public TagMapping getTagMapping(List<TagPO> tagPOList) {
         return new TagMapping(taskExecutor, tagPOList);
+    }
+
+    public CategoryMapping getCategoryMapping(List<CategoryPO> categoryPOList) {
+        return new CategoryMapping(taskExecutor, categoryPOList);
     }
 }

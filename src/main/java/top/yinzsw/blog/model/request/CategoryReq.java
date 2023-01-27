@@ -11,7 +11,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 
 /**
- * 标签模型
+ * 分类模型
  *
  * @author yinzsW
  * @since 23/01/27
@@ -20,21 +20,21 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-@Schema(description = "标签模型")
-public class TagReq {
+@Schema(description = "分类模型")
+public class CategoryReq {
 
     /**
-     * 标签id
+     * 分类id
      */
-    @Min(value = 1, message = "不合法的标签id: ${validatedValue}")
-    @Schema(title = "标签id")
+    @Min(value = 1, message = "不合法的分类id: ${validatedValue}")
+    @Schema(title = "分类id")
     private Long id;
 
     /**
-     * 标签名
+     * 分类名
      */
-    @NotBlank(message = "标签名不能为空")
-    @Length(min = 2, message = "标签名长度不能小于{min}")
-    @Schema(title = "标签名")
-    private String tagName;
+    @NotBlank(message = "分类名不能为空")
+    @Length(min = 2, message = "分类名长度不能小于{min}")
+    @Schema(title = "分类名")
+    private String categoryName;
 }

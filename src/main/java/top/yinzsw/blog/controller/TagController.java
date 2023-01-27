@@ -17,12 +17,12 @@ import javax.validation.Valid;
 import java.util.List;
 
 /**
- * 标签控制器
+ * 文章标签模块
  *
  * @author yinzsW
  * @since 23/01/12
  */
-@Tag(name = "标签模块")
+@Tag(name = "文章标签模块")
 @Validated
 @RestController
 @RequestMapping("tag")
@@ -44,7 +44,7 @@ public class TagController {
         return tagService.pageSearchTags(pageReq, keywords);
     }
 
-    @Operation(summary = "搜索文章标签(后台)")
+    @Operation(summary = "查询文章标签(后台)")
     @GetMapping("background/keywords/{keywords}")
     public PageVO<TagBackgroundSearchVO> pageBackgroundSearchTags(@Valid PageReq pageReq,
                                                                   @Parameter(description = "标签名关键词", required = true)

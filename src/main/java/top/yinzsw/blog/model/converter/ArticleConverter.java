@@ -1,6 +1,7 @@
 package top.yinzsw.blog.model.converter;
 
 import org.mapstruct.*;
+import top.yinzsw.blog.model.dto.ArticleHotIndexDTO;
 import top.yinzsw.blog.model.dto.ArticleMapsDTO;
 import top.yinzsw.blog.model.po.ArticlePO;
 import top.yinzsw.blog.model.po.TagPO;
@@ -51,12 +52,12 @@ public interface ArticleConverter {
 
         String categoryName = articleMapsDTO.getCategoryNameMap().get(categoryId);
         List<TagVO> tags = toTagVO(articleMapsDTO.getTagsMap().get(articleId));
-
-        Long likeCount = articleMapsDTO.getLikeCountMap().get(articleId);
-        Long viewCount = articleMapsDTO.getViewCountMap().get(articleId);
+        ArticleHotIndexDTO articleHotIndexDTO = articleMapsDTO.getHotIndexMap().get(articleId);
 
         if (targetType.isAssignableFrom(ArticleVO.class)) {
-            return (T) new ArticleVO().setCategoryName(categoryName).setTags(tags).setViewsCount(viewCount).setLikeCount(likeCount);
+            return (T) new ArticleVO().setCategoryName(categoryName).setTags(tags)
+                    .setViewsCount(articleHotIndexDTO.getViewsCount())
+                    .setLikeCount(articleHotIndexDTO.getLikedCount());
         }
         if (targetType.isAssignableFrom(ArticlePreviewVO.class)) {
             return (T) new ArticlePreviewVO().setCategoryName(categoryName).setTags(tags);
@@ -68,7 +69,9 @@ public interface ArticleConverter {
             return (T) new ArticleBackgroundVO().setCategoryName(categoryName).setTags(tags);
         }
         if (targetType.isAssignableFrom(ArticleDigestBackgroundVO.class)) {
-            return (T) new ArticleDigestBackgroundVO().setCategoryName(categoryName).setTags(tags).setViewsCount(viewCount).setLikeCount(likeCount);
+            return (T) new ArticleDigestBackgroundVO().setCategoryName(categoryName).setTags(tags)
+                    .setViewsCount(articleHotIndexDTO.getViewsCount())
+                    .setLikeCount(articleHotIndexDTO.getLikedCount());
         }
 
         throw new UnsupportedOperationException();

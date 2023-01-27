@@ -33,14 +33,7 @@ public class ArticleMapsDTO {
     private Map<Long, List<TagPO>> tagsMap = Collections.emptyMap();
 
     /**
-     * 文章id->点赞量
+     * 文章id->热度信息(点赞量,浏览量)
      */
-    private Map<Long, Long> likeCountMap = Collections.emptyMap();
-
-    /**
-     * 文章id->浏览量
-     */
-    private Map<Long, Long> viewCountMap = Collections.emptyMap();
-
     private Map<Long, ArticleHotIndexDTO> HotIndexMap = Collections.emptyMap();
 }

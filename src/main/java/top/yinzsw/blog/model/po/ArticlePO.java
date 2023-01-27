@@ -96,6 +96,15 @@ public class ArticlePO implements Serializable {
     @TableField(value = "SUBSTR(article_content, 1, 256)", select = false, insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
     private String articleContentDigest;
 
+    /**
+     * 文章数量 GroupBy categoryId
+     */
+    @TableField(value = "COUNT(id)", select = false, insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
+    private Long articleCount;
+
+    /**
+     * FULL_TEXT_MATCH_SQL
+     */
     @TableField(exist = false)
     public static final String FULL_MATCH = "MATCH(article_title, article_content) AGAINST({0} IN BOOLEAN MODE)";
 
