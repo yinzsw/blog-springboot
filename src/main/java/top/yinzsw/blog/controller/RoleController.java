@@ -39,7 +39,7 @@ public class RoleController {
     @Operation(summary = "搜索用户角色")
     @GetMapping("keywords/{keywords}")
     public PageVO<RoleSearchVO> pageSearchRoles(@Valid PageReq pageReq,
-                                                @Parameter(description = "用户名关键词")
+                                                @Parameter(description = "用户名关键词", required = true)
                                                 @PathVariable("keywords") String keywords) {
         return roleService.pageSearchRoles(pageReq, keywords);
     }

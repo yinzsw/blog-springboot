@@ -21,6 +21,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Accessors(chain = true)
 public class ArticleMapsDTO {
+
     /**
      * 分类id->分类名
      */
@@ -40,4 +41,6 @@ public class ArticleMapsDTO {
      * 文章id->浏览量
      */
     private Map<Long, Long> viewCountMap = Collections.emptyMap();
+
+    private Map<Long, ArticleHotIndexDTO> HotIndexMap = Collections.emptyMap();
 }

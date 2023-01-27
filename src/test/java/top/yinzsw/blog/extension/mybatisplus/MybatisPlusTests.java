@@ -1,12 +1,8 @@
 package top.yinzsw.blog.extension.mybatisplus;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.toolkit.Db;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import top.yinzsw.blog.model.po.ArticlePO;
 
 /**
  * desc
@@ -20,11 +16,21 @@ public class MybatisPlusTests {
 
     @Test
     void test() {
-        LambdaQueryWrapper<ArticlePO> select = Wrappers.lambdaQuery(ArticlePO.class)
-                .select(ArticlePO::getId)
-                .func(articlePOLambdaQueryWrapper -> articlePOLambdaQueryWrapper.select(ArticlePO::getCreateTime));
-
-        Db.list(select);
+//        LambdaQueryWrapper<RoleMtmMenuPO> in = Wrappers.<RoleMtmMenuPO>lambdaQuery()
+//                .in(RoleMtmMenuPO::getRoleId, 1);
+//        Map<Long, Long> map = SimpleQuery.map(in, RoleMtmMenuPO::getRoleId, RoleMtmMenuPO::getMenuId);
+//        System.out.println(map);
+//        List<RoleMtmMenuPO> list = Db.lambdaQuery(RoleMtmMenuPO.class)
+//                .select(RoleMtmMenuPO::getRoleId, RoleMtmMenuPO::getMenuIdc)
+//                .in(RoleMtmMenuPO::getRoleId, 1)
+//                .groupBy(RoleMtmMenuPO::getRoleId)
+//                .list();
+//        System.out.println(list);
+//        LambdaQueryWrapper<ArticlePO> select = Wrappers.lambdaQuery(ArticlePO.class)
+//                .select(ArticlePO::getId)
+//                .func(articlePOLambdaQueryWrapper -> articlePOLambdaQueryWrapper.select(ArticlePO::getCreateTime));
+//
+//        Db.list(select);
 
 //        log.info(aa.getSqlComment());
 //        log.info(aa.getSqlFirst());

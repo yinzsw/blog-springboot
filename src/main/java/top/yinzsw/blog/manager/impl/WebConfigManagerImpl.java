@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import top.yinzsw.blog.core.maps.MapProvider;
+import top.yinzsw.blog.extension.mybatisplus.SqlUtils;
 import top.yinzsw.blog.manager.WebConfigManager;
 import top.yinzsw.blog.model.po.WebsiteConfigPO;
 
@@ -41,7 +41,7 @@ public class WebConfigManagerImpl implements WebConfigManager {
     }
 
     public <T, R> R getWebSiteConfig(SFunction<T, R> sFunction) {
-        String propertyName = MapProvider.getPropertyName(sFunction);
+        String propertyName = SqlUtils.getPropertyName(sFunction);
         return redisTemplate.<String, R>opsForHash().get(WEBSITE_CONFIG, propertyName);
     }
 }

@@ -54,5 +54,8 @@ public class RolePO implements Serializable {
     private LocalDateTime updateTime;
 
     @TableField(exist = false)
+    public static final String FULL_MATCH = "MATCH(role_name, role_label) AGAINST({0} IN BOOLEAN MODE)";
+
+    @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

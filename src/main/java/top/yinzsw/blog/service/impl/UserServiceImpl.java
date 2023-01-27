@@ -11,7 +11,6 @@ import top.yinzsw.blog.core.upload.UploadProvider;
 import top.yinzsw.blog.enums.FilePathEnum;
 import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.manager.UserManager;
-import top.yinzsw.blog.manager.mapping.UserMapping;
 import top.yinzsw.blog.mapper.UserMapper;
 import top.yinzsw.blog.model.po.UserPO;
 import top.yinzsw.blog.model.request.PasswordByEmailReq;
@@ -31,7 +30,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserServiceImpl extends ServiceImpl<UserMapper, UserPO> implements UserService {
     private final HttpContext httpContext;
-    private final UserMapping userMapping;
     private final UserManager userManager;
     private final UploadProvider uploadProvider;
     private final PasswordEncoder passwordEncoder;
@@ -95,9 +93,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPO> implements 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updateUserRoles(Long userId, List<Long> roleIds) {
-        userMapping.deleteRolesMapping(userId);
-        // TODO 尝试主动更新用户token
-        return userMapping.saveRoles(userId, roleIds);
+        return userManager.saveRoles(userId, roleIds);
     }
 }
 

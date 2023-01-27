@@ -1,14 +1,21 @@
 package top.yinzsw.blog.manager.impl;
 
+import com.baomidou.mybatisplus.extension.toolkit.Db;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import top.yinzsw.blog.core.context.HttpContext;
+import top.yinzsw.blog.core.maps.util.MapQueryUtils;
 import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.manager.ArticleManager;
+import top.yinzsw.blog.model.dto.ArticleHotIndexDTO;
+import top.yinzsw.blog.model.po.ArticleMtmTagPO;
+import top.yinzsw.blog.model.po.CategoryPO;
+import top.yinzsw.blog.model.po.TagPO;
 
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,13 +36,19 @@ public class ArticleManagerImpl implements ArticleManager {
     private final HttpContext httpContext;
 
     @Override
-    public Map<Long, Long> getLikesCountMap(Long... articleIds) {
-        return getScoreMapByKey(ARTICLE_LIKE_COUNT, articleIds);
-    }
-
-    @Override
-    public Map<Long, Long> getViewsCountMap(Long... articleIds) {
-        return getScoreMapByKey(ARTICLE_VIEW_COUNT, articleIds);
+    public Map<Long, ArticleHotIndexDTO> getHotIndex(List<Long> articleIds) {
+        Object[] ids = articleIds.stream().map(Object::toString).toArray();
+        List<Double> likedScore = stringRedisTemplate.opsForZSet().score(ARTICLE_LIKE_COUNT, ids);
+        List<Double> viewsScore = stringRedisTemplate.opsForZSet().score(ARTICLE_VIEW_COUNT, ids);
+        return IntStream.range(0, ids.length).boxed().collect(Collectors.toMap(articleIds::get, i -> {
+            Long liked = Optional.ofNullable(likedScore)
+                    .flatMap(scores -> Optional.ofNullable(scores.get(i)))
+                    .map(Double::longValue).orElse(0L);
+            Long views = Optional.ofNullable(viewsScore)
+                    .flatMap(scores -> Optional.ofNullable(scores.get(i)))
+                    .map(Double::longValue).orElse(0L);
+            return new ArticleHotIndexDTO(liked, views);
+        }));
     }
 
     @Override
@@ -60,12 +73,62 @@ public class ArticleManagerImpl implements ArticleManager {
         }
     }
 
-    private Map<Long, Long> getScoreMapByKey(String key, Long[] articleIds) {
-        Object[] ids = Arrays.stream(articleIds).map(Object::toString).toArray();
-        List<Double> score = stringRedisTemplate.opsForZSet().score(key, ids);
-        return IntStream.range(0, articleIds.length).boxed().collect(Collectors.toMap(idx -> articleIds[idx], idx -> Optional
-                .ofNullable(score)
-                .flatMap(scores -> Optional.ofNullable(scores.get(idx)))
-                .map(Double::longValue).orElse(0L)));
+    @Override
+    public List<Long> listArticleIds(List<Long> tagIds) {
+        return MapQueryUtils.create(ArticleMtmTagPO::getTagId, tagIds).getValues(ArticleMtmTagPO::getArticleId);
+    }
+
+    @Override
+    public List<Long> listRelatedArticleIds(Long articleId) {
+        List<Long> tagIds = MapQueryUtils.create(ArticleMtmTagPO::getArticleId, List.of(articleId))
+                .getValues(ArticleMtmTagPO::getTagId);
+        return Db.lambdaQuery(ArticleMtmTagPO.class)
+                .ne(ArticleMtmTagPO::getArticleId, articleId)
+                .in(ArticleMtmTagPO::getTagId, tagIds)
+                .list().stream()
+                .map(ArticleMtmTagPO::getArticleId)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public CategoryPO saveCategory(String categoryName) {
+        return Db.lambdaQuery(CategoryPO.class)
+                .eq(CategoryPO::getCategoryName, categoryName)
+                .oneOpt()
+                .orElseGet(() -> {
+                    CategoryPO categoryPO = new CategoryPO().setCategoryName(categoryName);
+                    Db.save(categoryPO);
+                    return categoryPO;
+                });
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public boolean saveTagsAndMapping(List<String> tagNames, Long articleId) {
+        //获取未保存的标签名
+        List<TagPO> existTagPOList = Db.lambdaQuery(TagPO.class).in(TagPO::getTagName, tagNames).list();
+        List<TagPO> newTagPOList = tagNames.stream()
+                .filter(tagName -> existTagPOList.stream().map(TagPO::getTagName).noneMatch(tagName::equalsIgnoreCase))
+                .map(tageName -> new TagPO().setTagName(tageName))
+                .collect(Collectors.toList());
+
+        //保存新的标签名
+        if (!CollectionUtils.isEmpty(newTagPOList)) {
+            Db.saveBatch(newTagPOList);
+        }
+
+        //更新标签与文章映射关系
+        deleteTagsMapping(List.of(articleId));
+        List<Long> existTagIds = existTagPOList.stream().map(TagPO::getId).collect(Collectors.toList());
+        List<ArticleMtmTagPO> articleMtmTagPOList = newTagPOList.stream()
+                .map(TagPO::getId).collect(Collectors.toCollection(() -> existTagIds)).stream()
+                .map(tagId -> new ArticleMtmTagPO().setArticleId(articleId).setTagId(tagId)).collect(Collectors.toList());
+        return Db.saveBatch(articleMtmTagPOList);
+    }
+
+    @Override
+    public void deleteTagsMapping(List<Long> articleIds) {
+        Db.lambdaUpdate(ArticleMtmTagPO.class).in(ArticleMtmTagPO::getArticleId, articleIds).remove();
     }
 }
