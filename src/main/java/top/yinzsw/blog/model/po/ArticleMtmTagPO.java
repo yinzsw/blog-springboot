@@ -32,6 +32,9 @@ public class ArticleMtmTagPO implements Serializable {
      */
     private Long tagId;
 
+    /**
+     * 文章数量 GroupBy tagId
+     */
     @TableField(value = "COUNT(article_id)", select = false, insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
     private Long articleCount;
 

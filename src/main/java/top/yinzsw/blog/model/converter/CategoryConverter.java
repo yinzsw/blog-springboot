@@ -3,6 +3,7 @@ package top.yinzsw.blog.model.converter;
 import org.mapstruct.*;
 import top.yinzsw.blog.model.dto.CategoryMapsDTO;
 import top.yinzsw.blog.model.po.CategoryPO;
+import top.yinzsw.blog.model.vo.CategoryDetailVO;
 import top.yinzsw.blog.model.vo.CategoryVO;
 
 import java.util.List;
@@ -15,7 +16,9 @@ import java.util.List;
  */
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface CategoryConverter {
-    List<CategoryVO> toCategoryVO(List<CategoryPO> categoryPOS, @Context CategoryMapsDTO categoryMapsDTO);
+    List<CategoryDetailVO> toCategoryDetailVO(List<CategoryPO> categoryPOS, @Context CategoryMapsDTO categoryMapsDTO);
+
+    List<CategoryVO> toCategoryVO(List<CategoryPO> records);
 
     @SuppressWarnings("unchecked")
     @ObjectFactory
@@ -25,8 +28,8 @@ public interface CategoryConverter {
         Long tagId = origin.getId();
         Long count = categoryMapsDTO.getMapArticleCount().get(tagId);
 
-        if (targetType.isAssignableFrom(CategoryVO.class)) {
-            return (T) new CategoryVO().setArticleCount(count);
+        if (targetType.isAssignableFrom(CategoryDetailVO.class)) {
+            return (T) new CategoryDetailVO().setArticleCount(count);
         }
 
         throw new UnsupportedOperationException();

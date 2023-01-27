@@ -6,8 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.time.LocalDateTime;
+
 /**
- * 文章分类
+ * 文章分类详情模型
  *
  * @author yinzsW
  * @since 23/01/27
@@ -16,8 +18,8 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-@Schema(description = "文章分类")
-public class CategoryVO {
+@Schema(description = "文章分类详情模型")
+public class CategoryDetailVO {
 
     /**
      * 分类id
@@ -30,4 +32,16 @@ public class CategoryVO {
      */
     @Schema(title = "分类名")
     private String categoryName;
+
+    /**
+     * 该分类下的文章数量
+     */
+    @Schema(title = "文章数量")
+    private Long articleCount;
+
+    /**
+     * 创建时间
+     */
+    @Schema(title = "创建时间")
+    private LocalDateTime createTime;
 }

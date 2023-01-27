@@ -9,6 +9,7 @@ import top.yinzsw.blog.mapper.CategoryMapper;
 import top.yinzsw.blog.model.converter.CategoryConverter;
 import top.yinzsw.blog.model.po.CategoryPO;
 import top.yinzsw.blog.model.request.PageReq;
+import top.yinzsw.blog.model.vo.CategoryDetailVO;
 import top.yinzsw.blog.model.vo.CategoryVO;
 import top.yinzsw.blog.model.vo.PageVO;
 import top.yinzsw.blog.service.CategoryService;
@@ -28,16 +29,27 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, CategoryPO>
     private final CategoryConverter categoryConverter;
 
     @Override
-    public PageVO<CategoryVO> pageCategories(PageReq pageReq) {
+    public PageVO<CategoryDetailVO> pageCategories(PageReq pageReq) {
         Page<CategoryPO> categoryPOPage = lambdaQuery()
-                .select(CategoryPO::getId, CategoryPO::getCategoryName)
+                .select(CategoryPO::getId, CategoryPO::getCategoryName, CategoryPO::getCreateTime)
                 .page(pageReq.getPager());
 
         VerifyUtils.checkIPage(categoryPOPage);
 
-        List<CategoryVO> categoryVOList = mappingFactory.getCategoryMapping(categoryPOPage.getRecords())
+        List<CategoryDetailVO> categoryDetailVOList = mappingFactory.getCategoryMapping(categoryPOPage.getRecords())
                 .mapArticleCount().serialRun()
-                .mappingList(categoryConverter::toCategoryVO);
+                .mappingList(categoryConverter::toCategoryDetailVO);
+        return new PageVO<>(categoryDetailVOList, categoryPOPage.getTotal());
+    }
+
+    @Override
+    public PageVO<CategoryVO> pageSearchCategories(PageReq pageReq, String keywords) {
+        Page<CategoryPO> categoryPOPage = lambdaQuery()
+                .select(CategoryPO::getId, CategoryPO::getCategoryName)
+                .and(q -> q.apply(CategoryPO.FULL_MATCH, keywords))
+                .page(pageReq.getPager());
+
+        List<CategoryVO> categoryVOList = categoryConverter.toCategoryVO(categoryPOPage.getRecords());
         return new PageVO<>(categoryVOList, categoryPOPage.getTotal());
     }
 }

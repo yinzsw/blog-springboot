@@ -44,7 +44,7 @@ public class TagController {
         return tagService.pageSearchTags(pageReq, keywords);
     }
 
-    @Operation(summary = "搜索文章标签(后台)")
+    @Operation(summary = "查询文章标签(后台)")
     @GetMapping("background/keywords/{keywords}")
     public PageVO<TagBackgroundSearchVO> pageBackgroundSearchTags(@Valid PageReq pageReq,
                                                                   @Parameter(description = "标签名关键词", required = true)
