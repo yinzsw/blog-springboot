@@ -14,6 +14,7 @@ import top.yinzsw.blog.model.vo.PageVO;
 import top.yinzsw.blog.service.CategoryService;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 文章分类模块
@@ -38,7 +39,7 @@ public class CategoryController {
     @Operation(summary = "搜索文章分类")
     @GetMapping("keywords/{keywords}")
     public PageVO<CategoryVO> pageSearchCategories(@Valid PageReq pageReq,
-                                                   @Parameter(description = "标签名关键词", required = true)
+                                                   @Parameter(description = "分类名关键词", required = true)
                                                    @PathVariable("keywords") String keywords) {
         return categoryService.pageSearchCategories(pageReq, keywords);
     }
@@ -46,7 +47,7 @@ public class CategoryController {
     @Operation(summary = "查询分类列表(后台)")
     @GetMapping("background/keywords/{keywords}")
     public PageVO<CategoryDetailVO> pageBackgroundSearchCategories(@Valid PageReq pageReq,
-                                                                   @Parameter(description = "标签名关键词", required = true)
+                                                                   @Parameter(description = "分类名关键词", required = true)
                                                                    @PathVariable("keywords") String keywords) {
         return categoryService.pageBackgroundSearchCategories(pageReq, keywords);
     }
@@ -55,5 +56,12 @@ public class CategoryController {
     @PutMapping
     public boolean saveOrUpdateCategory(@Valid @RequestBody CategoryReq categoryReq) {
         return categoryService.saveOrUpdateCategory(categoryReq);
+    }
+
+    @Operation(summary = "删除分类")
+    @DeleteMapping("{categoryIds:\\d+(?:,\\d+)*}")
+    public boolean deleteCategories(@Parameter(description = "分类id列表", required = true)
+                                    @PathVariable("categoryIds") List<Long> categoryIds) {
+        return categoryService.deleteCategories(categoryIds);
     }
 }

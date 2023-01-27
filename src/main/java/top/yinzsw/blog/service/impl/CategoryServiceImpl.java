@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import top.yinzsw.blog.core.maps.MappingFactory;
 import top.yinzsw.blog.exception.BizException;
+import top.yinzsw.blog.manager.CategoryManager;
 import top.yinzsw.blog.mapper.CategoryMapper;
 import top.yinzsw.blog.model.converter.CategoryConverter;
 import top.yinzsw.blog.model.po.CategoryPO;
@@ -30,6 +31,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, CategoryPO> implements CategoryService {
     private final MappingFactory mappingFactory;
+    private final CategoryManager categoryManager;
     private final CategoryConverter categoryConverter;
 
     @Override
@@ -87,5 +89,14 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, CategoryPO>
 
         CategoryPO categoryPO = categoryConverter.toCategoryPO(categoryReq);
         return saveOrUpdate(categoryPO);
+    }
+
+    @Override
+    public boolean deleteCategories(List<Long> categoryIds) {
+        boolean hasUseArticle = categoryManager.hasUseArticle(categoryIds);
+        if (hasUseArticle) {
+            throw new BizException("该分类下存在文章, 删除失败");
+        }
+        return lambdaUpdate().in(CategoryPO::getId, categoryIds).remove();
     }
 }

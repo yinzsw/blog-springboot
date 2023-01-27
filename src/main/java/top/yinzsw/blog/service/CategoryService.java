@@ -8,6 +8,8 @@ import top.yinzsw.blog.model.vo.CategoryDetailVO;
 import top.yinzsw.blog.model.vo.CategoryVO;
 import top.yinzsw.blog.model.vo.PageVO;
 
+import java.util.List;
+
 /**
  * @author yinzsW
  * @description 针对表【category(文章分类表)】的数据库操作Service
@@ -48,4 +50,12 @@ public interface CategoryService extends IService<CategoryPO> {
      * @return 是否成功
      */
     boolean saveOrUpdateCategory(CategoryReq categoryReq);
+
+    /**
+     * 删除违章分类
+     *
+     * @param categoryIds 分类id列表
+     * @return 是否成功
+     */
+    boolean deleteCategories(List<Long> categoryIds);
 }
