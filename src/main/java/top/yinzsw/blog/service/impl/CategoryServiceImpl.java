@@ -6,9 +6,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import top.yinzsw.blog.core.maps.MappingFactory;
+import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.mapper.CategoryMapper;
 import top.yinzsw.blog.model.converter.CategoryConverter;
 import top.yinzsw.blog.model.po.CategoryPO;
+import top.yinzsw.blog.model.request.CategoryReq;
 import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.vo.CategoryDetailVO;
 import top.yinzsw.blog.model.vo.CategoryVO;
@@ -17,6 +19,7 @@ import top.yinzsw.blog.service.CategoryService;
 import top.yinzsw.blog.util.VerifyUtils;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author yinzsW
@@ -69,5 +72,20 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, CategoryPO>
                 .mapArticleCount().serialRun()
                 .mappingList(categoryConverter::toCategoryDetailVO);
         return new PageVO<>(categoryDetailVOList, categoryPOPage.getTotal());
+    }
+
+    @Override
+    public boolean saveOrUpdateCategory(CategoryReq categoryReq) {
+        CategoryPO existCategoryPO = lambdaQuery()
+                .select(CategoryPO::getId)
+                .eq(CategoryPO::getCategoryName, categoryReq.getCategoryName())
+                .one();
+
+        if (Objects.nonNull(existCategoryPO)) {
+            throw new BizException("分类名已存在");
+        }
+
+        CategoryPO categoryPO = categoryConverter.toCategoryPO(categoryReq);
+        return saveOrUpdate(categoryPO);
     }
 }

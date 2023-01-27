@@ -5,10 +5,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import top.yinzsw.blog.model.request.CategoryReq;
 import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.vo.CategoryDetailVO;
 import top.yinzsw.blog.model.vo.CategoryVO;
@@ -53,4 +51,9 @@ public class CategoryController {
         return categoryService.pageBackgroundSearchCategories(pageReq, keywords);
     }
 
+    @Operation(summary = "添加或修改分类")
+    @PutMapping
+    public boolean saveOrUpdateCategory(@Valid @RequestBody CategoryReq categoryReq) {
+        return categoryService.saveOrUpdateCategory(categoryReq);
+    }
 }

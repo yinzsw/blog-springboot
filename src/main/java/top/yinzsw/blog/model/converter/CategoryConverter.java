@@ -3,6 +3,7 @@ package top.yinzsw.blog.model.converter;
 import org.mapstruct.*;
 import top.yinzsw.blog.model.dto.CategoryMapsDTO;
 import top.yinzsw.blog.model.po.CategoryPO;
+import top.yinzsw.blog.model.request.CategoryReq;
 import top.yinzsw.blog.model.vo.CategoryDetailVO;
 import top.yinzsw.blog.model.vo.CategoryVO;
 
@@ -19,6 +20,10 @@ public interface CategoryConverter {
     List<CategoryDetailVO> toCategoryDetailVO(List<CategoryPO> categoryPOS, @Context CategoryMapsDTO categoryMapsDTO);
 
     List<CategoryVO> toCategoryVO(List<CategoryPO> records);
+
+    @Mapping(target = "updateTime", ignore = true)
+    @Mapping(target = "createTime", ignore = true)
+    CategoryPO toCategoryPO(CategoryReq categoryReq);
 
     @SuppressWarnings("unchecked")
     @ObjectFactory

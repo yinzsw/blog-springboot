@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import org.hibernate.validator.constraints.Length;
 import top.yinzsw.blog.enums.ArticleStatusEnum;
 import top.yinzsw.blog.enums.ArticleTypeEnum;
 
@@ -67,6 +68,7 @@ public class ArticleReq {
      * 文章分类名
      */
     @NotBlank(message = "文章分类不可为空")
+    @Length(min = 2, message = "分类名长度不能小于{min}")
     @Parameter(description = "文章分类名")
     private String categoryName;
 
