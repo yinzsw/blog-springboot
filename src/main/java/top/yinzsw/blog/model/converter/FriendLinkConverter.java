@@ -1,8 +1,10 @@
 package top.yinzsw.blog.model.converter;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import top.yinzsw.blog.model.po.FriendLinkPO;
+import top.yinzsw.blog.model.request.FriendLinkReq;
 import top.yinzsw.blog.model.vo.FriendLinkVO;
 
 import java.util.List;
@@ -16,4 +18,8 @@ import java.util.List;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface FriendLinkConverter {
     List<FriendLinkVO> toFriendLinkVO(List<FriendLinkPO> friendLinkPOList);
+
+    @Mapping(target = "updateTime", ignore = true)
+    @Mapping(target = "createTime", ignore = true)
+    FriendLinkPO toFriendLinkPO(FriendLinkReq friendLinkReq);
 }

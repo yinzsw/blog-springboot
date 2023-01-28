@@ -5,10 +5,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import top.yinzsw.blog.model.request.FriendLinkReq;
 import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.vo.FriendLinkVO;
 import top.yinzsw.blog.model.vo.PageVO;
@@ -36,5 +34,11 @@ public class FriendLinkController {
                                                       @Parameter(description = "友链关键词", required = true)
                                                       @PathVariable("keywords") String keywords) {
         return friendLinkService.pageSearchFriendLinks(pageReq, keywords);
+    }
+
+    @Operation(summary = "保存或修改友链")
+    @PutMapping
+    public boolean saveOrUpdateFriendLink(@Valid @RequestBody FriendLinkReq friendLinkReq) {
+        return friendLinkService.saveOrUpdateFriendLink(friendLinkReq);
     }
 }

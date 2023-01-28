@@ -2,6 +2,7 @@ package top.yinzsw.blog.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import top.yinzsw.blog.model.po.FriendLinkPO;
+import top.yinzsw.blog.model.request.FriendLinkReq;
 import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.vo.FriendLinkVO;
 import top.yinzsw.blog.model.vo.PageVO;
@@ -21,4 +22,12 @@ public interface FriendLinkService extends IService<FriendLinkPO> {
      * @return 友链信息
      */
     PageVO<FriendLinkVO> pageSearchFriendLinks(PageReq pageReq, String keywords);
+
+    /**
+     * 保存或修改友链地址
+     *
+     * @param friendLinkReq 友链信息
+     * @return 是否成功
+     */
+    boolean saveOrUpdateFriendLink(FriendLinkReq friendLinkReq);
 }
