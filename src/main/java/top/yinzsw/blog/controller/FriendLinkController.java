@@ -13,6 +13,7 @@ import top.yinzsw.blog.model.vo.PageVO;
 import top.yinzsw.blog.service.FriendLinkService;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 友链模块
@@ -40,5 +41,12 @@ public class FriendLinkController {
     @PutMapping
     public boolean saveOrUpdateFriendLink(@Valid @RequestBody FriendLinkReq friendLinkReq) {
         return friendLinkService.saveOrUpdateFriendLink(friendLinkReq);
+    }
+
+    @Operation(summary = "删除友链")
+    @DeleteMapping("{friendLinkIds:\\d+(?:,\\d+)*}")
+    public boolean deleteFriendLinks(@Parameter(description = "友链id列表", required = true)
+                                     @PathVariable("friendLinkIds") List<Long> friendLinkIds) {
+        return friendLinkService.deleteFriendLinks(friendLinkIds);
     }
 }

@@ -7,6 +7,8 @@ import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.vo.FriendLinkVO;
 import top.yinzsw.blog.model.vo.PageVO;
 
+import java.util.List;
+
 /**
  * @author yinzsW
  * @description 针对表【friend_link(友链表)】的数据库操作Service
@@ -30,4 +32,12 @@ public interface FriendLinkService extends IService<FriendLinkPO> {
      * @return 是否成功
      */
     boolean saveOrUpdateFriendLink(FriendLinkReq friendLinkReq);
+
+    /**
+     * 删除友链
+     *
+     * @param friendLinkIds 友链id列表
+     * @return 是否成功
+     */
+    boolean deleteFriendLinks(List<Long> friendLinkIds);
 }

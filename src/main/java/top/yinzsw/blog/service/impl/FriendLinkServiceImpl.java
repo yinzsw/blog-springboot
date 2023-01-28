@@ -46,6 +46,11 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
         FriendLinkPO friendLinkPO = friendLinkConverter.toFriendLinkPO(friendLinkReq);
         return saveOrUpdate(friendLinkPO);
     }
+
+    @Override
+    public boolean deleteFriendLinks(List<Long> friendLinkIds) {
+        return removeByIds(friendLinkIds);
+    }
 }
 
 
