@@ -10,59 +10,64 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 友链表
+ * 留言表
  *
- * @TableName friend_link
+ * @TableName message
  */
-@TableName(value = "friend_link")
+@TableName(value = "message")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-public class FriendLinkPO implements Serializable {
+public class MessagePO implements Serializable {
     /**
-     * 友链id
+     * 留言id
      */
     @TableId(type = IdType.AUTO)
     private Long id;
 
     /**
-     * 友链名称
+     * 用户id
      */
-    private String linkName;
+    private Long userId;
 
     /**
-     * 友链头像
+     * 留言内容
      */
-    private String linkAvatar;
+    private String messageContent;
 
     /**
-     * 友链地址
+     * ip地址
      */
-    private String linkAddress;
+    private String ipAddress;
 
     /**
-     * 友链介绍
+     * ip地址源
      */
-    private String linkIntro;
+    private String ipSource;
 
     /**
-     * 创建时间
+     * 是否审核
+     */
+    private Boolean isReview;
+
+    /**
+     * 是否删除
+     */
+    @TableLogic
+    private Boolean isDeleted;
+
+    /**
+     * 发布时间
      */
     @TableField(insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
     private LocalDateTime createTime;
 
     /**
-     * 更新时间
+     * 修改时间
      */
     @TableField(insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
     private LocalDateTime updateTime;
-
-    /**
-     * FULL_TEXT_MATCH_SQL
-     */
-    @TableField(exist = false)
-    public static final String FULL_MATCH = "MATCH(link_name,link_intro) AGAINST({0} IN BOOLEAN MODE)";
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

@@ -33,6 +33,9 @@ public class ResourceManagerImpl implements ResourceManager {
     @Async
     @Override
     public void initResources() {
+        Db.lambdaUpdate(ResourcePO.class).remove();
+        Db.lambdaUpdate(RoleMtmResourcePO.class).remove();
+
         //加载资源列表
         var handlerMethods = requestMappingHandlerMapping.getHandlerMethods();
         List<ResourcePO> resourcePOList = handlerMethods.entrySet().stream()

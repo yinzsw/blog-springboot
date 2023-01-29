@@ -265,7 +265,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
 
         //当没有设置文章封面时使用文章默认封面
         if (!StringUtils.hasText(articleReq.getArticleCover())) {
-            String articleCover = webConfigManager.getWebSiteConfig(WebsiteConfigPO::getArticleCover);
+            String articleCover = webConfigManager.getWebSiteConfig(WebsiteConfigPO::getDefaultArticleCover);
             articleReq.setArticleCover(articleCover);
         }
 

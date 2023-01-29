@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserManagerImpl implements UserManager {
     private final IpClient ipClient;
+
     private final StringRedisTemplate stringRedisTemplate;
 
     @Override
@@ -126,4 +127,5 @@ public class UserManagerImpl implements UserManager {
                 .setLastLoginTime(loginTime);
         Db.lambdaUpdate(UserPO.class).eq(UserPO::getId, userId).update(userPO);
     }
+
 }

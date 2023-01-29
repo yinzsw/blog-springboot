@@ -35,34 +35,44 @@ public class WebsiteConfigPO {
     private String gitee = "";
 
     /**
+     * 支持展示的社交链接类型
+     */
+    private List<String> showSocialLinkTypes = List.of("qq", "github", "gitee");
+
+    /**
+     * 支持的第三方登录列表
+     */
+    private List<String> supportOauthLoginTypes = List.of("qq", "weibo");
+
+    /**
      * 是否开启打赏
      */
-    private Boolean isReward = false;
+    private Boolean enableReward = false;
 
     /**
      * 是否开启聊天室
      */
-    private Boolean isChatRoom = false;
+    private Boolean enableChatRoom = false;
 
     /**
      * 是否开启邮箱通知
      */
-    private Boolean isEmailNotice = false;
+    private Boolean enableEmailNotice = false;
 
     /**
      * 是否开启音乐
      */
-    private Boolean isMusicPlayer = false;
+    private Boolean enableMusicPlayer = false;
 
     /**
      * 是否评论审核
      */
-    private Boolean isCommentReview = false;
+    private Boolean enableAllCommentReview = false;
 
     /**
      * 是否留言审核
      */
-    private Boolean isMessageReview = false;
+    private Boolean enableAllMessageReview = false;
 
     /**
      * 网站名称
@@ -102,40 +112,25 @@ public class WebsiteConfigPO {
     /**
      * 用户头像
      */
-    private String userAvatar = "https://static.talkxj.com/config/2cd793c8744199053323546875655f32.jpg";
-
-    /**
-     * 游客头像
-     */
-    private String touristAvatar = "https://static.talkxj.com/photos/0bca52afdb2b9998132355d716390c9f.png";
+    private String defaultUserAvatar = "https://static.talkxj.com/photos/0bca52afdb2b9998132355d716390c9f.png";
 
     /**
      * 文章封面
      */
-    private String articleCover = "https://static.talkxj.com/config/e587c4651154e4da49b5a54f865baaed.jpg";
+    private String defaultArticleCover = "https://static.talkxj.com/config/e587c4651154e4da49b5a54f865baaed.jpg";
 
     /**
      * 微信二维码
      */
-    private String weiXinQRCode = "https://static.talkxj.com/photos/4f767ef84e55ab9ad42b2d20e51deca1.png";
+    private String defaultWeiXinQRCode = "https://static.talkxj.com/photos/4f767ef84e55ab9ad42b2d20e51deca1.png";
 
     /**
      * 支付宝二维码
      */
-    private String alipayQRCode = "https://static.talkxj.com/photos/13d83d77cc1f7e4e0437d7feaf56879f.png";
+    private String defaultAlipayQRCode = "https://static.talkxj.com/photos/13d83d77cc1f7e4e0437d7feaf56879f.png";
 
     /**
      * websocket地址
      */
     private String websocketUrl = "";
-
-    /**
-     * 社交登录列表
-     */
-    private List<String> socialLoginList = List.of("qq", "weibo");
-
-    /**
-     * 社交url列表
-     */
-    private List<String> socialUrlList = List.of("qq", "github", "gitee");
 }

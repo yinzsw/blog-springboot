@@ -33,7 +33,7 @@ public final class TagMapping extends MapTaskRunnerTemplate<TagPO, TagMapsDTO> {
             Map<Long, Long> article2CountMap = MapQueryUtils.create(ArticleMtmTagPO::getTagId, tagIds)
                     .queryWrapper(wrapper -> wrapper.groupBy(ArticleMtmTagPO::getTagId))
                     .getKeyValueMap(ArticleMtmTagPO::getArticleCount);
-            getContextDTO().setMapArticleCount(article2CountMap);
+            getContextDTO().setArticleCountMap(article2CountMap);
         });
         return this;
     }

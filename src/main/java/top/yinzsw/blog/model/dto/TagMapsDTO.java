@@ -23,5 +23,5 @@ public class TagMapsDTO {
     /**
      * 标签id->文章数量
      */
-    private Map<Long, Long> mapArticleCount = Collections.emptyMap();
+    private Map<Long, Long> articleCountMap = Collections.emptyMap();
 }

@@ -31,7 +31,7 @@ public interface CategoryConverter {
                                  @Context CategoryMapsDTO categoryMapsDTO,
                                  @TargetType Class<T> targetType) {
         Long tagId = origin.getId();
-        Long count = categoryMapsDTO.getMapArticleCount().get(tagId);
+        Long count = categoryMapsDTO.getArticleCountMap().get(tagId);
 
         if (targetType.isAssignableFrom(CategoryDetailVO.class)) {
             return (T) new CategoryDetailVO().setArticleCount(count);

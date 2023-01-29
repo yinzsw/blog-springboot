@@ -32,7 +32,7 @@ public interface TagConverter {
                                  @Context TagMapsDTO tagMapsDTO,
                                  @TargetType Class<T> targetType) {
         Long tagId = origin.getId();
-        Long count = tagMapsDTO.getMapArticleCount().get(tagId);
+        Long count = tagMapsDTO.getArticleCountMap().get(tagId);
 
         if (targetType.isAssignableFrom(TagBackgroundSearchVO.class)) {
             return (T) new TagBackgroundSearchVO().setArticleCount(count);

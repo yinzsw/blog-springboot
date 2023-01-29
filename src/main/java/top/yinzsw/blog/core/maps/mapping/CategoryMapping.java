@@ -33,7 +33,7 @@ public final class CategoryMapping extends MapTaskRunnerTemplate<CategoryPO, Cat
             Map<Long, Long> article2CountMap = MapQueryUtils.create(ArticlePO::getCategoryId, categoryIds)
                     .queryWrapper(wrapper -> wrapper.groupBy(ArticlePO::getCategoryId))
                     .getKeyValueMap(ArticlePO::getArticleCount);
-            getContextDTO().setMapArticleCount(article2CountMap);
+            getContextDTO().setArticleCountMap(article2CountMap);
         });
         return this;
     }

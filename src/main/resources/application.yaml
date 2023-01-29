@@ -75,5 +75,5 @@ upload:
   access-key-secret: ${UPLOAD.ACCESS_KEY_SECRET}
 blog:
   jwt-key: ${JWT.KEY}
-  initialization: false
+  initialization: true
 

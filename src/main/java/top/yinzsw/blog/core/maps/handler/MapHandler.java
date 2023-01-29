@@ -36,9 +36,8 @@ public interface MapHandler<O, C> {
      */
     default <R> R mappingOne(BiFunction<O, C, R> mappingFn) {
         List<O> originList = getOriginList();
-        C contextDTO = getContextDTO();
         O origin = Objects.nonNull(originList) && originList.size() >= 1 ? originList.get(0) : null;
-        return mappingFn.apply(origin, contextDTO);
+        return mappingFn.apply(origin, getContextDTO());
     }
 
     /**
