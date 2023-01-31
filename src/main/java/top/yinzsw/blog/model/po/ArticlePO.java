@@ -109,6 +109,12 @@ public class ArticlePO implements Serializable {
     @TableField(exist = false)
     public static final String FULL_MATCH = "MATCH(article_title, article_content) AGAINST({0} IN BOOLEAN MODE)";
 
+    /**
+     * FULL_TEXT_MATCH_SQL
+     */
+    @TableField(exist = false)
+    public static final String FULL_MATCH_TITLE = "MATCH(article_title) AGAINST({0} IN BOOLEAN MODE)";
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

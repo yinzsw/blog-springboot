@@ -18,30 +18,22 @@ import java.util.List;
 public interface CategoryService extends IService<CategoryPO> {
 
     /**
-     * 分页查询分类列表
-     *
-     * @param pageReq 分页信息
-     * @return 分类列表
-     */
-    PageVO<CategoryDetailVO> pageCategories(PageReq pageReq);
-
-    /**
      * 根据关键词查询分类信息
      *
-     * @param pageReq  分页信息
-     * @param keywords 关键词
+     * @param pageReq 分页信息
+     * @param name    分类名关键词
      * @return 分类列表
      */
-    PageVO<CategoryVO> pageSearchCategories(PageReq pageReq, String keywords);
+    PageVO<CategoryVO> pageSearchCategories(PageReq pageReq, String name);
 
     /**
      * 根据关键词获取文章分类
      *
-     * @param pageReq  分页信息
-     * @param keywords 关键词
+     * @param pageReq 分页信息
+     * @param name    分类名关键词
      * @return 分类列表
      */
-    PageVO<CategoryDetailVO> pageBackgroundSearchCategories(PageReq pageReq, String keywords);
+    PageVO<CategoryDetailVO> pageDetailCategories(PageReq pageReq, String name);
 
     /**
      * 保存或修改分类信息

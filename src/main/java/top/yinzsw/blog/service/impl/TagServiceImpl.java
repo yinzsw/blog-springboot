@@ -35,20 +35,10 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, TagPO> implements Tag
     private final TagConverter tagConverter;
 
     @Override
-    public PageVO<TagVO> pageTags(PageReq pageReq) {
-        Page<TagPO> tagPOPage = lambdaQuery().select(TagPO::getId, TagPO::getTagName).page(pageReq.getPager());
-
-        VerifyUtils.checkIPage(tagPOPage);
-
-        List<TagVO> tagVOList = tagConverter.toTagVO(tagPOPage.getRecords());
-        return new PageVO<>(tagVOList, tagPOPage.getTotal());
-    }
-
-    @Override
-    public PageVO<TagVO> pageSearchTags(PageReq pageReq, String keywords) {
+    public PageVO<TagVO> pageTags(PageReq pageReq, String name) {
         Page<TagPO> tagPOPage = lambdaQuery()
                 .select(TagPO::getId, TagPO::getTagName)
-                .and(StringUtils.hasText(keywords), q -> q.apply(TagPO.FULL_MATCH, keywords))
+                .and(StringUtils.hasText(name), q -> q.apply(TagPO.FULL_MATCH, name))
                 .page(pageReq.getPager());
 
         VerifyUtils.checkIPage(tagPOPage);
@@ -58,10 +48,10 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, TagPO> implements Tag
     }
 
     @Override
-    public PageVO<TagBackgroundSearchVO> pageBackgroundSearchTags(PageReq pageReq, String keywords) {
+    public PageVO<TagBackgroundSearchVO> pageBackgroundSearchTags(PageReq pageReq, String name) {
         Page<TagPO> tagPOPage = lambdaQuery()
                 .select(TagPO::getId, TagPO::getTagName, TagPO::getCreateTime)
-                .and(StringUtils.hasText(keywords), q -> q.apply(TagPO.FULL_MATCH, keywords))
+                .and(StringUtils.hasText(name), q -> q.apply(TagPO.FULL_MATCH, name))
                 .page(pageReq.getPager());
 
         VerifyUtils.checkIPage(tagPOPage);

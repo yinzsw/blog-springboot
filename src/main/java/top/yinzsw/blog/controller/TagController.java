@@ -31,25 +31,19 @@ public class TagController {
     private final TagService tagService;
 
     @Operation(summary = "查询标签列表")
-    @GetMapping
-    public PageVO<TagVO> pageTags(@Valid PageReq pageReq) {
-        return tagService.pageTags(pageReq);
-    }
-
-    @Operation(summary = "搜索文章标签")
-    @GetMapping("keywords/{keywords}")
-    public PageVO<TagVO> pageSearchTags(@Valid PageReq pageReq,
-                                        @Parameter(description = "标签名关键词", required = true)
-                                        @PathVariable("keywords") String keywords) {
-        return tagService.pageSearchTags(pageReq, keywords);
+    @GetMapping("name/{name}")
+    public PageVO<TagVO> pageTags(@Valid PageReq pageReq,
+                                  @Parameter(description = "标签名关键词", required = true)
+                                  @PathVariable("name") String name) {
+        return tagService.pageTags(pageReq, name);
     }
 
     @Operation(summary = "查询文章标签(后台)")
-    @GetMapping("background/keywords/{keywords}")
+    @GetMapping("background/name/{name}")
     public PageVO<TagBackgroundSearchVO> pageBackgroundSearchTags(@Valid PageReq pageReq,
                                                                   @Parameter(description = "标签名关键词", required = true)
-                                                                  @PathVariable("keywords") String keywords) {
-        return tagService.pageBackgroundSearchTags(pageReq, keywords);
+                                                                  @PathVariable("name") String name) {
+        return tagService.pageBackgroundSearchTags(pageReq, name);
     }
 
     @Operation(summary = "添加或修改标签")

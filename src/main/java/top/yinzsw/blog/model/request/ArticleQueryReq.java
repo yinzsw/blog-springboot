@@ -27,7 +27,7 @@ public class ArticleQueryReq {
      * 搜索关键字
      */
     @Parameter(description = "搜索关键字(标题)")
-    private String keywords;
+    private String title;
 
     /**
      * 文章分类id

@@ -162,7 +162,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
         List<Long> articleIds = Optional.ofNullable(articleQueryReq.getTagId())
                 .map(tagId -> articleManager.listArticleIds(Collections.singletonList(tagId)))
                 .orElse(Collections.emptyList());
-        String keywords = articleQueryReq.getKeywords();
+        String title = articleQueryReq.getTitle();
 
 
         Page<ArticlePO> articlePOPage = lambdaQuery()
@@ -175,7 +175,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
                     put(ArticlePO::getArticleType, articleQueryReq.getArticleType());
                 }}, false)
                 .in(!articleIds.isEmpty(), ArticlePO::getId, articleIds)
-                .and(StringUtils.hasText(keywords), q -> q.apply(ArticlePO.FULL_MATCH, keywords))
+                .and(StringUtils.hasText(title), q -> q.apply(ArticlePO.FULL_MATCH_TITLE, title))
                 .page(pageReq.getPager());
 
         VerifyUtils.checkIPage(articlePOPage);

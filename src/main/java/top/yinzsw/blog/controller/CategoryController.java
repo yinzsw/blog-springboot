@@ -30,26 +30,20 @@ import java.util.List;
 public class CategoryController {
     private final CategoryService categoryService;
 
-    @Operation(summary = "查询分类列表")
-    @GetMapping
-    public PageVO<CategoryDetailVO> pageCategories(@Valid PageReq pageReq) {
-        return categoryService.pageCategories(pageReq);
-    }
-
     @Operation(summary = "搜索文章分类")
-    @GetMapping("keywords/{keywords}")
+    @GetMapping("name/{name}")
     public PageVO<CategoryVO> pageSearchCategories(@Valid PageReq pageReq,
                                                    @Parameter(description = "分类名关键词", required = true)
-                                                   @PathVariable("keywords") String keywords) {
-        return categoryService.pageSearchCategories(pageReq, keywords);
+                                                   @PathVariable("name") String name) {
+        return categoryService.pageSearchCategories(pageReq, name);
     }
 
-    @Operation(summary = "查询分类列表(后台)")
-    @GetMapping("background/keywords/{keywords}")
-    public PageVO<CategoryDetailVO> pageBackgroundSearchCategories(@Valid PageReq pageReq,
-                                                                   @Parameter(description = "分类名关键词", required = true)
-                                                                   @PathVariable("keywords") String keywords) {
-        return categoryService.pageBackgroundSearchCategories(pageReq, keywords);
+    @Operation(summary = "查询分类列表")
+    @GetMapping("detail/name/{name}")
+    public PageVO<CategoryDetailVO> pageDetailCategories(@Valid PageReq pageReq,
+                                                         @Parameter(description = "分类名关键词", required = true)
+                                                         @PathVariable("name") String name) {
+        return categoryService.pageDetailCategories(pageReq, name);
     }
 
     @Operation(summary = "添加或修改分类")

@@ -35,22 +35,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, CategoryPO>
     private final CategoryConverter categoryConverter;
 
     @Override
-    public PageVO<CategoryDetailVO> pageCategories(PageReq pageReq) {
-        Page<CategoryPO> categoryPOPage = lambdaQuery()
-                .select(CategoryPO::getId, CategoryPO::getCategoryName, CategoryPO::getCreateTime)
-                .page(pageReq.getPager());
-
-        VerifyUtils.checkIPage(categoryPOPage);
-
-        List<CategoryDetailVO> categoryDetailVOList = getCategoryDetailVOList(categoryPOPage.getRecords());
-        return new PageVO<>(categoryDetailVOList, categoryPOPage.getTotal());
-    }
-
-    @Override
-    public PageVO<CategoryVO> pageSearchCategories(PageReq pageReq, String keywords) {
+    public PageVO<CategoryVO> pageSearchCategories(PageReq pageReq, String name) {
         Page<CategoryPO> categoryPOPage = lambdaQuery()
                 .select(CategoryPO::getId, CategoryPO::getCategoryName)
-                .and(StringUtils.hasText(keywords), q -> q.apply(CategoryPO.FULL_MATCH, keywords))
+                .and(StringUtils.hasText(name), q -> q.apply(CategoryPO.FULL_MATCH, name))
                 .page(pageReq.getPager());
 
         VerifyUtils.checkIPage(categoryPOPage);
@@ -60,15 +48,20 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, CategoryPO>
     }
 
     @Override
-    public PageVO<CategoryDetailVO> pageBackgroundSearchCategories(PageReq pageReq, String keywords) {
+    public PageVO<CategoryDetailVO> pageDetailCategories(PageReq pageReq, String name) {
         Page<CategoryPO> categoryPOPage = lambdaQuery()
                 .select(CategoryPO::getId, CategoryPO::getCategoryName, CategoryPO::getCreateTime)
-                .and(StringUtils.hasText(keywords), q -> q.apply(CategoryPO.FULL_MATCH, keywords))
+                .and(StringUtils.hasText(name), q -> q.apply(CategoryPO.FULL_MATCH, name))
                 .page(pageReq.getPager());
 
         VerifyUtils.checkIPage(categoryPOPage);
 
-        List<CategoryDetailVO> categoryDetailVOList = getCategoryDetailVOList(categoryPOPage.getRecords());
+        List<CategoryPO> categoryPOList = categoryPOPage.getRecords();
+        List<Long> categoryIds = CommonUtils.toList(categoryPOList, CategoryPO::getId);
+        Map<Long, Long> articleCountMap = MapQueryUtils.create(ArticlePO::getCategoryId, categoryIds)
+                .queryWrapper(wrapper -> wrapper.groupBy(ArticlePO::getCategoryId))
+                .getKeyValueMap(ArticlePO::getArticleCount);
+        List<CategoryDetailVO> categoryDetailVOList = categoryConverter.toCategoryDetailVO(categoryPOList, articleCountMap);
         return new PageVO<>(categoryDetailVOList, categoryPOPage.getTotal());
     }
 
@@ -90,13 +83,5 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, CategoryPO>
             throw new BizException("该分类下存在文章, 删除失败");
         }
         return lambdaUpdate().in(CategoryPO::getId, categoryIds).remove();
-    }
-
-    private List<CategoryDetailVO> getCategoryDetailVOList(List<CategoryPO> categoryPOList) {
-        List<Long> categoryIds = CommonUtils.toList(categoryPOList, CategoryPO::getId);
-        Map<Long, Long> articleCountMap = MapQueryUtils.create(ArticlePO::getCategoryId, categoryIds)
-                .queryWrapper(wrapper -> wrapper.groupBy(ArticlePO::getCategoryId))
-                .getKeyValueMap(ArticlePO::getArticleCount);
-        return categoryConverter.toCategoryDetailVO(categoryPOList, articleCountMap);
     }
 }

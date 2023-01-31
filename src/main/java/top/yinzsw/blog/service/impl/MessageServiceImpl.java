@@ -10,15 +10,19 @@ import top.yinzsw.blog.model.converter.MessageConverter;
 import top.yinzsw.blog.model.po.MessagePO;
 import top.yinzsw.blog.model.po.UserPO;
 import top.yinzsw.blog.model.po.WebsiteConfigPO;
+import top.yinzsw.blog.model.request.MessageQueryReq;
 import top.yinzsw.blog.model.request.PageReq;
+import top.yinzsw.blog.model.vo.MessageBackgroundVO;
 import top.yinzsw.blog.model.vo.MessageVO;
 import top.yinzsw.blog.model.vo.PageVO;
 import top.yinzsw.blog.service.MessageService;
 import top.yinzsw.blog.util.MapQueryUtils;
 import top.yinzsw.blog.util.VerifyUtils;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 /**
@@ -39,6 +43,38 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, MessagePO> im
                 .eq(MessagePO::getIsReview, true)
                 .page(pageReq.getPager());
 
+        List<MessageVO> messageVOList = messagePO2VOList(messagePOPage, messageConverter::toMessageVO);
+        return new PageVO<>(messageVOList, messagePOPage.getTotal());
+    }
+
+    @Override
+    public PageVO<MessageBackgroundVO> pageBackgroundMessages(PageReq pageReq, MessageQueryReq messageQueryReq) {
+        Page<MessagePO> messagePOPage = lambdaQuery()
+                .select(MessagePO::getId, MessagePO::getUserId, MessagePO::getIpAddress, MessagePO::getIpSource,
+                        MessagePO::getMessageContent, MessagePO::getIsReview, MessagePO::getCreateTime)
+                .allEq(new HashMap<>() {{
+                    put(MessagePO::getUserId, messageQueryReq.getUserId());
+                    put(MessagePO::getIsReview, messageQueryReq.getIsReview());
+                }}, false)
+                .orderByDesc(MessagePO::getId)
+                .page(pageReq.getPager());
+
+        List<MessageBackgroundVO> messageBackgroundVOList = messagePO2VOList(messagePOPage, messageConverter::toMessageBackgroundVO);
+        return new PageVO<>(messageBackgroundVOList, messagePOPage.getTotal());
+    }
+
+    @Override
+    public boolean updateMessagesIsReview(List<Long> messageIds, Boolean isReview) {
+        return lambdaUpdate().set(MessagePO::getIsReview, isReview).in(MessagePO::getId, messageIds).update();
+    }
+
+    @Override
+    public boolean deleteMessages(List<Long> messageIds) {
+        return removeByIds(messageIds);
+    }
+
+    private <T> List<T> messagePO2VOList(Page<MessagePO> messagePOPage,
+                                         BiFunction<List<MessagePO>, Map<Long, UserPO>, List<T>> mapFunction) {
         VerifyUtils.checkIPage(messagePOPage);
 
         List<MessagePO> messagePOList = messagePOPage.getRecords();
@@ -49,8 +85,8 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, MessagePO> im
             UserPO anonymousUser = new UserPO().setNickname("游客").setAvatar(userAvatar);
             userMap.put(0L, anonymousUser);
         }
-        List<MessageVO> messageVOList = messageConverter.toMessageVO(messagePOList, userMap);
-        return new PageVO<>(messageVOList, messagePOPage.getTotal());
+
+        return mapFunction.apply(messagePOList, userMap);
     }
 }
 
