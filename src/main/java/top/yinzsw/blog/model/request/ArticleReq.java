@@ -10,6 +10,7 @@ import org.hibernate.validator.constraints.Length;
 import top.yinzsw.blog.enums.ArticleStatusEnum;
 import top.yinzsw.blog.enums.ArticleTypeEnum;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
@@ -77,7 +78,7 @@ public class ArticleReq {
      */
     @NotEmpty(message = "文章标签不可为空")
     @Parameter(description = "文章标签名")
-    private List<String> tagNames;
+    private List<@Valid @NotBlank(message = "标签名不能为空") String> tagNames;
 
     /**
      * 原文链接

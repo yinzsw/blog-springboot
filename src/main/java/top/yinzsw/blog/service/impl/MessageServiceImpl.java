@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import top.yinzsw.blog.core.maps.util.MapQueryUtils;
 import top.yinzsw.blog.manager.WebConfigManager;
 import top.yinzsw.blog.mapper.MessageMapper;
 import top.yinzsw.blog.model.converter.MessageConverter;
@@ -15,6 +14,7 @@ import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.vo.MessageVO;
 import top.yinzsw.blog.model.vo.PageVO;
 import top.yinzsw.blog.service.MessageService;
+import top.yinzsw.blog.util.MapQueryUtils;
 import top.yinzsw.blog.util.VerifyUtils;
 
 import java.util.List;

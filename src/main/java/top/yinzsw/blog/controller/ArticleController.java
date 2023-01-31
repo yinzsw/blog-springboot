@@ -116,22 +116,13 @@ public class ArticleController {
         return articleService.updateArticleIsTop(articleId, isTop);
     }
 
-    @Operation(summary = "恢复或删除文章")
-    @PatchMapping("{articleId:\\d+}/isDeleted/{isDeleted:true|false}")
-    public boolean updateArticleIsDeleted(@Parameter(description = "文章id", required = true)
-                                          @PathVariable("articleId") Long articleId,
-                                          @Parameter(description = "是否删除", required = true)
-                                          @PathVariable("isDeleted") Boolean isDeleted) {
-        return articleService.updateArticleIsDeleted(articleId, isDeleted);
-    }
-
     @Operation(summary = "添加或修改文章")
     @PutMapping
     public boolean saveOrUpdateArticle(@Valid @RequestBody ArticleReq articleReq) {
         return articleService.saveOrUpdateArticle(articleReq);
     }
 
-    @Operation(summary = "物理删除文章")
+    @Operation(summary = "删除文章")
     @DeleteMapping("{articleIds:\\d+(?:,\\d+)*}")
     public boolean deleteArticles(@Parameter(description = "文章id列表", required = true)
                                   @PathVariable("articleIds") List<Long> articleIds) {

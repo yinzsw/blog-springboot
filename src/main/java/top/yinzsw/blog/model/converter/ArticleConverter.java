@@ -33,11 +33,19 @@ public interface ArticleConverter {
 
     List<ArticleDigestVO> toArticleDigestVO(List<ArticlePO> articlePOList, @Context ArticleMapsDTO articleMapsDTO);
 
+    @Mapping(target = "tags", ignore = true)
+    @Mapping(target = "categoryName", ignore = true)
     ArticleBackgroundVO toArticleBackgroundVO(ArticlePO articlePO, @Context ArticleMapsDTO articleMapsDTO);
 
     List<ArticleDigestBackgroundVO> toArticleDigestBackgroundVO(List<ArticlePO> articlePOList, @Context ArticleMapsDTO articleMapsDTO);
 
-    ArticlePO toArticlePO(ArticleReq articleReq, Long userId, Long categoryId);
+    @Mapping(target = "updateTime", ignore = true)
+    @Mapping(target = "isDeleted", ignore = true)
+    @Mapping(target = "createTime", ignore = true)
+    @Mapping(target = "articleCount", ignore = true)
+    @Mapping(target = "articleContentDigest", ignore = true)
+    ArticlePO toArticlePO(ArticleReq articleReq, Long categoryId, Long userId);
+
     ///////////////////////////////////Context//////////////////////////////////////////////
 
     List<TagVO> toTagVO(List<TagPO> tagPOList);

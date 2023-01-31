@@ -2,24 +2,30 @@ package top.yinzsw.blog.service.impl;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.extension.toolkit.Db;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import top.yinzsw.blog.core.maps.MappingFactory;
 import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.manager.RoleManager;
 import top.yinzsw.blog.mapper.RoleMapper;
 import top.yinzsw.blog.model.converter.RoleConverter;
+import top.yinzsw.blog.model.dto.RoleMapsDTO;
+import top.yinzsw.blog.model.po.RoleMtmMenuPO;
+import top.yinzsw.blog.model.po.RoleMtmResourcePO;
 import top.yinzsw.blog.model.po.RolePO;
+import top.yinzsw.blog.model.po.UserMtmRolePO;
 import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.request.RoleReq;
 import top.yinzsw.blog.model.vo.PageVO;
 import top.yinzsw.blog.model.vo.RoleDigestVO;
 import top.yinzsw.blog.model.vo.RoleSearchVO;
 import top.yinzsw.blog.service.RoleService;
+import top.yinzsw.blog.util.CommonUtils;
+import top.yinzsw.blog.util.MapQueryUtils;
 import top.yinzsw.blog.util.VerifyUtils;
 
 import java.util.List;
@@ -33,19 +39,20 @@ import java.util.List;
 @RequiredArgsConstructor
 @CacheConfig(cacheNames = "role")
 public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements RoleService {
-    private final MappingFactory mappingFactory;
     private final RoleManager roleManager;
     private final RoleConverter roleConverter;
 
     @Override
     public List<String> getRoleNamesByUserId(Long userId) {
-        List<Long> roleIds = roleManager.listRoleIdsByUserId(userId);
+        List<Long> roleIds = MapQueryUtils.create(UserMtmRolePO::getUserId, List.of(userId))
+                .getValues(UserMtmRolePO::getRoleId);
         return roleManager.getEnabledRoleNamesByIds(roleIds);
     }
 
     @Override
     public List<String> getRoleNamesByResourceId(Long resourceId) {
-        List<Long> roleIds = roleManager.listRoleIdsByResourceId(resourceId);
+        List<Long> roleIds = MapQueryUtils.create(RoleMtmResourcePO::getResourceId, List.of(resourceId))
+                .getValues(RoleMtmResourcePO::getRoleId);
         return roleManager.getEnabledRoleNamesByIds(roleIds);
     }
 
@@ -66,9 +73,9 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements 
 
         VerifyUtils.checkIPage(rolePOPage);
 
-        List<RoleSearchVO> roleSearchVOList = mappingFactory.getRoleMapping(rolePOPage.getRecords())
-                .mapMenuIds().mapResourceIds().parallelRun()
-                .mappingList(roleConverter::toRoleSearchVO);
+        List<RolePO> rolePOList = rolePOPage.getRecords();
+        RoleMapsDTO roleMapsDTO = roleManager.getRoleMapsDTO(CommonUtils.toList(rolePOList, RolePO::getId));
+        List<RoleSearchVO> roleSearchVOList = roleConverter.toRoleSearchVO(rolePOList, roleMapsDTO);
         return new PageVO<>(roleSearchVOList, rolePOPage.getTotal());
     }
 
@@ -90,18 +97,24 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, RolePO> implements 
             throw new BizException(String.format("角色名 %s/%s 已经存在, 请更换", roleReq.getRoleName(), roleReq.getRoleLabel()));
         }
 
-        roleManager.saveMenusMapping(rolePO.getId(), roleReq.getMenuIdList());
-        roleManager.saveResourcesMapping(rolePO.getId(), roleReq.getResourceIdList());
+        //建立角色与资源和菜单的映射关系
+        Long roleId = rolePO.getId();
+        Db.lambdaUpdate(RoleMtmMenuPO.class).eq(RoleMtmMenuPO::getRoleId, roleId).remove();
+        Db.lambdaUpdate(RoleMtmResourcePO.class).eq(RoleMtmResourcePO::getRoleId, roleId).remove();
+        Db.saveBatch(CommonUtils.toList(roleReq.getMenuIds(), menuId -> new RoleMtmMenuPO(roleId, menuId)));
+        Db.saveBatch(CommonUtils.toList(roleReq.getResourceIds(), resourceId -> new RoleMtmResourcePO(roleId, resourceId)));
         return true;
     }
 
     @Override
     public boolean deleteRoles(List<Long> roleIds) {
         // 防止删除角色后, 导致部分用户无法正常使用
-        boolean hasUseUser = roleManager.hasUseUser(roleIds);
-        if (hasUseUser) {
+        boolean isUsing = Db.lambdaQuery(UserMtmRolePO.class).in(UserMtmRolePO::getRoleId, roleIds).count() > 0L;
+        if (isUsing) {
             throw new BizException("该角色下存在用户, 删除失败");
         }
+        Db.lambdaUpdate(RoleMtmMenuPO.class).in(RoleMtmMenuPO::getRoleId, roleIds).remove();
+        Db.lambdaUpdate(RoleMtmResourcePO.class).in(RoleMtmResourcePO::getRoleId, roleIds).remove();
         return lambdaUpdate().in(RolePO::getId, roleIds).remove();
     }
 }

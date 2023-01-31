@@ -1,8 +1,10 @@
 package top.yinzsw.blog.extension.mybatisplus;
 
+import com.baomidou.mybatisplus.extension.toolkit.Db;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import top.yinzsw.blog.model.po.ResourcePO;
 
 /**
  * desc
@@ -16,6 +18,15 @@ public class MybatisPlusTests {
 
     @Test
     void test() {
+//        Db.lambdaUpdate(ArticlePO.class)
+//                .set(ArticlePO::getIsDeleted, null)
+//                .eq(ArticlePO::getId, 58L)
+//                .update();
+
+        Db.lambdaQuery(ResourcePO.class).orderBy(true, false, ResourcePO::getId)
+                .list().stream()
+                .map(ResourcePO::getId)
+                .forEach(System.out::println);
 //        LambdaQueryWrapper<RoleMtmMenuPO> in = Wrappers.<RoleMtmMenuPO>lambdaQuery()
 //                .in(RoleMtmMenuPO::getRoleId, 1);
 //        Map<Long, Long> map = SimpleQuery.map(in, RoleMtmMenuPO::getRoleId, RoleMtmMenuPO::getMenuId);

@@ -7,8 +7,10 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -51,11 +53,11 @@ public class RoleReq {
      * 资源列表
      */
     @Schema(title = "资源列表")
-    private List<Long> resourceIdList;
+    private List<@Valid @NotNull(message = "资源id不能为null") Long> resourceIds;
 
     /**
      * 菜单列表
      */
     @Schema(title = "菜单列表")
-    private List<Long> menuIdList;
+    private List<@Valid @NotNull(message = "菜单id不能为null") Long> menuIds;
 }

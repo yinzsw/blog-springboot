@@ -33,10 +33,11 @@ public class ResourceManagerImpl implements ResourceManager {
     @Async
     @Override
     public void initResources() {
+        //移除资源信息
         Db.lambdaUpdate(ResourcePO.class).remove();
         Db.lambdaUpdate(RoleMtmResourcePO.class).remove();
 
-        //加载资源列表
+        //加载应用资源列表
         var handlerMethods = requestMappingHandlerMapping.getHandlerMethods();
         List<ResourcePO> resourcePOList = handlerMethods.entrySet().stream()
                 .filter(entry -> entry.getValue().getBeanType().getName().startsWith("top.yinzsw.blog.controller"))
@@ -52,6 +53,7 @@ public class ResourceManagerImpl implements ResourceManager {
                     return new ResourcePO().setUri(apiUrl).setRequestMethod(apiRequestMethod).setResourceName(apiName);
                 }).collect(Collectors.toList());
 
+        //保存资源信息
         resourcePOList.forEach(resourcePO -> {
             log.info("开始加载资源: [{}] {}", resourcePO.getRequestMethod(), resourcePO.getUri());
 

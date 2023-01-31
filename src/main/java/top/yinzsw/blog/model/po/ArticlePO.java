@@ -54,7 +54,7 @@ public class ArticlePO implements Serializable {
     private String articleContent;
 
     /**
-     * 状态值 1公开 2私密 3.评论可见
+     * 状态值 1公开 2私密 3.草稿
      */
     private ArticleStatusEnum articleStatus;
 
@@ -76,6 +76,7 @@ public class ArticlePO implements Serializable {
     /**
      * 是否删除  0否 1是
      */
+    @TableLogic
     private Boolean isDeleted;
 
     /**

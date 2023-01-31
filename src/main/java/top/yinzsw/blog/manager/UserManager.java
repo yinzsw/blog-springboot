@@ -5,7 +5,6 @@ import top.yinzsw.blog.model.dto.UserLikedDTO;
 import top.yinzsw.blog.model.po.UserPO;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * 用户通用业务处理层
@@ -99,15 +98,6 @@ public interface UserManager {
      * @return 用户
      */
     UserPO getUserByNameOrEmail(String identity);
-
-    /**
-     * 保存角色
-     *
-     * @param userId  用户id
-     * @param roleIds 角色id列表
-     * @return 是否成功
-     */
-    boolean saveRoles(Long userId, List<Long> roleIds);
 
     /**
      * 根据用户名或邮箱修改密码

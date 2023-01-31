@@ -2,14 +2,14 @@ package top.yinzsw.blog.service.impl;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.extension.toolkit.Db;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import top.yinzsw.blog.core.maps.MappingFactory;
 import top.yinzsw.blog.exception.BizException;
-import top.yinzsw.blog.manager.TagManager;
 import top.yinzsw.blog.mapper.TagMapper;
 import top.yinzsw.blog.model.converter.TagConverter;
+import top.yinzsw.blog.model.po.ArticleMtmTagPO;
 import top.yinzsw.blog.model.po.TagPO;
 import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.request.TagReq;
@@ -17,10 +17,12 @@ import top.yinzsw.blog.model.vo.PageVO;
 import top.yinzsw.blog.model.vo.TagBackgroundSearchVO;
 import top.yinzsw.blog.model.vo.TagVO;
 import top.yinzsw.blog.service.TagService;
+import top.yinzsw.blog.util.CommonUtils;
+import top.yinzsw.blog.util.MapQueryUtils;
 import top.yinzsw.blog.util.VerifyUtils;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 
 /**
  * @author yinzsW
@@ -30,9 +32,7 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 public class TagServiceImpl extends ServiceImpl<TagMapper, TagPO> implements TagService {
-    private final TagManager tagManager;
     private final TagConverter tagConverter;
-    private final MappingFactory mappingFactory;
 
     @Override
     public PageVO<TagVO> pageTags(PageReq pageReq) {
@@ -66,18 +66,20 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, TagPO> implements Tag
 
         VerifyUtils.checkIPage(tagPOPage);
 
-        List<TagBackgroundSearchVO> tagBackgroundSearchVOList = mappingFactory.getTagMapping(tagPOPage.getRecords())
-                .mapArticleCount().serialRun()
-                .mappingList(tagConverter::toTagSearchVO);
+        List<TagPO> tagPOList = tagPOPage.getRecords();
+        List<Long> tagIds = CommonUtils.toList(tagPOList, TagPO::getId);
+        Map<Long, Long> articleCountMap = MapQueryUtils.create(ArticleMtmTagPO::getTagId, tagIds)
+                .queryWrapper(wrapper -> wrapper.groupBy(ArticleMtmTagPO::getTagId))
+                .getKeyValueMap(ArticleMtmTagPO::getArticleCount);
+        List<TagBackgroundSearchVO> tagBackgroundSearchVOList = tagConverter.toTagSearchVO(tagPOList, articleCountMap);
         return new PageVO<>(tagBackgroundSearchVOList, tagPOPage.getTotal());
     }
 
     @Override
     public boolean saveOrUpdateTag(TagReq tagReq) {
-        TagPO existTagPO = lambdaQuery().select(TagPO::getId).eq(TagPO::getTagName, tagReq.getTagName()).one();
-        if (Objects.nonNull(existTagPO)) {
+        lambdaQuery().select(TagPO::getId).eq(TagPO::getTagName, tagReq.getTagName()).oneOpt().ifPresent(tagPO -> {
             throw new BizException("标签名已存在");
-        }
+        });
 
         TagPO tagPO = tagConverter.toTagPO(tagReq);
         return saveOrUpdate(tagPO);
@@ -85,8 +87,8 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, TagPO> implements Tag
 
     @Override
     public boolean deleteTags(List<Long> tagIds) {
-        boolean hasUseArticle = tagManager.hasUseArticle(tagIds);
-        if (hasUseArticle) {
+        boolean isUsing = Db.lambdaQuery(ArticleMtmTagPO.class).in(ArticleMtmTagPO::getTagId, tagIds).count() > 0L;
+        if (isUsing) {
             throw new BizException("该标签下存在文章, 删除失败");
         }
         return lambdaUpdate().in(TagPO::getId, tagIds).remove();

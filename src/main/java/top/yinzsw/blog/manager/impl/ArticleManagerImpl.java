@@ -7,18 +7,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import top.yinzsw.blog.core.context.HttpContext;
-import top.yinzsw.blog.core.maps.util.MapQueryUtils;
+import top.yinzsw.blog.core.maps.DataMapBuilder;
 import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.manager.ArticleManager;
 import top.yinzsw.blog.model.dto.ArticleHotIndexDTO;
+import top.yinzsw.blog.model.dto.ArticleMapsDTO;
 import top.yinzsw.blog.model.po.ArticleMtmTagPO;
+import top.yinzsw.blog.model.po.ArticlePO;
 import top.yinzsw.blog.model.po.CategoryPO;
 import top.yinzsw.blog.model.po.TagPO;
+import top.yinzsw.blog.util.CommonUtils;
+import top.yinzsw.blog.util.MapQueryUtils;
 
 import java.time.Duration;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -32,24 +38,10 @@ import java.util.stream.IntStream;
 @Service
 @RequiredArgsConstructor
 public class ArticleManagerImpl implements ArticleManager {
-    private final StringRedisTemplate stringRedisTemplate;
     private final HttpContext httpContext;
+    private final DataMapBuilder dataMapBuilder;
+    private final StringRedisTemplate stringRedisTemplate;
 
-    @Override
-    public Map<Long, ArticleHotIndexDTO> getHotIndex(List<Long> articleIds) {
-        Object[] ids = articleIds.stream().map(Object::toString).toArray();
-        List<Double> likedScore = stringRedisTemplate.opsForZSet().score(ARTICLE_LIKE_COUNT, ids);
-        List<Double> viewsScore = stringRedisTemplate.opsForZSet().score(ARTICLE_VIEW_COUNT, ids);
-        return IntStream.range(0, ids.length).boxed().collect(Collectors.toMap(articleIds::get, i -> {
-            Long liked = Optional.ofNullable(likedScore)
-                    .flatMap(scores -> Optional.ofNullable(scores.get(i)))
-                    .map(Double::longValue).orElse(0L);
-            Long views = Optional.ofNullable(viewsScore)
-                    .flatMap(scores -> Optional.ofNullable(scores.get(i)))
-                    .map(Double::longValue).orElse(0L);
-            return new ArticleHotIndexDTO(liked, views);
-        }));
-    }
 
     @Override
     public void updateLikeCount(Long articleId, Long delta) {
@@ -79,33 +71,29 @@ public class ArticleManagerImpl implements ArticleManager {
     }
 
     @Override
-    public List<Long> listRelatedArticleIds(Long articleId) {
+    public List<Long> listRelatedArticleIdsLimit6(Long articleId) {
         List<Long> tagIds = MapQueryUtils.create(ArticleMtmTagPO::getArticleId, List.of(articleId))
                 .getValues(ArticleMtmTagPO::getTagId);
-        return Db.lambdaQuery(ArticleMtmTagPO.class)
+
+        List<ArticleMtmTagPO> articleMtmTagPOList = Db.lambdaQuery(ArticleMtmTagPO.class)
+                .select(ArticleMtmTagPO::getArticleId)
                 .ne(ArticleMtmTagPO::getArticleId, articleId)
                 .in(ArticleMtmTagPO::getTagId, tagIds)
-                .list().stream()
-                .map(ArticleMtmTagPO::getArticleId)
-                .distinct()
-                .collect(Collectors.toList());
-    }
+                .list();
 
-    @Override
-    public CategoryPO saveCategory(String categoryName) {
-        return Db.lambdaQuery(CategoryPO.class)
-                .eq(CategoryPO::getCategoryName, categoryName)
-                .oneOpt()
-                .orElseGet(() -> {
-                    CategoryPO categoryPO = new CategoryPO().setCategoryName(categoryName);
-                    Db.save(categoryPO);
-                    return categoryPO;
-                });
+        return articleMtmTagPOList.stream()
+                .map(ArticleMtmTagPO::getArticleId)
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                .entrySet().stream()
+                .sorted(Map.Entry.<Long, Long>comparingByValue().reversed())
+                .limit(6)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean saveTagsAndMapping(List<String> tagNames, Long articleId) {
+    public boolean saveTagsMapping(Long articleId, List<String> tagNames) {
         //获取未保存的标签名
         List<TagPO> existTagPOList = Db.lambdaQuery(TagPO.class).in(TagPO::getTagName, tagNames).list();
         List<TagPO> newTagPOList = tagNames.stream()
@@ -119,7 +107,7 @@ public class ArticleManagerImpl implements ArticleManager {
         }
 
         //更新标签与文章映射关系
-        deleteTagsMapping(List.of(articleId));
+        Db.lambdaUpdate(ArticleMtmTagPO.class).in(ArticleMtmTagPO::getArticleId, List.of(articleId)).remove();
         List<Long> existTagIds = existTagPOList.stream().map(TagPO::getId).collect(Collectors.toList());
         List<ArticleMtmTagPO> articleMtmTagPOList = newTagPOList.stream()
                 .map(TagPO::getId).collect(Collectors.toCollection(() -> existTagIds)).stream()
@@ -128,7 +116,50 @@ public class ArticleManagerImpl implements ArticleManager {
     }
 
     @Override
-    public void deleteTagsMapping(List<Long> articleIds) {
-        Db.lambdaUpdate(ArticleMtmTagPO.class).in(ArticleMtmTagPO::getArticleId, articleIds).remove();
+    public ArticleMapsDTO getArticleMapsDTO(List<ArticlePO> articlePOList, boolean mapHotIndex) {
+        List<Long> articleIds = CommonUtils.toList(articlePOList, ArticlePO::getId);
+        List<Long> categoryIds = CommonUtils.toList(articlePOList, ArticlePO::getCategoryId);
+
+        DataMapBuilder.Builder<ArticleMapsDTO> builder = dataMapBuilder.builder(new ArticleMapsDTO());
+        builder.addMap(ArticleMapsDTO::setCategoryNameMap, () -> getCategoryNameMap(categoryIds));
+        builder.addMap(ArticleMapsDTO::setTagsMap, () -> getTagsMap(articleIds));
+        if (mapHotIndex) {
+            builder.addMap(ArticleMapsDTO::setHotIndexMap, () -> getHotIndex(articleIds));
+        }
+        return builder.build();
+    }
+
+    private Map<Long, String> getCategoryNameMap(List<Long> categoryIds) {
+        return MapQueryUtils.create(CategoryPO::getId, categoryIds).getKeyValueMap(CategoryPO::getCategoryName);
+    }
+
+    private Map<Long, List<TagPO>> getTagsMap(List<Long> articleIds) {
+        Map<Long, List<Long>> articleId2TagIds = MapQueryUtils.create(ArticleMtmTagPO::getArticleId, articleIds)
+                .getGroupValueMap(ArticleMtmTagPO::getTagId);
+
+        List<Long> distinctTagIds = articleId2TagIds.values().stream().flatMap(Collection::stream).distinct().collect(Collectors.toList());
+        Map<Long, TagPO> tagId2Tag = MapQueryUtils.create(TagPO::getId, distinctTagIds)
+                .queryWrapper(q -> q.select(TagPO::getId, TagPO::getTagName))
+                .getKeyMap();
+
+        return articleId2TagIds.keySet().stream().collect(Collectors.toMap(Function.identity(), articleId -> {
+            List<Long> tagIds = articleId2TagIds.get(articleId);
+            return tagIds.stream().map(tagId2Tag::get).collect(Collectors.toList());
+        }));
+    }
+
+    private Map<Long, ArticleHotIndexDTO> getHotIndex(List<Long> articleIds) {
+        Object[] ids = articleIds.stream().map(Object::toString).toArray();
+        List<Double> likedScore = stringRedisTemplate.opsForZSet().score(ARTICLE_LIKE_COUNT, ids);
+        List<Double> viewsScore = stringRedisTemplate.opsForZSet().score(ARTICLE_VIEW_COUNT, ids);
+        return IntStream.range(0, ids.length).boxed().collect(Collectors.toMap(articleIds::get, i -> {
+            Long liked = Optional.ofNullable(likedScore)
+                    .flatMap(scores -> Optional.ofNullable(scores.get(i)))
+                    .map(Double::longValue).orElse(0L);
+            Long views = Optional.ofNullable(viewsScore)
+                    .flatMap(scores -> Optional.ofNullable(scores.get(i)))
+                    .map(Double::longValue).orElse(0L);
+            return new ArticleHotIndexDTO(liked, views);
+        }));
     }
 }

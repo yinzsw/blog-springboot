@@ -23,7 +23,7 @@ public class VerifyUtils {
      * @param email 字符串
      * @return 是否是邮箱
      */
-    public static boolean getIsEmail(String email) {
+    public static boolean isEmail(String email) {
         return EMAIL_REGEXP.matcher(email).matches();
     }
 
@@ -33,7 +33,7 @@ public class VerifyUtils {
      * @param alpha 字符串
      * @return 是否为全字母
      */
-    public static boolean getIsAlpha(String alpha) {
+    public static boolean isAlpha(String alpha) {
         return ALPHA_REGEXP.matcher(alpha).matches();
     }
 

@@ -1,6 +1,6 @@
 package top.yinzsw.blog.manager;
 
-import java.util.List;
+import top.yinzsw.blog.model.po.CategoryPO;
 
 /**
  * 分类通用业务处理层
@@ -10,11 +10,13 @@ import java.util.List;
  */
 
 public interface CategoryManager {
+
+
     /**
-     * 判断此分类是否被使用
+     * 保存分类
      *
-     * @param categoryIds 分类id
-     * @return 是否被使用
+     * @param categoryName 分类名
+     * @return 文章分类信息
      */
-    boolean hasUseArticle(List<Long> categoryIds);
+    CategoryPO saveCategory(String categoryName);
 }

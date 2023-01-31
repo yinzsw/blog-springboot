@@ -112,15 +112,6 @@ public interface ArticleService extends IService<ArticlePO> {
     boolean updateArticleIsTop(Long articleId, Boolean isTop);
 
     /**
-     * 恢复或删除文章
-     *
-     * @param articleId 文章id
-     * @param isDeleted 是否删除
-     * @return 是否成功
-     */
-    boolean updateArticleIsDeleted(Long articleId, Boolean isDeleted);
-
-    /**
      * 保存文章
      *
      * @param articleReq 文章信息
