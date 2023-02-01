@@ -24,4 +24,22 @@ public class SqlUtils {
     public static <T, R> String getPropertyName(SFunction<T, R> sFunction) {
         return PropertyNamer.methodToProperty(LambdaUtils.extract(sFunction).getImplMethodName());
     }
+
+    /**
+     * {@link SqlUtils#limit(int, int)}
+     */
+    public static String limit(int limit) {
+        return limit(0, limit);
+    }
+
+    /**
+     * 返回limit语句块
+     *
+     * @param offset 偏移量
+     * @param limit  返回的条数
+     * @return limit语句块
+     */
+    public static String limit(int offset, int limit) {
+        return String.format("LIMIT %d, %d", offset, limit);
+    }
 }

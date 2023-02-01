@@ -25,15 +25,15 @@ public enum ArticleStatusEnum {
     SECRET(2, "私密"),
 
     /**
-     * 翻译
+     * 草稿
      */
-    DRAFT(3, "翻译");
+    DRAFT(3, "草稿");
 
     /**
      * 状态值
      */
     @EnumValue
-    private final Integer value;
+    private final int value;
 
     /**
      * 描述

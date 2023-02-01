@@ -1,5 +1,7 @@
 package top.yinzsw.blog.manager;
 
+import top.yinzsw.blog.model.dto.RoleMapsDTO;
+
 import java.util.List;
 
 /**
@@ -12,22 +14,6 @@ import java.util.List;
 public interface RoleManager {
 
     /**
-     * 根据用户id查询角色id
-     *
-     * @param userId 用户id
-     * @return 角色id列表
-     */
-    List<Long> listRoleIdsByUserId(Long userId);
-
-    /**
-     * 根据资源id查找角色id
-     *
-     * @param resourceId 资源id
-     * @return 角色id列表
-     */
-    List<Long> listRoleIdsByResourceId(Long resourceId);
-
-    /**
      * 获取未禁用的角色名列表
      *
      * @param roleIds 角色id
@@ -35,27 +21,14 @@ public interface RoleManager {
      */
     List<String> getEnabledRoleNamesByIds(List<Long> roleIds);
 
+    ///////////////////////////////////////////////////MapsContext//////////////////////////////////////////////////////
+
+
     /**
-     * 查询角色是否正在被用户使用
+     * 根据角色id获取菜单id和资源id信息
      *
      * @param roleIds 角色id列表
-     * @return 是否被用户使用
+     * @return 映射信息
      */
-    boolean hasUseUser(List<Long> roleIds);
-
-    /**
-     * 保存菜单映射
-     *
-     * @param roleId  角色id
-     * @param menuIds 菜单id列表
-     */
-    void saveMenusMapping(Long roleId, List<Long> menuIds);
-
-    /**
-     * 保存资源映射
-     *
-     * @param roleId      角色id列表
-     * @param resourceIds 资源id列表
-     */
-    void saveResourcesMapping(Long roleId, List<Long> resourceIds);
+    RoleMapsDTO getRoleMapsDTO(List<Long> roleIds);
 }

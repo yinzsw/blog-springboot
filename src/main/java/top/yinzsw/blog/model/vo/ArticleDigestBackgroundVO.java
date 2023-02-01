@@ -72,12 +72,6 @@ public class ArticleDigestBackgroundVO {
     private Boolean isTop;
 
     /**
-     * 是否删除
-     */
-    @Schema(title = "是否删除")
-    private Boolean isDeleted;
-
-    /**
      * 发表时间
      */
     @Schema(title = "发表时间")

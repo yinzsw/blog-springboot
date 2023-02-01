@@ -11,7 +11,6 @@ import top.yinzsw.blog.client.IpClient;
 import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.manager.UserManager;
 import top.yinzsw.blog.model.dto.UserLikedDTO;
-import top.yinzsw.blog.model.po.UserMtmRolePO;
 import top.yinzsw.blog.model.po.UserPO;
 import top.yinzsw.blog.util.CommonUtils;
 import top.yinzsw.blog.util.VerifyUtils;
@@ -21,7 +20,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * 用户通用业务处理层实现
@@ -33,6 +31,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserManagerImpl implements UserManager {
     private final IpClient ipClient;
+
     private final StringRedisTemplate stringRedisTemplate;
 
     @Override
@@ -85,7 +84,7 @@ public class UserManagerImpl implements UserManager {
             return null;
         }
 
-        boolean isEmail = VerifyUtils.getIsEmail(identity);
+        boolean isEmail = VerifyUtils.isEmail(identity);
         return Db.lambdaQuery(UserPO.class)
                 .select(UserPO::getId, UserPO::getUsername, UserPO::getPassword,
                         UserPO::getEmail, UserPO::getNickname, UserPO::getAvatar,
@@ -95,18 +94,8 @@ public class UserManagerImpl implements UserManager {
     }
 
     @Override
-    public boolean saveRoles(Long userId, List<Long> roleIds) {
-        Db.lambdaUpdate(UserMtmRolePO.class).eq(UserMtmRolePO::getUserId, userId).remove();
-        // TODO 尝试主动更新用户token
-        List<UserMtmRolePO> userMtmRolePOList = roleIds.stream()
-                .map(roleId -> new UserMtmRolePO(userId, roleId))
-                .collect(Collectors.toList());
-        return Db.saveBatch(userMtmRolePOList);
-    }
-
-    @Override
     public boolean updateUserPassword(String identity, String newPassword) {
-        boolean isEmail = VerifyUtils.getIsEmail(identity);
+        boolean isEmail = VerifyUtils.isEmail(identity);
         return Db.lambdaUpdate(UserPO.class)
                 .set(UserPO::getPassword, newPassword)
                 .eq(isEmail ? UserPO::getEmail : UserPO::getUsername, identity)
@@ -117,13 +106,11 @@ public class UserManagerImpl implements UserManager {
     @Override
     public void updateUserLoginInfo(Long userId, String userIpAddress, LocalDateTime lastLoginTime) {
         String ipAddress = Optional.ofNullable(userIpAddress).orElseThrow(() -> new BizException("无效的ip地址"));
-        String ipSource = Optional.ofNullable(ipClient.getIpInfo(ipAddress).getFirstLocation()).orElse("");
+        String ipSource = ipClient.getIpInfo(ipAddress).getFirstLocation().orElse("");
         LocalDateTime loginTime = Optional.ofNullable(lastLoginTime).orElse(LocalDateTime.now(ZoneOffset.ofHours(8)));
 
-        UserPO userPO = new UserPO()
-                .setIpAddress(ipAddress)
-                .setIpSource(ipSource)
-                .setLastLoginTime(loginTime);
+        UserPO userPO = new UserPO().setIpAddress(ipAddress).setIpSource(ipSource).setLastLoginTime(loginTime);
         Db.lambdaUpdate(UserPO.class).eq(UserPO::getId, userId).update(userPO);
     }
+
 }

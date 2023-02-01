@@ -9,6 +9,7 @@ import lombok.experimental.Accessors;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * IP 信息模型
@@ -32,11 +33,11 @@ public class IpInfoDTO {
     private List<Detail> data;
 
     @JsonIgnore
-    public String getFirstLocation() {
-        if (CollectionUtils.isEmpty(this.data)) {
-            return null;
+    public Optional<String> getFirstLocation() {
+        if (CollectionUtils.isEmpty(data)) {
+            return Optional.empty();
         }
-        return this.data.get(0).location;
+        return Optional.ofNullable(this.data.get(0).location);
     }
 
     @Data

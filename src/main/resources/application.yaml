@@ -1,3 +1,7 @@
+server:
+  error:
+    whitelabel:
+      enabled: false
 spring:
   application:
     name: blog
@@ -73,7 +77,15 @@ upload:
   domain-url: ${UPLOAD.DOMAIN_URL}
   access-key: ${UPLOAD.ACCESS_KEY}
   access-key-secret: ${UPLOAD.ACCESS_KEY_SECRET}
+jwt:
+  key: ${JWT.KEY}
+  x-claim-name: "X"
+  token-name: "token"
+  refresh-uri: "/auth/refresh"
+  exclude-uris:
+    - "/druid/**"
+    - "/swagger-ui/**"
+    - "/v3/api-docs/**"
 blog:
-  jwt-key: ${JWT.KEY}
   initialization: false
 

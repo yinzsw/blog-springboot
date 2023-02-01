@@ -1,10 +1,9 @@
 package top.yinzsw.blog.manager;
 
-import top.yinzsw.blog.model.dto.ArticleHotIndexDTO;
-import top.yinzsw.blog.model.po.CategoryPO;
+import top.yinzsw.blog.model.dto.ArticleMapsDTO;
+import top.yinzsw.blog.model.po.ArticlePO;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 文章通用业务处理层
@@ -31,14 +30,6 @@ public interface ArticleManager {
     String ARTICLE_LIKE_COUNT = "blog:article:likes";
 
     /**
-     * 获取文章点赞量信息 与 文章浏览量信息
-     *
-     * @param articleIds 文章id列表
-     * @return 热度信息(点赞量, 浏览量)
-     */
-    Map<Long, ArticleHotIndexDTO> getHotIndex(List<Long> articleIds);
-
-    /**
      * 修改文章点赞数
      *
      * @param articleId 文章id
@@ -53,7 +44,7 @@ public interface ArticleManager {
      */
     void updateViewsCount(Long articleId);
 
-    /////////////////////////////////////////////////////////////MYSQL//////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////MYSQL//////////////////////////////////////////////////////////
 
     /**
      * 根据标签查询文章id
@@ -69,29 +60,26 @@ public interface ArticleManager {
      * @param articleId 文章id
      * @return 相关文章id
      */
-    List<Long> listRelatedArticleIds(Long articleId);
-
-    /**
-     * 保存分类
-     *
-     * @param categoryName 分类名
-     * @return 文章分类信息
-     */
-    CategoryPO saveCategory(String categoryName);
+    List<Long> listRelatedArticleIdsLimit6(Long articleId);
 
     /**
      * 保存标签
      *
-     * @param tagNames  标签名
      * @param articleId 文章id
+     * @param tagNames  标签名
      * @return 是否成功
      */
-    boolean saveTagsAndMapping(List<String> tagNames, Long articleId);
+    boolean saveTagsMapping(Long articleId, List<String> tagNames);
+
+
+    ///////////////////////////////////////////////////MapsContext//////////////////////////////////////////////////////
 
     /**
-     * 删除文章标签
+     * 获取文章分类信息,标签信息,热度信息
      *
-     * @param articleIds 文章id列表
+     * @param articlePOList 文章原始对象列表
+     * @param mapHotIndex   是否映射热度信息
+     * @return 映射上下文模型
      */
-    void deleteTagsMapping(List<Long> articleIds);
+    ArticleMapsDTO getArticleMapsDTO(List<ArticlePO> articlePOList, boolean mapHotIndex);
 }

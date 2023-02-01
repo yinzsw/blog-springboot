@@ -1,13 +1,13 @@
 package top.yinzsw.blog.model.converter;
 
 import org.mapstruct.*;
-import top.yinzsw.blog.model.dto.CategoryMapsDTO;
 import top.yinzsw.blog.model.po.CategoryPO;
 import top.yinzsw.blog.model.request.CategoryReq;
 import top.yinzsw.blog.model.vo.CategoryDetailVO;
 import top.yinzsw.blog.model.vo.CategoryVO;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 分类数据模型转换器
@@ -17,7 +17,7 @@ import java.util.List;
  */
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface CategoryConverter {
-    List<CategoryDetailVO> toCategoryDetailVO(List<CategoryPO> categoryPOS, @Context CategoryMapsDTO categoryMapsDTO);
+    List<CategoryDetailVO> toCategoryDetailVO(List<CategoryPO> categoryPOS, @Context Map<Long, Long> articleCountMap);
 
     List<CategoryVO> toCategoryVO(List<CategoryPO> records);
 
@@ -28,11 +28,9 @@ public interface CategoryConverter {
     @SuppressWarnings("unchecked")
     @ObjectFactory
     default <T> T defaultCreator(CategoryPO origin,
-                                 @Context CategoryMapsDTO categoryMapsDTO,
+                                 @Context Map<Long, Long> articleCountMap,
                                  @TargetType Class<T> targetType) {
-        Long tagId = origin.getId();
-        Long count = categoryMapsDTO.getMapArticleCount().get(tagId);
-
+        Long count = articleCountMap.get(origin.getId());
         if (targetType.isAssignableFrom(CategoryDetailVO.class)) {
             return (T) new CategoryDetailVO().setArticleCount(count);
         }

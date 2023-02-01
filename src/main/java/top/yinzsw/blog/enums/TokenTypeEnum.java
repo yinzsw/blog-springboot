@@ -15,5 +15,5 @@ public enum TokenTypeEnum {
     ACCESS(3 * 24 * 3600 * 1000L),
     REFRESH(7 * 24 * 3600 * 1000L);
 
-    private final Long ttl;
+    private final long ttl;
 }

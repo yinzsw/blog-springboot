@@ -18,30 +18,22 @@ import java.util.List;
 public interface TagService extends IService<TagPO> {
 
     /**
-     * 分页查询标签列表
+     * 根据关键词搜索文章标签
      *
      * @param pageReq 分页信息
+     * @param name    标签名关键词
      * @return 标签列表
      */
-    PageVO<TagVO> pageTags(PageReq pageReq);
+    PageVO<TagVO> pageTags(PageReq pageReq, String name);
 
     /**
      * 根据关键词搜索文章标签
      *
-     * @param pageReq  分页信息
-     * @param keywords 关键词
+     * @param pageReq 分页信息
+     * @param name    标签名关键词
      * @return 标签列表
      */
-    PageVO<TagVO> pageSearchTags(PageReq pageReq, String keywords);
-
-    /**
-     * 根据关键词搜索文章标签
-     *
-     * @param pageReq  分页信息
-     * @param keywords 关键词
-     * @return 标签列表
-     */
-    PageVO<TagBackgroundSearchVO> pageBackgroundSearchTags(PageReq pageReq, String keywords);
+    PageVO<TagBackgroundSearchVO> pageBackgroundSearchTags(PageReq pageReq, String name);
 
     /**
      * 保存或更新标签

@@ -4,9 +4,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.server.PathContainer;
 import org.springframework.stereotype.Service;
-import org.springframework.util.AntPathMatcher;
-import org.springframework.util.StringUtils;
+import org.springframework.web.util.pattern.PathPatternParser;
 import top.yinzsw.blog.mapper.ResourceMapper;
 import top.yinzsw.blog.model.po.ResourcePO;
 import top.yinzsw.blog.service.ResourceService;
@@ -22,24 +22,25 @@ import java.util.List;
 @CacheConfig(cacheNames = "resource")
 @RequiredArgsConstructor
 public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, ResourcePO> implements ResourceService {
-    private final AntPathMatcher antPathMatcher;
 
     @Cacheable(key = "#method+' '+#uri")
     @Override
     public ResourcePO getResourceByUriAndMethod(String uri, String method) {
         //Uri 合法性校验
-        if (!(StringUtils.hasText(uri) && uri.startsWith("/") && uri.length() > 2)) {
+        PathContainer askUriPathContainer = PathContainer.parsePath(uri);
+        if (askUriPathContainer.elements().size() < 2) {
             return null;
         }
 
-        String uriPrefix = "/".concat(uri.split("/")[1]);
+        String uriPrefix = askUriPathContainer.subPath(0, 2).value();
         List<ResourcePO> resourcePOList = lambdaQuery()
                 .select(ResourcePO::getId, ResourcePO::getUri, ResourcePO::getIsAnonymous)
                 .eq(ResourcePO::getRequestMethod, method)
                 .likeRight(ResourcePO::getUri, uriPrefix)
                 .list();
+
         return resourcePOList.stream()
-                .filter(resourcePO -> antPathMatcher.match(resourcePO.getUri(), uri))
+                .filter(resourcePO -> PathPatternParser.defaultInstance.parse(resourcePO.getUri()).matches(askUriPathContainer))
                 .findFirst()
                 .orElse(null);
     }

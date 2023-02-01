@@ -1,4 +1,4 @@
-package top.yinzsw.blog.model.dto;
+package top.yinzsw.blog.core.security.jwt;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-public class ContextDTO {
+public class JwtContextDTO {
 
     /**
      * 用户id

@@ -27,7 +27,7 @@ public class ArticleQueryReq {
      * 搜索关键字
      */
     @Parameter(description = "搜索关键字(标题)")
-    private String keywords;
+    private String title;
 
     /**
      * 文章分类id
@@ -52,10 +52,4 @@ public class ArticleQueryReq {
      */
     @Parameter(description = "文章类型")
     private ArticleTypeEnum articleType;
-
-    /**
-     * 是否删除
-     */
-    @Parameter(description = "是否删除")
-    private Boolean isDeleted;
 }

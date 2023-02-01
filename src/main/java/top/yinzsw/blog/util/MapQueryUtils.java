@@ -1,4 +1,4 @@
-package top.yinzsw.blog.core.maps.util;
+package top.yinzsw.blog.util;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;

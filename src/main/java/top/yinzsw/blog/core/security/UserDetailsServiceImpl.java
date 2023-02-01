@@ -1,4 +1,4 @@
-package top.yinzsw.blog.security;
+package top.yinzsw.blog.core.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

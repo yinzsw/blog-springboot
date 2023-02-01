@@ -54,7 +54,7 @@ public class ArticlePO implements Serializable {
     private String articleContent;
 
     /**
-     * 状态值 1公开 2私密 3.评论可见
+     * 状态值 1公开 2私密 3.草稿
      */
     private ArticleStatusEnum articleStatus;
 
@@ -76,6 +76,7 @@ public class ArticlePO implements Serializable {
     /**
      * 是否删除  0否 1是
      */
+    @TableLogic
     private Boolean isDeleted;
 
     /**
@@ -107,6 +108,12 @@ public class ArticlePO implements Serializable {
      */
     @TableField(exist = false)
     public static final String FULL_MATCH = "MATCH(article_title, article_content) AGAINST({0} IN BOOLEAN MODE)";
+
+    /**
+     * FULL_TEXT_MATCH_SQL
+     */
+    @TableField(exist = false)
+    public static final String FULL_MATCH_TITLE = "MATCH(article_title) AGAINST({0} IN BOOLEAN MODE)";
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
