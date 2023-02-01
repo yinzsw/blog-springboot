@@ -106,7 +106,7 @@ public class UserManagerImpl implements UserManager {
     @Override
     public void updateUserLoginInfo(Long userId, String userIpAddress, LocalDateTime lastLoginTime) {
         String ipAddress = Optional.ofNullable(userIpAddress).orElseThrow(() -> new BizException("无效的ip地址"));
-        String ipSource = Optional.ofNullable(ipClient.getIpInfo(ipAddress).getFirstLocation()).orElse("");
+        String ipSource = ipClient.getIpInfo(ipAddress).getFirstLocation().orElse("");
         LocalDateTime loginTime = Optional.ofNullable(lastLoginTime).orElse(LocalDateTime.now(ZoneOffset.ofHours(8)));
 
         UserPO userPO = new UserPO().setIpAddress(ipAddress).setIpSource(ipSource).setLastLoginTime(loginTime);

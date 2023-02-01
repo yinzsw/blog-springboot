@@ -1,4 +1,4 @@
-package top.yinzsw.blog.security;
+package top.yinzsw.blog.core.security;
 
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;

@@ -12,6 +12,10 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ResponseCodeEnum {
+    /**
+     * 无效的请求
+     */
+    INVALID_REQUEST(10000, "无效的请求"),
 
     /**
      * 成功
@@ -19,29 +23,19 @@ public enum ResponseCodeEnum {
     SUCCESS(20000, "成功"),
 
     /**
-     * 登录失败
-     */
-    LOGIN_ERROR(30000, "登录失败"),
-
-    /**
      * 身份未认证
      */
-    UNAUTHENTICATED(32000, "身份未认证"),
+    AUTHENTICATED_FAIL(31000, "身份未认证"),
+
+    /**
+     * 身份认证过期
+     */
+    AUTHENTICATED_EXPIRED(32000, "身份认证过期"),
 
     /**
      * 操作未授权
      */
-    UNAUTHORIZED(33000, "操作未授权"),
-
-    /**
-     * token过期
-     */
-    TOKEN_EXPIRED(34000, "token信息过期"),
-
-    /**
-     * token校验失败
-     */
-    TOKEN_ERROR(35000, "token校验失败"),
+    FORBIDDEN(33000, "权限不足, 禁止访问"),
 
     /**
      * 无效参数异常
@@ -76,7 +70,7 @@ public enum ResponseCodeEnum {
     /**
      * 状态码
      */
-    private final Integer code;
+    private final int code;
     /**
      * 描述
      */

@@ -33,7 +33,7 @@ public enum ArticleTypeEnum {
      * 类型值
      */
     @EnumValue
-    private final Integer value;
+    private final int value;
 
     /**
      * 描述

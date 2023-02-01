@@ -3,12 +3,12 @@ package top.yinzsw.blog.model.converter;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
+import top.yinzsw.blog.core.security.UserDetailsDTO;
 import top.yinzsw.blog.model.dto.UserLikedDTO;
 import top.yinzsw.blog.model.po.UserPO;
 import top.yinzsw.blog.model.request.UserInfoReq;
 import top.yinzsw.blog.model.vo.TokenVO;
 import top.yinzsw.blog.model.vo.UserInfoVO;
-import top.yinzsw.blog.security.UserDetailsDTO;
 
 import java.util.List;
 

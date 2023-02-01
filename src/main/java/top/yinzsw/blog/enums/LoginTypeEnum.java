@@ -31,7 +31,7 @@ public enum LoginTypeEnum {
      * 登录方式
      */
     @EnumValue
-    private final Integer type;
+    private final int type;
 
     /**
      * 描述

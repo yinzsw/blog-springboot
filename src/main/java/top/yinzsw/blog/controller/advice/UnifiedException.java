@@ -1,21 +1,28 @@
 package top.yinzsw.blog.controller.advice;
 
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataAccessException;
+import org.springframework.core.NestedRuntimeException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingPathVariableException;
+import org.springframework.web.bind.MissingRequestValueException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
+import top.yinzsw.blog.core.context.HttpContext;
 import top.yinzsw.blog.enums.ResponseCodeEnum;
 import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.exception.EmptyPageException;
@@ -27,8 +34,6 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.util.Collections;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -39,37 +44,56 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class UnifiedException {
     private @Value("${spring.servlet.multipart.max-file-size}") String maxUploadFileSize;
+    private final HttpContext httpContext;
 
     /**
      * 处理系统异常
      *
-     * @param e 异常
      * @return 接口异常信息
      */
-    @ExceptionHandler(Exception.class)
-    public ResponseVO<?> systemExceptionHandler(Exception e) {
-        log.error("ExceptionHandler", e);
+    @ExceptionHandler(Throwable.class)
+    public ResponseVO<?> systemExceptionHandler() {
+        httpContext.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
         return ResponseVO.fail(ResponseCodeEnum.SYSTEM_ERROR);
     }
 
     /**
-     * 可能是HttpMessage转换Java实体失败造成
+     * 请求缺少必要参数
      *
-     * @param e Http消息不可读异常
+     * @param e 缺少Servlet请求部分异常
      * @return 异常信息
      */
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseVO<?> notValidParamsExceptionHandler(HttpMessageNotReadableException e) {
-        if (Objects.isNull(e.getCause()) || Objects.isNull(e.getCause().getMessage())) {
-            return ResponseVO.fail(ResponseCodeEnum.NOT_VALID_PARAMS);
+    @ExceptionHandler(ServletException.class)
+    public ResponseVO<?> servletExceptionHandler(ServletException e) {
+        if (e instanceof MissingRequestValueException || e instanceof MissingServletRequestPartException) {
+            httpContext.setStatusCode(HttpStatus.BAD_REQUEST);
+            String msg = String.format("请求参数 '%s' 是必须的", getMissParams(e));
+            return ResponseVO.fail(ResponseCodeEnum.MISSING_REQUIRED_PARAMS, msg);
         }
 
-        String detailMessageForEnum = getDetailMessageForEnum(e.getCause().getMessage());
-        return StringUtils.hasText(detailMessageForEnum) ?
-                ResponseVO.fail(ResponseCodeEnum.NOT_VALID_PARAMS, detailMessageForEnum) :
-                ResponseVO.fail(ResponseCodeEnum.NOT_VALID_PARAMS);
+        if (e instanceof HttpRequestMethodNotSupportedException) {
+            httpContext.setStatusCode(HttpStatus.METHOD_NOT_ALLOWED);
+            var requestMethodException = (HttpRequestMethodNotSupportedException) e;
+            String msg = String.format("无效的请求方法%s", requestMethodException.getMethod());
+            return ResponseVO.fail(ResponseCodeEnum.INVALID_REQUEST, msg);
+        }
+
+        httpContext.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseVO.fail(ResponseCodeEnum.SYSTEM_ERROR);
+    }
+
+    @ExceptionHandler({MethodArgumentTypeMismatchException.class, HttpMessageNotReadableException.class, MaxUploadSizeExceededException.class})
+    public ResponseVO<?> notValidParamsExceptionHandler(NestedRuntimeException e) {
+        httpContext.setStatusCode(HttpStatus.BAD_REQUEST);
+        if (e instanceof MaxUploadSizeExceededException) {
+            return ResponseVO.fail(ResponseCodeEnum.FILE_UPLOAD_ERROR, String.format("上传文件大小不能超过%s", maxUploadFileSize));
+        }
+
+        var name = e instanceof MethodArgumentTypeMismatchException ? ((MethodArgumentTypeMismatchException) e).getName() : null;
+        return ResponseVO.fail(ResponseCodeEnum.NOT_VALID_PARAMS, name);
     }
 
     /**
@@ -80,6 +104,8 @@ public class UnifiedException {
      */
     @ExceptionHandler(BindException.class)
     public ResponseVO<?> notValidParamsExceptionHandler(BindingResult bindingResult) {
+        httpContext.setStatusCode(HttpStatus.BAD_REQUEST);
+
         if (!bindingResult.hasFieldErrors()) {
             return ResponseVO.fail(ResponseCodeEnum.NOT_VALID_PARAMS);
         }
@@ -91,7 +117,7 @@ public class UnifiedException {
         }
 
         if (fieldError.isBindingFailure()) {
-            message = String.format("字段:'%s' 不期待的预期值:'%s'(可能是类型不匹配)", fieldError.getField(), fieldError.getRejectedValue());
+            message = String.format("字段:'%s' 不是期待的预期值:'%s'(可能是类型不匹配)", fieldError.getField(), fieldError.getRejectedValue());
         }
         return ResponseVO.fail(ResponseCodeEnum.NOT_VALID_PARAMS, message);
     }
@@ -104,47 +130,39 @@ public class UnifiedException {
      */
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseVO<?> notValidParamsExceptionHandler(ConstraintViolationException e) {
+        httpContext.setStatusCode(HttpStatus.BAD_REQUEST);
+
         String message = e.getConstraintViolations().stream()
                 .map(ConstraintViolation::getMessage)
                 .collect(Collectors.joining());
-
         return ResponseVO.fail(ResponseCodeEnum.NOT_VALID_PARAMS, message);
-    }
-
-    /**
-     * 请求缺少必要参数
-     *
-     * @param e 缺少Servlet请求部分异常
-     * @return 异常信息
-     */
-    @ExceptionHandler({
-            MissingServletRequestPartException.class,
-            MissingServletRequestParameterException.class,
-            MissingPathVariableException.class
-    })
-    public ResponseVO<?> missingParamsExceptionHandler(ServletException e) {
-        return ResponseVO.fail(ResponseCodeEnum.MISSING_REQUIRED_PARAMS, String.format("请求参数 '%s' 是必须的", getMissParams(e)));
     }
 
     /**
      * 用户认证异常
      *
-     * @param e 错误凭据异常
-     * @return 登录失败信息
+     * @param e 身份验证异常
+     * @return 认证失败信息
      */
     @ExceptionHandler(AuthenticationException.class)
     public ResponseVO<?> authExceptionHandler(AuthenticationException e) {
-        return ResponseVO.fail(ResponseCodeEnum.LOGIN_ERROR, e.getMessage());
+        httpContext.setStatusCode(HttpStatus.UNAUTHORIZED);
+        if (e instanceof CredentialsExpiredException) {
+            return ResponseVO.fail(ResponseCodeEnum.AUTHENTICATED_EXPIRED, e.getMessage());
+        }
+        return ResponseVO.fail(ResponseCodeEnum.AUTHENTICATED_FAIL, e.getMessage());
     }
 
     /**
-     * 文件上传大小异常
+     * 用户访问异常
      *
-     * @return 上传失败信息
+     * @param e 拒绝访问异常
+     * @return 访问失败信息
      */
-    @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseVO<?> uploadExceptionHandler() {
-        return ResponseVO.fail(ResponseCodeEnum.FILE_UPLOAD_ERROR, String.format("上传文件大小不能超过%s", maxUploadFileSize));
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseVO<?> authExceptionHandler(AccessDeniedException e) {
+        httpContext.setStatusCode(HttpStatus.FORBIDDEN);
+        return ResponseVO.fail(ResponseCodeEnum.FORBIDDEN, e.getMessage());
     }
 
     /**
@@ -155,37 +173,14 @@ public class UnifiedException {
      */
     @ExceptionHandler(BizException.class)
     public ResponseVO<?> bizExceptionHandler(BizException e) {
+        httpContext.setStatusCode(HttpStatus.OK);
         return ResponseVO.fail(e.getCode(), e.getMessage());
     }
 
     @ExceptionHandler(EmptyPageException.class)
     public ResponseVO<?> emptyPageExceptionHandler(EmptyPageException e) {
+        httpContext.setStatusCode(HttpStatus.OK);
         return ResponseVO.success(new PageVO<>(Collections.emptyList(), e.getTotalCount()));
-    }
-
-    @ExceptionHandler(DataAccessException.class)
-    public ResponseVO<?> daoExceptionHandler(DataAccessException e) {
-        log.error(e.getMessage());
-        return ResponseVO.fail(ResponseCodeEnum.DAO_ERROR);
-    }
-
-    /**
-     * 获取当枚举类型参数接受失败的详细异常信息
-     *
-     * @param message 原始信息
-     * @return 异常信息
-     */
-    private static String getDetailMessageForEnum(String message) {
-        Matcher matcher = Pattern.compile("from String \"(?<errorValue>.*?)\".*?Enum class: (?<rightValues>\\[.*?]).*?\\[\"(?<field>.*?)\"]\\)", Pattern.DOTALL).matcher(message);
-        if (!matcher.find()) {
-            return null;
-        }
-
-        String errorValue = matcher.group("errorValue");
-        String rightValues = matcher.group("rightValues");
-        String field = matcher.group("field");
-
-        return String.format(">'%s':'%s'<, 期待值: %s", field, errorValue, rightValues);
     }
 
     /**

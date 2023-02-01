@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import top.yinzsw.blog.core.context.HttpContext;
 import top.yinzsw.blog.core.maps.DataMapBuilder;
-import top.yinzsw.blog.exception.BizException;
+import top.yinzsw.blog.core.security.jwt.JwtContextDTO;
 import top.yinzsw.blog.manager.ArticleManager;
 import top.yinzsw.blog.model.dto.ArticleHotIndexDTO;
 import top.yinzsw.blog.model.dto.ArticleMapsDTO;
@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -50,14 +49,12 @@ public class ArticleManagerImpl implements ArticleManager {
 
     @Override
     public void updateViewsCount(Long articleId) {
-        Supplier<String> suffixSupplier = () -> {
-            try {
-                return httpContext.getCurrentContextDTO().getUid().toString();
-            } catch (BizException e) {
-                return httpContext.getUserIpAddress();
-            }
-        };
-        String antiKey = ARTICLE_VIEW_ANTI_PREFIX + suffixSupplier.get();
+        String suffix = CommonUtils.getCurrentContextDTO()
+                .map(JwtContextDTO::getUid)
+                .map(Object::toString)
+                .orElse(httpContext.getUserIpAddress());
+
+        String antiKey = ARTICLE_VIEW_ANTI_PREFIX + suffix;
         Boolean hasKey = stringRedisTemplate.hasKey(antiKey);
         if (Boolean.FALSE.equals(hasKey)) {
             stringRedisTemplate.opsForValue().set(antiKey, "", Duration.ofHours(1));

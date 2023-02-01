@@ -5,19 +5,20 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedCredentialsNotFoundException;
 import org.springframework.stereotype.Service;
 import top.yinzsw.blog.constant.MQConst;
-import top.yinzsw.blog.core.context.HttpContext;
+import top.yinzsw.blog.core.security.UserDetailsDTO;
+import top.yinzsw.blog.core.security.jwt.JwtContextDTO;
+import top.yinzsw.blog.core.security.jwt.JwtManager;
 import top.yinzsw.blog.exception.BizException;
-import top.yinzsw.blog.manager.JwtManager;
 import top.yinzsw.blog.manager.UserManager;
 import top.yinzsw.blog.model.converter.UserConverter;
-import top.yinzsw.blog.model.dto.ContextDTO;
 import top.yinzsw.blog.model.dto.EmailCodeDTO;
 import top.yinzsw.blog.model.vo.TokenVO;
 import top.yinzsw.blog.model.vo.UserInfoVO;
-import top.yinzsw.blog.security.UserDetailsDTO;
 import top.yinzsw.blog.service.AuthService;
+import top.yinzsw.blog.util.CommonUtils;
 
 import java.util.List;
 import java.util.UUID;
@@ -34,7 +35,6 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserManager userManager;
     private final JwtManager jwtManager;
-    private final HttpContext httpContext;
     private final UserConverter userConverter;
     private final RabbitTemplate rabbitTemplate;
 
@@ -58,8 +58,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public TokenVO refreshToken() {
-        ContextDTO currentContextDTO = httpContext.getCurrentContextDTO();
-        return jwtManager.createTokenVO(currentContextDTO.getUid(), currentContextDTO.getRoles());
+        JwtContextDTO currentJwtContextDTO = CommonUtils.getCurrentContextDTO()
+                .orElseThrow(() -> new PreAuthenticatedCredentialsNotFoundException("用户凭据未找到"));
+        return jwtManager.createTokenVO(currentJwtContextDTO.getUid(), currentJwtContextDTO.getRoles());
     }
 
     @Override

@@ -1,4 +1,4 @@
-package top.yinzsw.blog.manager.impl;
+package top.yinzsw.blog.core.security.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.jackson.io.JacksonDeserializer;
@@ -6,21 +6,21 @@ import io.jsonwebtoken.lang.Maps;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.util.ByteUtils;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.CredentialsExpiredException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 import top.yinzsw.blog.core.context.HttpContext;
-import top.yinzsw.blog.enums.ResponseCodeEnum;
 import top.yinzsw.blog.enums.TokenTypeEnum;
-import top.yinzsw.blog.exception.BizException;
-import top.yinzsw.blog.manager.JwtManager;
-import top.yinzsw.blog.model.dto.ContextDTO;
 import top.yinzsw.blog.model.vo.TokenVO;
 
 import java.security.Key;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -32,19 +32,18 @@ import java.util.function.Function;
 @Service
 @RequiredArgsConstructor
 public class JwtManagerImpl implements JwtManager {
-    private final static String X_CLAIM = "xcm";
-    private final static String UNKNOWN = "unknown";
-    private @Value("${blog.jwt-key}") String jwtKey;
     private final HttpContext httpContext;
+    private final JwtAuthenticationConfig jwtAuthenticationConfig;
 
     @Override
     public TokenVO createTokenVO(Long userId, List<String> roles) {
         String sign = getSign();
         long currentTimeMillis = System.currentTimeMillis();
-        Key jwk = Keys.hmacShaKeyFor(jwtKey.getBytes());
+        Key jwk = Keys.hmacShaKeyFor(jwtAuthenticationConfig.getKey().getBytes());
 
         Function<TokenTypeEnum, String> generateToken = tokenTypeEnum -> Jwts.builder()
-                .claim(X_CLAIM, new ContextDTO().setUid(userId).setRoles(roles).setSign(sign).setType(tokenTypeEnum))
+                .claim(jwtAuthenticationConfig.getXClaimName(), new JwtContextDTO()
+                        .setUid(userId).setRoles(roles).setSign(sign).setType(tokenTypeEnum))
                 .setIssuedAt(new Date(currentTimeMillis))
                 .setExpiration(new Date(currentTimeMillis + tokenTypeEnum.getTtl()))
                 .signWith(jwk)
@@ -61,11 +60,11 @@ public class JwtManagerImpl implements JwtManager {
      * @return sign
      */
     private String getSign() {
-        String userAgent = Optional.ofNullable(httpContext.getUserAgent()).orElse(UNKNOWN);
-        String userIpAddress = Optional.ofNullable(httpContext.getUserIpAddress()).orElse(UNKNOWN);
+        String userAgent = httpContext.getUserAgent();
+        String userIpAddress = httpContext.getUserIpAddress();
 
         byte[] dataBytes = String.join("", userAgent.concat(userIpAddress)).getBytes();
-        byte[] keyBytes = Keys.hmacShaKeyFor(jwtKey.getBytes()).getEncoded();
+        byte[] keyBytes = Keys.hmacShaKeyFor(jwtAuthenticationConfig.getKey().getBytes()).getEncoded();
         byte[] originBytes = ByteUtils.concat(dataBytes, keyBytes);
 
         Arrays.sort(originBytes);
@@ -74,33 +73,34 @@ public class JwtManagerImpl implements JwtManager {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
-    public ContextDTO parseTokenInfo(String token, TokenTypeEnum expectTokenType) throws BizException {
+    public JwtContextDTO parseAndGetJwtContext(String token, boolean isRefresh) throws AuthenticationException {
         if (!StringUtils.hasText(token)) {
-            throw new BizException(ResponseCodeEnum.TOKEN_ERROR, "token不能为空");
+            throw new BadCredentialsException("无效的访问令牌");
         }
 
-        Key jwk = Keys.hmacShaKeyFor(jwtKey.getBytes());
-        JwtParser jwtParser = Jwts.parserBuilder()
-                .deserializeJsonWith(new JacksonDeserializer(Maps.of(X_CLAIM, ContextDTO.class).build()))
-                .setSigningKey(jwk).build();
+        Key jwk = Keys.hmacShaKeyFor(jwtAuthenticationConfig.getKey().getBytes());
+        JacksonDeserializer deserializer = new JacksonDeserializer(Maps.of(jwtAuthenticationConfig.getXClaimName(), JwtContextDTO.class).build());
+        JwtParser jwtParser = Jwts.parserBuilder().deserializeJsonWith(deserializer).setSigningKey(jwk).build();
 
         Jws<Claims> claimsJws;
         try {
             claimsJws = jwtParser.parseClaimsJws(token);
         } catch (ExpiredJwtException e) {
-            throw new BizException(ResponseCodeEnum.TOKEN_EXPIRED);
+            throw new CredentialsExpiredException("访问令牌已过期");
         } catch (UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e) {
-            throw new BizException(ResponseCodeEnum.TOKEN_ERROR, "token解析失败");
+            throw new BadCredentialsException("无效的访问令牌");
         }
 
         Claims claims = claimsJws.getBody();
-        ContextDTO contextDTO = claims.get(X_CLAIM, ContextDTO.class);
-        if (!getSign().equals(contextDTO.getSign())) {
-            throw new BizException(ResponseCodeEnum.TOKEN_ERROR, "非法的token解析操作");
+        JwtContextDTO jwtContextDTO = claims.get(jwtAuthenticationConfig.getXClaimName(), JwtContextDTO.class);
+        if (!getSign().equals(jwtContextDTO.getSign())) {
+            throw new BadCredentialsException("非法的访问令牌");
         }
-        if (Objects.isNull(expectTokenType) || !expectTokenType.equals(contextDTO.getType())) {
-            throw new BizException(ResponseCodeEnum.TOKEN_ERROR, "不是期待的token类型");
+
+        TokenTypeEnum tokenType = isRefresh ? TokenTypeEnum.REFRESH : TokenTypeEnum.ACCESS;
+        if (!tokenType.equals(jwtContextDTO.getType())) {
+            throw new BadCredentialsException("访问令牌类型不正确");
         }
-        return contextDTO;
+        return jwtContextDTO;
     }
 }

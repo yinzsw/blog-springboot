@@ -4,10 +4,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.Db;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedCredentialsNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import top.yinzsw.blog.core.context.HttpContext;
+import top.yinzsw.blog.core.security.jwt.JwtContextDTO;
 import top.yinzsw.blog.core.upload.UploadProvider;
 import top.yinzsw.blog.enums.FilePathEnum;
 import top.yinzsw.blog.exception.BizException;
@@ -35,14 +36,14 @@ import java.util.Optional;
 public class UserServiceImpl extends ServiceImpl<UserMapper, UserPO> implements UserService {
     private final UserManager userManager;
     private final UserConverter userConverter;
-    private final HttpContext httpContext;
     private final UploadProvider uploadProvider;
     private final PasswordEncoder passwordEncoder;
 
     @Override
     public String updateUserAvatar(MultipartFile avatar) {
         String avatarUrl = uploadProvider.uploadFile(FilePathEnum.AVATAR.getPath(), avatar);
-        Long uid = httpContext.getCurrentContextDTO().getUid();
+        Long uid = CommonUtils.getCurrentContextDTO().map(JwtContextDTO::getUid)
+                .orElseThrow(() -> new PreAuthenticatedCredentialsNotFoundException("用户凭据未找到"));
 
         lambdaUpdate().set(UserPO::getAvatar, avatarUrl).eq(UserPO::getId, uid).update();
         return avatarUrl;
@@ -51,7 +52,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPO> implements 
     @Override
     public boolean updateUserEmail(String email, String code) {
         userManager.checkEmailVerificationCode(email, code);
-        Long uid = httpContext.getCurrentContextDTO().getUid();
+        Long uid = CommonUtils.getCurrentContextDTO().map(JwtContextDTO::getUid)
+                .orElseThrow(() -> new PreAuthenticatedCredentialsNotFoundException("用户凭据未找到"));
         return lambdaUpdate().set(UserPO::getEmail, email).eq(UserPO::getId, uid).update();
     }
 
@@ -72,7 +74,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPO> implements 
 
     @Override
     public boolean updateUserPassword(PasswordByOldReq password) {
-        Long uid = httpContext.getCurrentContextDTO().getUid();
+        Long uid = CommonUtils.getCurrentContextDTO().map(JwtContextDTO::getUid)
+                .orElseThrow(() -> new PreAuthenticatedCredentialsNotFoundException("用户凭据未找到"));
 
         String oldPassword = lambdaQuery().select(UserPO::getPassword).eq(UserPO::getId, uid).one().getPassword();
         if (!passwordEncoder.matches(password.getOldPassword(), oldPassword)) {
@@ -85,7 +88,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPO> implements 
 
     @Override
     public boolean updateUserInfo(UserInfoReq userInfoReq) {
-        Long uid = httpContext.getCurrentContextDTO().getUid();
+        Long uid = CommonUtils.getCurrentContextDTO().map(JwtContextDTO::getUid)
+                .orElseThrow(() -> new PreAuthenticatedCredentialsNotFoundException("用户凭据未找到"));
         UserPO userPO = userConverter.toUserPO(userInfoReq);
         return lambdaUpdate().eq(UserPO::getId, uid).update(userPO);
     }

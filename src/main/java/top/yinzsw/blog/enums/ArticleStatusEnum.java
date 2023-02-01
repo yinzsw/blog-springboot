@@ -33,7 +33,7 @@ public enum ArticleStatusEnum {
      * 状态值
      */
     @EnumValue
-    private final Integer value;
+    private final int value;
 
     /**
      * 描述

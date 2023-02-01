@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import top.yinzsw.blog.model.request.MessageContentReq;
 import top.yinzsw.blog.model.request.MessageQueryReq;
 import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.vo.MessageBackgroundVO;
@@ -41,6 +42,12 @@ public class MessageController {
     public PageVO<MessageBackgroundVO> pageBackgroundMessages(@Valid PageReq pageReq,
                                                               @Valid MessageQueryReq messageQueryReq) {
         return messageService.pageBackgroundMessages(pageReq, messageQueryReq);
+    }
+
+    @Operation(summary = "添加留言")
+    @PostMapping
+    public boolean saveMessage(@Valid @RequestBody MessageContentReq messageReq) {
+        return messageService.saveMessage(messageReq);
     }
 
     @Operation(summary = "批量审核留言")

@@ -12,13 +12,11 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import top.yinzsw.blog.security.JwtAuthenticationFilter;
+import top.yinzsw.blog.core.security.jwt.JwtAuthenticationTokenFilter;
 
 
 /**
@@ -33,9 +31,7 @@ import top.yinzsw.blog.security.JwtAuthenticationFilter;
 public class WebSecurityConfig {
     private final AccessDecisionManager accessDecisionManager;
     private final FilterInvocationSecurityMetadataSource securityMetadataSource;
-    private final AuthenticationEntryPoint authenticationEntryPoint;
-    private final AccessDeniedHandler accessDeniedHandler;
-    private final JwtAuthenticationFilter jwtAuthFilter;
+    private final JwtAuthenticationTokenFilter jwtAuthFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -52,11 +48,6 @@ public class WebSecurityConfig {
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.authorizeRequests().withObjectPostProcessor(securityInterceptorPostProcessor()).anyRequest().permitAll();
-
-        http.exceptionHandling()
-                .authenticationEntryPoint(authenticationEntryPoint)
-                .accessDeniedHandler(accessDeniedHandler);
-
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

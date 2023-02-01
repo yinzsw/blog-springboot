@@ -1,19 +1,16 @@
-package top.yinzsw.blog.security;
+package top.yinzsw.blog.core.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
-import top.yinzsw.blog.model.dto.ContextDTO;
+import top.yinzsw.blog.core.security.jwt.JwtContextDTO;
 import top.yinzsw.blog.service.RoleService;
+import top.yinzsw.blog.util.CommonUtils;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
 
 /**
  * 接口拦截器
@@ -25,20 +22,16 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class SecurityMetadataSourceImpl implements FilterInvocationSecurityMetadataSource {
     private final RoleService roleService;
+    private static final String[] PADDING_ROLE_NAMES = new String[]{"''"};
 
     @Override
     public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (Objects.isNull(principal) || !(principal instanceof ContextDTO)) {
-            return null;
-        }
-
-        // 查询可以访问此资源的角色列表
-        Long rid = ((ContextDTO) principal).getRid();
-        List<String> roleNames = roleService.getRoleNamesByResourceId(rid);
-        return CollectionUtils.isEmpty(roleNames) ?
-                SecurityConfig.createList("''") :
-                SecurityConfig.createList(roleNames.toArray(new String[0]));
+        return CommonUtils.getCurrentContextDTO()
+                .map(JwtContextDTO::getRid)
+                .map(roleService::getRoleNamesByResourceId)
+                .map(roleNames -> roleNames.isEmpty() ? PADDING_ROLE_NAMES : roleNames.toArray(String[]::new))
+                .map(SecurityConfig::createList)
+                .orElse(null);
     }
 
     @Override

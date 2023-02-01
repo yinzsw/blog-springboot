@@ -1,8 +1,7 @@
-package top.yinzsw.blog.manager;
+package top.yinzsw.blog.core.security.jwt;
 
+import org.springframework.security.core.AuthenticationException;
 import top.yinzsw.blog.enums.TokenTypeEnum;
-import top.yinzsw.blog.exception.BizException;
-import top.yinzsw.blog.model.dto.ContextDTO;
 import top.yinzsw.blog.model.vo.TokenVO;
 
 import java.util.List;
@@ -26,12 +25,12 @@ public interface JwtManager {
     TokenVO createTokenVO(Long userId, List<String> roles);
 
     /**
-     * 根据token返回用户id
+     * 解析 http request token信息
      *
-     * @param token           token字符串
-     * @param expectTokenType 期待的token类型
-     * @return token声明信息
-     * @throws BizException 业务异常
+     * @param token     token字符串
+     * @param isRefresh 是否是{@link TokenTypeEnum#REFRESH}
+     * @return token信息
+     * @throws AuthenticationException 认证异常
      */
-    ContextDTO parseTokenInfo(String token, TokenTypeEnum expectTokenType) throws BizException;
+    JwtContextDTO parseAndGetJwtContext(String token, boolean isRefresh) throws AuthenticationException;
 }

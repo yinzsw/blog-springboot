@@ -2,6 +2,7 @@ package top.yinzsw.blog.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import top.yinzsw.blog.model.po.MessagePO;
+import top.yinzsw.blog.model.request.MessageContentReq;
 import top.yinzsw.blog.model.request.MessageQueryReq;
 import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.vo.MessageBackgroundVO;
@@ -33,6 +34,14 @@ public interface MessageService extends IService<MessagePO> {
      * @return 留言列表
      */
     PageVO<MessageBackgroundVO> pageBackgroundMessages(PageReq pageReq, MessageQueryReq messageQueryReq);
+
+    /**
+     * 留言内容
+     *
+     * @param messageReq 留言内容信息
+     * @return 是否成功
+     */
+    boolean saveMessage(MessageContentReq messageReq);
 
     /**
      * 批量审核留言

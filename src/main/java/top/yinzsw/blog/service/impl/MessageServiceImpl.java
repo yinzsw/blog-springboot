@@ -3,19 +3,25 @@ package top.yinzsw.blog.service.impl;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedCredentialsNotFoundException;
 import org.springframework.stereotype.Service;
+import top.yinzsw.blog.client.IpClient;
+import top.yinzsw.blog.core.context.HttpContext;
+import top.yinzsw.blog.core.security.jwt.JwtContextDTO;
 import top.yinzsw.blog.manager.WebConfigManager;
 import top.yinzsw.blog.mapper.MessageMapper;
 import top.yinzsw.blog.model.converter.MessageConverter;
 import top.yinzsw.blog.model.po.MessagePO;
 import top.yinzsw.blog.model.po.UserPO;
 import top.yinzsw.blog.model.po.WebsiteConfigPO;
+import top.yinzsw.blog.model.request.MessageContentReq;
 import top.yinzsw.blog.model.request.MessageQueryReq;
 import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.vo.MessageBackgroundVO;
 import top.yinzsw.blog.model.vo.MessageVO;
 import top.yinzsw.blog.model.vo.PageVO;
 import top.yinzsw.blog.service.MessageService;
+import top.yinzsw.blog.util.CommonUtils;
 import top.yinzsw.blog.util.MapQueryUtils;
 import top.yinzsw.blog.util.VerifyUtils;
 
@@ -35,6 +41,8 @@ import java.util.stream.Collectors;
 public class MessageServiceImpl extends ServiceImpl<MessageMapper, MessagePO> implements MessageService {
     private final WebConfigManager webConfigManager;
     private final MessageConverter messageConverter;
+    private final HttpContext httpContext;
+    private final IpClient ipClient;
 
     @Override
     public PageVO<MessageVO> pageMessages(PageReq pageReq) {
@@ -61,6 +69,23 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, MessagePO> im
 
         List<MessageBackgroundVO> messageBackgroundVOList = messagePO2VOList(messagePOPage, messageConverter::toMessageBackgroundVO);
         return new PageVO<>(messageBackgroundVOList, messagePOPage.getTotal());
+    }
+
+    @Override
+    public boolean saveMessage(MessageContentReq messageReq) {
+        Long uid = CommonUtils.getCurrentContextDTO().map(JwtContextDTO::getUid)
+                .orElseThrow(() -> new PreAuthenticatedCredentialsNotFoundException("用户凭据未找到"));
+        String userIpAddress = httpContext.getUserIpAddress();
+        String userIpLocation = ipClient.getIpInfo(userIpAddress).getFirstLocation().orElse("");
+        Boolean isReview = webConfigManager.getWebSiteConfig(WebsiteConfigPO::getEnableAllMessageReview);
+
+        MessagePO messagePO = new MessagePO()
+                .setUserId(uid)
+                .setMessageContent(messageReq.getContent())
+                .setIpAddress(userIpAddress)
+                .setIpSource(userIpLocation)
+                .setIsReview(isReview);
+        return save(messagePO);
     }
 
     @Override

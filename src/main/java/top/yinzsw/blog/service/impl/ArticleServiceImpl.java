@@ -6,12 +6,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.Db;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedCredentialsNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-import top.yinzsw.blog.core.context.HttpContext;
+import top.yinzsw.blog.core.security.jwt.JwtContextDTO;
 import top.yinzsw.blog.core.upload.UploadProvider;
 import top.yinzsw.blog.enums.ArticleStatusEnum;
 import top.yinzsw.blog.enums.FilePathEnum;
@@ -32,6 +33,7 @@ import top.yinzsw.blog.model.request.ArticleReq;
 import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.vo.*;
 import top.yinzsw.blog.service.ArticleService;
+import top.yinzsw.blog.util.CommonUtils;
 import top.yinzsw.blog.util.VerifyUtils;
 
 import java.util.Collections;
@@ -53,7 +55,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
     private final ArticleManager articleManager;
     private final CategoryManager categoryManager;
     private final WebConfigManager webConfigManager;
-    private final HttpContext httpContext;
     private final UploadProvider uploadProvider;
     private final ArticleConverter articleConverter;
 
@@ -194,7 +195,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
 
     @Override
     public boolean likeArticle(Long articleId, Boolean like) {
-        Long uid = httpContext.getCurrentContextDTO().getUid();
+        Long uid = CommonUtils.getCurrentContextDTO().map(JwtContextDTO::getUid)
+                .orElseThrow(() -> new PreAuthenticatedCredentialsNotFoundException("用户凭据未找到"));
+
+
         String articleSid = articleId.toString();
         if (like && !userManager.isLikedArticle(uid, articleSid)) {
             userManager.saveLikedArticle(uid, articleSid);
@@ -245,7 +249,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
         Long categoryId = categoryManager.saveCategory(articleReq.getCategoryName()).getId();
 
         //保存或更新文章
-        Long uid = httpContext.getCurrentContextDTO().getUid();
+        Long uid = CommonUtils.getCurrentContextDTO().map(JwtContextDTO::getUid)
+                .orElseThrow(() -> new PreAuthenticatedCredentialsNotFoundException("用户凭据未找到"));
+
         ArticlePO articlePO = articleConverter.toArticlePO(articleReq, categoryId, uid);
         saveOrUpdate(articlePO);
 
