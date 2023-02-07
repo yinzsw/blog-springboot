@@ -19,10 +19,15 @@ public class ExecutorConfig {
 
     @Bean
     public ThreadPoolTaskExecutor taskExecutor() {
+        int processorsNum = Runtime.getRuntime().availableProcessors();
+        int corePoolSize = processorsNum * 2 + 1;
+        int maxPoolSize = corePoolSize * 10;
+        int queueCapacity = maxPoolSize * 4;
+
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(5);
-        executor.setMaxPoolSize(40);
-        executor.setQueueCapacity(200);
+        executor.setCorePoolSize(corePoolSize);
+        executor.setMaxPoolSize(maxPoolSize);
+        executor.setQueueCapacity(queueCapacity);
         executor.setThreadNamePrefix("task-");
         executor.setKeepAliveSeconds(30);
         executor.setAllowCoreThreadTimeOut(true);

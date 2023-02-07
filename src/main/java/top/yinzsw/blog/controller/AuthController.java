@@ -29,19 +29,19 @@ public class AuthController {
     private final AuthService authService;
 
     @Operation(summary = "用户登录")
-    @PostMapping("login")
+    @PostMapping
     public UserInfoVO login(@Valid @RequestBody LoginReq loginReq) {
         return authService.login(loginReq.getUsername(), loginReq.getPassword());
     }
 
     @Operation(summary = "刷新凭据")
-    @PutMapping("refresh")
+    @PutMapping
     public TokenVO refresh() {
         return authService.refreshToken();
     }
 
     @Operation(summary = "用户注销")
-    @DeleteMapping("logout")
+    @DeleteMapping
     public boolean logout() {
         return authService.logout();
     }

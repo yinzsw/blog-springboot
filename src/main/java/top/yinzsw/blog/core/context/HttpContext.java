@@ -39,12 +39,12 @@ public class HttpContext {
      *
      * @return ip地址
      */
-    public String getUserIpAddress() {
+    public Optional<String> getUserIpAddress() {
         Supplier<String> localHostAddress = () -> {
             try {
                 return InetAddress.getLocalHost().getHostAddress();
             } catch (UnknownHostException e) {
-                return "";
+                return null;
             }
         };
         return Stream.of("X-Forwarded-For", "X-Real-IP", "Proxy-Client-IP", "WL-Proxy-Client-IP", "REMOTE_ADDR")
@@ -53,10 +53,10 @@ public class HttpContext {
                 .map(ip -> ip.split(",")[0].strip())
                 .filter(VerifyUtils::isIpv4)
                 .findFirst()
-                .orElseGet(() -> {
+                .or(() -> {
                     String remoteAddr = httpServletRequest.getRemoteAddr();
                     boolean isLocalHostAddr = List.of("127.0.0.1", "0:0:0:0:0:0:0:1").contains(remoteAddr);
-                    return isLocalHostAddr ? localHostAddress.get() : remoteAddr;
+                    return Optional.ofNullable(isLocalHostAddr ? localHostAddress.get() : remoteAddr);
                 });
     }
 

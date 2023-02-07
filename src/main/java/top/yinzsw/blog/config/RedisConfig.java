@@ -3,6 +3,7 @@ package top.yinzsw.blog.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.lettuce.LettuceConnection;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -24,6 +25,7 @@ public class RedisConfig {
     @Bean
     public RedisTemplate<String, ?> redisTemplate() {
         var stringRedisSerializer = new StringRedisSerializer();
+        redisConnectionFactory.setPipeliningFlushPolicy(LettuceConnection.PipeliningFlushPolicy.buffered(100));
 
         RedisTemplate<String, ?> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);

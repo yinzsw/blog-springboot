@@ -7,27 +7,27 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
- * 用户角色模型
+ * 文章一天的热度信息
  *
  * @author yinzsW
- * @since 23/01/09
+ * @since 23/02/03
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-@Schema(description = "用户角色模型")
-public class RoleDigestVO {
+@Schema(description = "文章一天的热度信息")
+public class ArticleDayHotVO {
 
     /**
-     * 角色id
+     * 点赞量
      */
-    @Schema(title = "角色id")
-    private Long id;
+    @Schema(title = "点赞量")
+    private Long likesCount;
 
     /**
-     * 角色名
+     * 浏览量
      */
-    @Schema(title = "角色名(en)")
-    private String roleName;
+    @Schema(title = "浏览量")
+    private Long viewsCount;
 }

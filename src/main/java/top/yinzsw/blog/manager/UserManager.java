@@ -1,10 +1,10 @@
 package top.yinzsw.blog.manager;
 
 import top.yinzsw.blog.exception.BizException;
-import top.yinzsw.blog.model.dto.UserLikedDTO;
+import top.yinzsw.blog.extension.mybatisplus.CommonManager;
 import top.yinzsw.blog.model.po.UserPO;
 
-import java.time.LocalDateTime;
+import java.time.Duration;
 
 /**
  * 用户通用业务处理层
@@ -13,32 +13,12 @@ import java.time.LocalDateTime;
  * @since 22/12/25
  */
 
-public interface UserManager {
+public interface UserManager extends CommonManager<UserPO> {
 
     /**
      * 邮箱验证码过期时间(分钟)
      */
-    int USER_EMAIL_CODE_EXPIRE_TIME = 15;
-
-    /**
-     * 邮箱验证码
-     */
-    String USER_EMAIL_CODE_PREFIX = "blog:user:email_code:";
-
-    /**
-     * 用户点赞过的说说
-     */
-    String USER_LIKED_TALKS_PREFIX = "blog:user:liked_talks:";
-
-    /**
-     * 用户点赞过的文章
-     */
-    String USER_LIKED_ARTICLES_PREFIX = "blog:user:liked_articles:";
-
-    /**
-     * 用户点赞过的评论
-     */
-    String USER_LIKED_COMMENTS_PREFIX = "blog:user:liked_comments:";
+    Duration USER_EMAIL_CODE_EXPIRE_TIME = Duration.ofMinutes(15);
 
     /**
      * 保存邮箱验证码
@@ -57,37 +37,12 @@ public interface UserManager {
     void checkEmailVerificationCode(String email, String code) throws BizException;
 
     /**
-     * 根据用户id查找用户点赞信息
+     * 发送邮箱验证码
      *
-     * @param userId 用户id
-     * @return 点赞信息
+     * @param email 邮箱
+     * @return 验证码
      */
-    UserLikedDTO getUserLikeInfo(Long userId);
-
-    /**
-     * 判断文章是否已经被用户点赞过
-     *
-     * @param uid       用户id
-     * @param articleId 文章id
-     * @return 状态
-     */
-    boolean isLikedArticle(Long uid, String articleId);
-
-    /**
-     * 保存点赞的文章
-     *
-     * @param uid       用户id
-     * @param articleId 文章id
-     */
-    void saveLikedArticle(Long uid, String articleId);
-
-    /**
-     * 删除点赞过的文章
-     *
-     * @param uid       用户id
-     * @param articleId 文章id
-     */
-    void deleteLikedArticle(Long uid, String articleId);
+    String sendEmailCode(String email);
 
 /////////////////////////////////////////////////////MYSQL//////////////////////////////////////////////////////////////
 
@@ -109,11 +64,11 @@ public interface UserManager {
     boolean updateUserPassword(String identity, String newPassword);
 
     /**
-     * 异步更新用户信息
+     * 保存用户登录历史
      *
-     * @param userId        用户id
-     * @param userIpAddress 用户ip地址
-     * @param lastLoginTime 登录时间
+     * @param userId    用户id
+     * @param userAgent 用户代理字符串
+     * @param ipAddress ip地址
      */
-    void updateUserLoginInfo(Long userId, String userIpAddress, LocalDateTime lastLoginTime);
+    void saveUserLoginHistory(Long userId, String userAgent, String ipAddress);
 }

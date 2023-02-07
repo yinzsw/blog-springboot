@@ -49,7 +49,7 @@ public class MessagePO implements Serializable {
     /**
      * 是否审核
      */
-    private Boolean isReview;
+    private Boolean isReviewed;
 
     /**
      * 是否删除

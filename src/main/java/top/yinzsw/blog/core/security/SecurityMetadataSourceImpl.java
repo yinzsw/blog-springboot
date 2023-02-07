@@ -25,7 +25,7 @@ public class SecurityMetadataSourceImpl implements FilterInvocationSecurityMetad
     private static final String[] PADDING_ROLE_NAMES = new String[]{"''"};
 
     @Override
-    public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
+    public Collection<ConfigAttribute> getAttributes(Object object) {
         return CommonUtils.getCurrentContextDTO()
                 .map(JwtContextDTO::getRid)
                 .map(roleService::getRoleNamesByResourceId)

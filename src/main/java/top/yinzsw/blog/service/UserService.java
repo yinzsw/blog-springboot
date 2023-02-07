@@ -1,8 +1,6 @@
 package top.yinzsw.blog.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.web.multipart.MultipartFile;
-import top.yinzsw.blog.model.po.UserPO;
 import top.yinzsw.blog.model.request.PasswordByEmailReq;
 import top.yinzsw.blog.model.request.PasswordByOldReq;
 import top.yinzsw.blog.model.request.UserInfoReq;
@@ -14,7 +12,7 @@ import java.util.List;
  * @description 针对表【user(用户表)】的数据库操作Service
  * @createDate 2022-12-15 14:14:31
  */
-public interface UserService extends IService<UserPO> {
+public interface UserService {
 
     /**
      * 更新用户头像

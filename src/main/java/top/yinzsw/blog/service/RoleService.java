@@ -1,12 +1,10 @@
 package top.yinzsw.blog.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
-import top.yinzsw.blog.model.po.RolePO;
 import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.request.RoleReq;
 import top.yinzsw.blog.model.vo.PageVO;
-import top.yinzsw.blog.model.vo.RoleDigestVO;
-import top.yinzsw.blog.model.vo.RoleSearchVO;
+import top.yinzsw.blog.model.vo.RoleBackgroundVO;
+import top.yinzsw.blog.model.vo.RoleVO;
 
 import java.util.List;
 
@@ -15,7 +13,7 @@ import java.util.List;
  * @description 针对表【role(角色表)】的数据库操作Service
  * @createDate 2022-12-15 14:47:44
  */
-public interface RoleService extends IService<RolePO> {
+public interface RoleService {
 
     /**
      * 根据用户id获取用户的角色列表
@@ -36,9 +34,10 @@ public interface RoleService extends IService<RolePO> {
     /**
      * 获取角色列表
      *
+     * @param pageReq 分页信息
      * @return 角色列表
      */
-    List<RoleDigestVO> listDigestRoles();
+    PageVO<RoleVO> pageSearchRoleVO(PageReq pageReq, String keywords);
 
     /**
      * 根据用户名关键词 分页获取所有用户角色信息
@@ -47,7 +46,7 @@ public interface RoleService extends IService<RolePO> {
      * @param keywords 用户名关键词
      * @return 用户角色列表信息
      */
-    PageVO<RoleSearchVO> pageSearchRoles(PageReq pageReq, String keywords);
+    PageVO<RoleBackgroundVO> pageBackgroundRoles(PageReq pageReq, String keywords);
 
     /**
      * 更新角色禁用状态

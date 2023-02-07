@@ -6,6 +6,7 @@ import org.springframework.http.server.PathContainer;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.pattern.PathPatternParser;
 import top.yinzsw.blog.model.po.ResourcePO;
@@ -61,9 +62,10 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             return;
         }
 
+
         // 校验并获取token信息
         String token = request.getHeader(jwtAuthenticationConfig.getTokenName());
-        boolean isRefreshUri = jwtAuthenticationConfig.getRefreshUri().equals(uri);
+        boolean isRefreshUri = jwtAuthenticationConfig.getRefreshUri().equals(uri) && RequestMethod.PUT.name().equalsIgnoreCase(method);
         JwtContextDTO jwtContextDTO = jwtManager.parseAndGetJwtContext(token, isRefreshUri);
         jwtContextDTO.setRid(resourceId);
 

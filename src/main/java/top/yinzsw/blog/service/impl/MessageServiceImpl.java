@@ -1,15 +1,14 @@
 package top.yinzsw.blog.service.impl;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedCredentialsNotFoundException;
 import org.springframework.stereotype.Service;
 import top.yinzsw.blog.client.IpClient;
 import top.yinzsw.blog.core.context.HttpContext;
 import top.yinzsw.blog.core.security.jwt.JwtContextDTO;
+import top.yinzsw.blog.manager.MessageManager;
 import top.yinzsw.blog.manager.WebConfigManager;
-import top.yinzsw.blog.mapper.MessageMapper;
 import top.yinzsw.blog.model.converter.MessageConverter;
 import top.yinzsw.blog.model.po.MessagePO;
 import top.yinzsw.blog.model.po.UserPO;
@@ -25,7 +24,6 @@ import top.yinzsw.blog.util.CommonUtils;
 import top.yinzsw.blog.util.MapQueryUtils;
 import top.yinzsw.blog.util.VerifyUtils;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -38,7 +36,8 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
-public class MessageServiceImpl extends ServiceImpl<MessageMapper, MessagePO> implements MessageService {
+public class MessageServiceImpl implements MessageService {
+    private final MessageManager messageManager;
     private final WebConfigManager webConfigManager;
     private final MessageConverter messageConverter;
     private final HttpContext httpContext;
@@ -46,9 +45,9 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, MessagePO> im
 
     @Override
     public PageVO<MessageVO> pageMessages(PageReq pageReq) {
-        Page<MessagePO> messagePOPage = lambdaQuery()
+        Page<MessagePO> messagePOPage = messageManager.lambdaQuery()
                 .select(MessagePO::getId, MessagePO::getUserId, MessagePO::getMessageContent)
-                .eq(MessagePO::getIsReview, true)
+                .eq(MessagePO::getIsReviewed, true)
                 .page(pageReq.getPager());
 
         List<MessageVO> messageVOList = messagePO2VOList(messagePOPage, messageConverter::toMessageVO);
@@ -57,15 +56,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, MessagePO> im
 
     @Override
     public PageVO<MessageBackgroundVO> pageBackgroundMessages(PageReq pageReq, MessageQueryReq messageQueryReq) {
-        Page<MessagePO> messagePOPage = lambdaQuery()
-                .select(MessagePO::getId, MessagePO::getUserId, MessagePO::getIpAddress, MessagePO::getIpSource,
-                        MessagePO::getMessageContent, MessagePO::getIsReview, MessagePO::getCreateTime)
-                .allEq(new HashMap<>() {{
-                    put(MessagePO::getUserId, messageQueryReq.getUserId());
-                    put(MessagePO::getIsReview, messageQueryReq.getIsReview());
-                }}, false)
-                .orderByDesc(MessagePO::getId)
-                .page(pageReq.getPager());
+        Page<MessagePO> messagePOPage = messageManager.pageBackgroundMessages(pageReq.getPager(), messageConverter.toQueryBackMessageDTO(messageQueryReq));
 
         List<MessageBackgroundVO> messageBackgroundVOList = messagePO2VOList(messagePOPage, messageConverter::toMessageBackgroundVO);
         return new PageVO<>(messageBackgroundVOList, messagePOPage.getTotal());
@@ -75,8 +66,8 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, MessagePO> im
     public boolean saveMessage(MessageContentReq messageReq) {
         Long uid = CommonUtils.getCurrentContextDTO().map(JwtContextDTO::getUid)
                 .orElseThrow(() -> new PreAuthenticatedCredentialsNotFoundException("用户凭据未找到"));
-        String userIpAddress = httpContext.getUserIpAddress();
-        String userIpLocation = ipClient.getIpInfo(userIpAddress).getFirstLocation().orElse("");
+        String userIpAddress = httpContext.getUserIpAddress().orElse(null);
+        String userIpLocation = ipClient.getIpInfo(userIpAddress).getFirstLocation().orElse(null);
         Boolean isReview = webConfigManager.getWebSiteConfig(WebsiteConfigPO::getEnableAllMessageReview);
 
         MessagePO messagePO = new MessagePO()
@@ -84,18 +75,18 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, MessagePO> im
                 .setMessageContent(messageReq.getContent())
                 .setIpAddress(userIpAddress)
                 .setIpSource(userIpLocation)
-                .setIsReview(isReview);
-        return save(messagePO);
+                .setIsReviewed(isReview);
+        return messageManager.save(messagePO);
     }
 
     @Override
     public boolean updateMessagesIsReview(List<Long> messageIds, Boolean isReview) {
-        return lambdaUpdate().set(MessagePO::getIsReview, isReview).in(MessagePO::getId, messageIds).update();
+        return messageManager.lambdaUpdate().set(MessagePO::getIsReviewed, isReview).in(MessagePO::getId, messageIds).update();
     }
 
     @Override
     public boolean deleteMessages(List<Long> messageIds) {
-        return removeByIds(messageIds);
+        return messageManager.removeByIds(messageIds);
     }
 
     private <T> List<T> messagePO2VOList(Page<MessagePO> messagePOPage,

@@ -10,6 +10,8 @@ import org.springdoc.api.annotations.ParameterObject;
 import top.yinzsw.blog.enums.ArticleStatusEnum;
 import top.yinzsw.blog.enums.ArticleTypeEnum;
 
+import javax.validation.constraints.Min;
+
 /**
  * 文章查询模型
  *
@@ -32,12 +34,14 @@ public class ArticleQueryReq {
     /**
      * 文章分类id
      */
+    @Min(value = 1, message = "不合法的分类id: ${validatedValue}")
     @Parameter(description = "文章分类id")
     private Long categoryId;
 
     /**
      * 标签id
      */
+    @Min(value = 1, message = "不合法的标签id: ${validatedValue}")
     @Parameter(description = "标签id")
     private Long tagId;
 

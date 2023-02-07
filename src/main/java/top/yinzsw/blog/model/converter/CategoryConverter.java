@@ -17,9 +17,12 @@ import java.util.Map;
  */
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface CategoryConverter {
-    List<CategoryDetailVO> toCategoryDetailVO(List<CategoryPO> categoryPOS, @Context Map<Long, Long> articleCountMap);
+
+    CategoryVO toCategoryVO(CategoryPO categoryPO);
 
     List<CategoryVO> toCategoryVO(List<CategoryPO> records);
+
+    List<CategoryDetailVO> toCategoryDetailVO(List<CategoryPO> categoryPOS, @Context Map<Long, Long> articleCountMap);
 
     @Mapping(target = "updateTime", ignore = true)
     @Mapping(target = "createTime", ignore = true)
@@ -31,6 +34,7 @@ public interface CategoryConverter {
                                  @Context Map<Long, Long> articleCountMap,
                                  @TargetType Class<T> targetType) {
         Long count = articleCountMap.get(origin.getId());
+
         if (targetType.isAssignableFrom(CategoryDetailVO.class)) {
             return (T) new CategoryDetailVO().setArticleCount(count);
         }

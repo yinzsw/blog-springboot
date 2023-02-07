@@ -5,10 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import top.yinzsw.blog.enums.LoginTypeEnum;
-
-import java.time.LocalDateTime;
-import java.util.Set;
 
 /**
  * 用户信息
@@ -48,12 +44,6 @@ public class UserInfoVO {
     private String nickname;
 
     /**
-     * 登录方式
-     */
-    @Schema(title = "登录方式")
-    private LoginTypeEnum loginType;
-
-    /**
      * 用户头像
      */
     @Schema(title = "用户头像")
@@ -70,36 +60,6 @@ public class UserInfoVO {
      */
     @Schema(title = "个人网站")
     private String webSite;
-
-    /**
-     * 上次登录时的IP地址
-     */
-    @Schema(title = "上次登录时的IP地址")
-    private String ipAddress;
-
-    /**
-     * 最近登录时间
-     */
-    @Schema(title = "最近登录时间")
-    private LocalDateTime lastLoginTime;
-
-    /**
-     * 点赞说说集合
-     */
-    @Schema(title = "点赞说说集合")
-    private Set<Long> likedTalkSet;
-
-    /**
-     * 点赞文章集合
-     */
-    @Schema(title = "点赞文章集合")
-    private Set<Long> likedArticleSet;
-
-    /**
-     * 点赞评论集合
-     */
-    @Schema(title = "点赞评论集合")
-    private Set<Long> likedCommentSet;
 
     /**
      * token信息

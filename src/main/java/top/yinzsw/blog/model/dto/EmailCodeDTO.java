@@ -29,5 +29,5 @@ public class EmailCodeDTO {
     /**
      * 有效期分钟数
      */
-    private int timeoutMinutes;
+    private long timeoutMinutes;
 }

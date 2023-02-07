@@ -1,7 +1,5 @@
 package top.yinzsw.blog.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
-import top.yinzsw.blog.model.po.MessagePO;
 import top.yinzsw.blog.model.request.MessageContentReq;
 import top.yinzsw.blog.model.request.MessageQueryReq;
 import top.yinzsw.blog.model.request.PageReq;
@@ -16,7 +14,7 @@ import java.util.List;
  * @description 针对表【message(留言表)】的数据库操作Service
  * @createDate 2023-01-28 20:21:06
  */
-public interface MessageService extends IService<MessagePO> {
+public interface MessageService {
 
     /**
      * 查询留言列表

@@ -45,7 +45,7 @@ public class EmailCaptchaListener {
         }
     }
 
-    private String createVerificationCodeText(String code, int minutes) {
-        return String.format("您的验证码为 %s 有效期%s分钟，请不要告诉他人哦！", code, minutes);
+    private String createVerificationCodeText(String code, long minutes) {
+        return String.format("您的验证码为 %s 有效期%d分钟，请不要告诉他人哦！", code, minutes);
     }
 }

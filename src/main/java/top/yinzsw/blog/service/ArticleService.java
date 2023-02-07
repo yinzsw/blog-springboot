@@ -1,8 +1,6 @@
 package top.yinzsw.blog.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.web.multipart.MultipartFile;
-import top.yinzsw.blog.model.po.ArticlePO;
 import top.yinzsw.blog.model.request.ArticleQueryReq;
 import top.yinzsw.blog.model.request.ArticleReq;
 import top.yinzsw.blog.model.request.PageReq;
@@ -15,40 +13,49 @@ import java.util.List;
  * @description 针对表【article(文章表)】的数据库操作Service
  * @createDate 2023-01-12 23:17:07
  */
-public interface ArticleService extends IService<ArticlePO> {
+public interface ArticleService {
 
     /**
-     * 根据关键词搜索文章
-     *
-     * @param keywords 关键词
-     * @return 搜索文章列表
-     */
-    List<ArticleSearchVO> listSearchArticles(String keywords);
-
-    /**
-     * 分页查询文章归档列表
-     *
-     * @param pageReq 分页信息
-     * @return 文章归档列表
-     */
-    PageVO<ArticleArchiveVO> pageArchivesArticles(PageReq pageReq);
-
-    /**
-     * 查看首页文章
+     * 查看文章详情
      *
      * @param articleId 文章id
-     * @return 首页文章
+     * @return 文章详情
      */
     ArticleVO getArticle(Long articleId);
 
     /**
-     * 分页查询首页文章
+     * 查看后台文章详情
      *
-     * @param pageReq 分页信息
-     * @param isTop   是否置顶
-     * @return 首页文章列表
+     * @param articleId 文章id
+     * @return 后台文章详情
      */
-    PageVO<ArticleDigestVO> pageArticles(PageReq pageReq, Boolean isTop);
+    ArticleBackgroundVO getBackgroundArticle(Long articleId);
+
+    /**
+     * 查询相关文章
+     *
+     * @param articleId 文章id
+     * @return 相关文章列表
+     */
+    List<ArticleSummaryVO> listRelatedArticles(Long articleId);
+
+    /**
+     * 分页查询文章
+     *
+     * @param pageReq   分页信息
+     * @param isOnlyTop 仅仅查询置顶文章
+     * @return 文章列表
+     */
+    PageVO<ArticleDigestVO> pageArticles(PageReq pageReq, Boolean isOnlyTop);
+
+    /**
+     * 分页查询后台文章
+     *
+     * @param pageReq         分页信息
+     * @param articleQueryReq 文章查询信息
+     * @return 后台文章列表
+     */
+    PageVO<ArticleDigestBackgroundVO> pageBackgroundArticles(PageReq pageReq, ArticleQueryReq articleQueryReq);
 
     /**
      * 根据分类id查看文章预览
@@ -69,21 +76,21 @@ public interface ArticleService extends IService<ArticlePO> {
     PageVO<ArticlePreviewVO> pagePreviewArticles(PageReq pageReq, List<Long> tagIds);
 
     /**
-     * 查看后台文章
+     * 分页查询文章归档列表
      *
-     * @param articleId 文章id
-     * @return 后台文章
+     * @param pageReq 分页信息
+     * @return 文章归档列表
      */
-    ArticleBackgroundVO getBackgroundArticle(Long articleId);
+    PageVO<ArticleArchiveVO> pageArchivesArticles(PageReq pageReq);
 
     /**
-     * 分页查询后台文章
+     * 根据关键词搜索文章
      *
-     * @param pageReq         分页信息
-     * @param articleQueryReq 文章查询信息
-     * @return 后台文章列表
+     * @param pageReq  分页信息
+     * @param keywords 关键词
+     * @return 搜索文章列表
      */
-    PageVO<ArticleDigestBackgroundVO> pageBackgroundArticles(PageReq pageReq, ArticleQueryReq articleQueryReq);
+    PageVO<ArticleSearchVO> pageSearchArticles(PageReq pageReq, String keywords);
 
     /**
      * 上传文章图片
@@ -100,7 +107,7 @@ public interface ArticleService extends IService<ArticlePO> {
      * @param like      点赞状态
      * @return 是否成功
      */
-    boolean likeArticle(Long articleId, Boolean like);
+    boolean updateArticleIsLiked(Long articleId, Boolean like);
 
     /**
      * 修改置顶状态

@@ -1,5 +1,6 @@
 package top.yinzsw.blog.manager;
 
+import top.yinzsw.blog.extension.mybatisplus.CommonManager;
 import top.yinzsw.blog.model.po.CategoryPO;
 
 /**
@@ -9,14 +10,6 @@ import top.yinzsw.blog.model.po.CategoryPO;
  * @since 23/01/27
  */
 
-public interface CategoryManager {
+public interface CategoryManager extends CommonManager<CategoryPO> {
 
-
-    /**
-     * 保存分类
-     *
-     * @param categoryName 分类名
-     * @return 文章分类信息
-     */
-    CategoryPO saveCategory(String categoryName);
 }

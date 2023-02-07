@@ -27,6 +27,7 @@ public class MybatisPlusTests {
                 .list().stream()
                 .map(ResourcePO::getId)
                 .forEach(System.out::println);
+
 //        LambdaQueryWrapper<RoleMtmMenuPO> in = Wrappers.<RoleMtmMenuPO>lambdaQuery()
 //                .in(RoleMtmMenuPO::getRoleId, 1);
 //        Map<Long, Long> map = SimpleQuery.map(in, RoleMtmMenuPO::getRoleId, RoleMtmMenuPO::getMenuId);

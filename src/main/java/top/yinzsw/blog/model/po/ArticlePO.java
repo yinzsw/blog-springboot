@@ -69,6 +69,16 @@ public class ArticlePO implements Serializable {
     private String originalUrl;
 
     /**
+     * 点赞量
+     */
+    private Long likesCount;
+
+    /**
+     * 浏览量
+     */
+    private Long viewsCount;
+
+    /**
      * 是否置顶 0否 1是
      */
     private Boolean isTop;
@@ -90,30 +100,6 @@ public class ArticlePO implements Serializable {
      */
     @TableField(insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
     private LocalDateTime updateTime;
-
-    /**
-     * 文章内容摘要
-     */
-    @TableField(value = "SUBSTR(article_content, 1, 256)", select = false, insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
-    private String articleContentDigest;
-
-    /**
-     * 文章数量 GroupBy categoryId
-     */
-    @TableField(value = "COUNT(id)", select = false, insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
-    private Long articleCount;
-
-    /**
-     * FULL_TEXT_MATCH_SQL
-     */
-    @TableField(exist = false)
-    public static final String FULL_MATCH = "MATCH(article_title, article_content) AGAINST({0} IN BOOLEAN MODE)";
-
-    /**
-     * FULL_TEXT_MATCH_SQL
-     */
-    @TableField(exist = false)
-    public static final String FULL_MATCH_TITLE = "MATCH(article_title) AGAINST({0} IN BOOLEAN MODE)";
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

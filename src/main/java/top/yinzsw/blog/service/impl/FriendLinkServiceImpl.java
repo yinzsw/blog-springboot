@@ -1,10 +1,9 @@
 package top.yinzsw.blog.service.impl;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
+import top.yinzsw.blog.manager.FriendLinkManager;
 import top.yinzsw.blog.mapper.FriendLinkMapper;
 import top.yinzsw.blog.model.converter.FriendLinkConverter;
 import top.yinzsw.blog.model.po.FriendLinkPO;
@@ -24,16 +23,14 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor
-public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendLinkPO> implements FriendLinkService {
+public class FriendLinkServiceImpl implements FriendLinkService {
+    private final FriendLinkMapper friendLinkMapper;
+    private final FriendLinkManager friendLinkManager;
     private final FriendLinkConverter friendLinkConverter;
 
     @Override
     public PageVO<FriendLinkVO> pageSearchFriendLinks(PageReq pageReq, String keywords) {
-        Page<FriendLinkPO> friendLinkPOPage = lambdaQuery()
-                .select(FriendLinkPO::getId, FriendLinkPO::getLinkName, FriendLinkPO::getLinkAvatar,
-                        FriendLinkPO::getLinkAddress, FriendLinkPO::getLinkIntro, FriendLinkPO::getCreateTime)
-                .and(StringUtils.hasText(keywords), q -> q.apply(FriendLinkPO.FULL_MATCH, keywords))
-                .page(pageReq.getPager());
+        Page<FriendLinkPO> friendLinkPOPage = friendLinkMapper.pageSearchFriendLinks(pageReq.getPager(), keywords);
 
         VerifyUtils.checkIPage(friendLinkPOPage);
 
@@ -44,12 +41,12 @@ public class FriendLinkServiceImpl extends ServiceImpl<FriendLinkMapper, FriendL
     @Override
     public boolean saveOrUpdateFriendLink(FriendLinkReq friendLinkReq) {
         FriendLinkPO friendLinkPO = friendLinkConverter.toFriendLinkPO(friendLinkReq);
-        return saveOrUpdate(friendLinkPO);
+        return friendLinkManager.saveOrUpdate(friendLinkPO);
     }
 
     @Override
     public boolean deleteFriendLinks(List<Long> friendLinkIds) {
-        return removeByIds(friendLinkIds);
+        return friendLinkManager.removeByIds(friendLinkIds);
     }
 }
 

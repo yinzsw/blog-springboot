@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import top.yinzsw.blog.enums.LoginTypeEnum;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -66,26 +65,6 @@ public class UserPO implements Serializable {
      * 用户个人网站
      */
     private String webSite;
-
-    /**
-     * 用户登录类型 1默认(邮箱或用户名) 2QQ 3微博
-     */
-    private LoginTypeEnum loginType;
-
-    /**
-     * 上次登录时的IP地址
-     */
-    private String ipAddress;
-
-    /**
-     * IP地址源
-     */
-    private String ipSource;
-
-    /**
-     * 上次登录时间
-     */
-    private LocalDateTime lastLoginTime;
 
     /**
      * 创建时间

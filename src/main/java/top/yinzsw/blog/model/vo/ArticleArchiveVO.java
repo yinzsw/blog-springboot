@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import top.yinzsw.blog.enums.ArticleStatusEnum;
 
 import java.time.LocalDateTime;
 
@@ -32,6 +33,12 @@ public class ArticleArchiveVO {
      */
     @Schema(title = "文章标题")
     private String articleTitle;
+
+    /**
+     * 文章状态
+     */
+    @Schema(title = "文章状态")
+    private ArticleStatusEnum articleStatus;
 
     /**
      * 文章发表时间

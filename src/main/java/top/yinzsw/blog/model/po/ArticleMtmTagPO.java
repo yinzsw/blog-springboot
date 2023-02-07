@@ -1,6 +1,5 @@
 package top.yinzsw.blog.model.po;
 
-import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -31,12 +30,6 @@ public class ArticleMtmTagPO implements Serializable {
      * 标签id
      */
     private Long tagId;
-
-    /**
-     * 文章数量 GroupBy tagId
-     */
-    @TableField(value = "COUNT(article_id)", select = false, insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
-    private Long articleCount;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

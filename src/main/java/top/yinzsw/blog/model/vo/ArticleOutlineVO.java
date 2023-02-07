@@ -6,8 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-import java.time.LocalDateTime;
-
 /**
  * 文章信息大纲
  *
@@ -38,10 +36,4 @@ public class ArticleOutlineVO {
      */
     @Schema(title = "文章标题")
     private String articleTitle;
-
-    /**
-     * 创建时间
-     */
-    @Schema(title = "创建时间")
-    private LocalDateTime createTime;
 }

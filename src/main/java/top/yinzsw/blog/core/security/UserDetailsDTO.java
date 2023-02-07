@@ -7,9 +7,7 @@ import lombok.experimental.Accessors;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import top.yinzsw.blog.enums.LoginTypeEnum;
 
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -72,44 +70,9 @@ public class UserDetailsDTO implements UserDetails {
     private String webSite;
 
     /**
-     * 用户登录类型 1默认(邮箱或用户名) 2QQ 3微博
-     */
-    private LoginTypeEnum loginType;
-
-    /**
-     * 上次登录时的IP地址
-     */
-    private String ipAddress;
-
-    /**
-     * IP地址源
-     */
-    private String ipSource;
-
-    /**
-     * 上次登录时间
-     */
-    private LocalDateTime lastLoginTime;
-
-    /**
      * 用户角色
      */
     private List<String> roleList;
-
-    /**
-     * 点赞说说集合
-     */
-    private List<Long> likedTalkSet;
-
-    /**
-     * 点赞文章集合
-     */
-    private List<Long> likedArticleSet;
-
-    /**
-     * 点赞评论集合
-     */
-    private List<Long> likedCommentSet;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

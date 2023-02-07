@@ -40,7 +40,10 @@ public class ResourceManagerImpl implements ResourceManager {
         //加载应用资源列表
         var handlerMethods = requestMappingHandlerMapping.getHandlerMethods();
         List<ResourcePO> resourcePOList = handlerMethods.entrySet().stream()
-                .filter(entry -> entry.getValue().getBeanType().getName().startsWith("top.yinzsw.blog.controller"))
+                .filter(entry -> {
+                    String beanName = entry.getValue().getBeanType().getName();
+                    return beanName.startsWith("top.yinzsw.blog.controller") && !beanName.contains("Error");
+                })
                 .map(entry -> {
                     String apiUrl = Objects.requireNonNull(entry.getKey().getPathPatternsCondition()).getPatterns()
                             .toArray(new PathPattern[0])[0].toString();
@@ -57,7 +60,7 @@ public class ResourceManagerImpl implements ResourceManager {
         resourcePOList.forEach(resourcePO -> {
             log.info("开始加载资源: [{}] {}", resourcePO.getRequestMethod(), resourcePO.getUri());
 
-            if ("/auth/login".equals(resourcePO.getUri())) {
+            if ("/auth".equals(resourcePO.getUri()) && "POST".equalsIgnoreCase(resourcePO.getRequestMethod())) {
                 resourcePO.setIsAnonymous(true);
             }
 

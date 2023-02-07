@@ -42,6 +42,12 @@ public class ArticleDigestBackgroundVO {
     private String articleCover;
 
     /**
+     * 文章分类id
+     */
+    @Schema(title = "文章分类id")
+    private Long categoryId;
+
+    /**
      * 文章分类名
      */
     @Schema(title = "文章分类名")
@@ -88,4 +94,7 @@ public class ArticleDigestBackgroundVO {
      */
     @Schema(title = "浏览量")
     private Long viewsCount;
+
+    @Schema(title = "当日热度")
+    private ArticleDayHotVO dayHot;
 }

@@ -1,8 +1,9 @@
 package top.yinzsw.blog.manager.impl;
 
-import com.baomidou.mybatisplus.extension.toolkit.Db;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import top.yinzsw.blog.manager.CategoryManager;
+import top.yinzsw.blog.mapper.CategoryMapper;
 import top.yinzsw.blog.model.po.CategoryPO;
 
 /**
@@ -12,16 +13,6 @@ import top.yinzsw.blog.model.po.CategoryPO;
  * @since 23/01/27
  */
 @Service
-public class CategoryManagerImpl implements CategoryManager {
-    @Override
-    public CategoryPO saveCategory(String categoryName) {
-        return Db.lambdaQuery(CategoryPO.class)
-                .eq(CategoryPO::getCategoryName, categoryName)
-                .oneOpt()
-                .orElseGet(() -> {
-                    CategoryPO categoryPO = new CategoryPO().setCategoryName(categoryName);
-                    Db.save(categoryPO);
-                    return categoryPO;
-                });
-    }
+public class CategoryManagerImpl extends ServiceImpl<CategoryMapper, CategoryPO> implements CategoryManager {
+
 }

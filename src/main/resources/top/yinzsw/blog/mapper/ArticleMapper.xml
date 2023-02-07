@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.yinzsw.blog.mapper.ArticleMapper">
+    <cache-ref namespace="top.yinzsw.blog.mapper.ArticleMapper"/>
+
+    <select id="getPrevOrNextArticle" resultType="top.yinzsw.blog.model.po.ArticlePO">
+        SELECT `id`, `article_title`, `article_cover`
+        FROM `article`
+        WHERE (`article_status` = 1 OR (`article_status` = 2 AND `user_id` = #{userId})) AND `is_deleted` = 0
+        <if test="isPrev">AND `id` > #{curArticleId}</if>
+        <if test="!isPrev">AND #{curArticleId} > `id`</if>
+        ORDER BY `id`
+        <if test="!isPrev">DESC</if>
+        LIMIT 1;
+    </select>
+
+    <select id="listRelatedArticleByIds" resultType="top.yinzsw.blog.model.po.ArticlePO">
+        SELECT `id`, `article_title`, `article_cover`, `create_time`
+        FROM `article`
+        WHERE (`article_status` = 1 OR (`article_status` = 2 AND `user_id` = #{userId})) AND `is_deleted` = 0
+        <foreach collection="relatedArticleIds" item="articleId" open=" AND `id` IN (" close=")" separator=",">
+            #{articleId}
+        </foreach>
+        <foreach collection="relatedArticleIds" item="articleId" open="ORDER BY FIELD(`id`," close=")" separator=",">
+            #{articleId}
+        </foreach>
+        LIMIT 6;
+    </select>
+
+    <select id="pageArticles" resultType="top.yinzsw.blog.model.po.ArticlePO">
+        SELECT `id`,
+        `category_id`,
+        `article_title`,
+        SUBSTR(`article_content`, 1, 256) AS `article_content`,
+        `article_cover`,
+        `article_status`,
+        `article_type`,
+        `is_top`,
+        `create_time`
+        FROM `article`
+        WHERE (`article_status` = 1 OR (`article_status` = 2 AND `user_id` = #{userId}))
+        <if test="isOnlyTop">AND `is_top` = TRUE</if>
+        ORDER BY `id` DESC
+    </select>
+
+    <select id="pageBackgroundArticles" resultType="top.yinzsw.blog.model.po.ArticlePO">
+        SELECT `id`,
+        `category_id`,
+        `article_title`,
+        `article_cover`,
+        `article_status`,
+        `article_type`,
+        `is_top`,
+        `create_time`,
+        `views_count`,
+        `likes_count`
+        FROM `article`
+        <where>
+            <if test="query.categoryId != null">`category_id` = #{query.categoryId}</if>
+            <if test="query.articleStatus != null">AND `article_status` = #{query.articleStatus.value}</if>
+            <if test="query.articleType != null">AND `article_type` = #{query.articleType.value}</if>
+            <foreach collection="query.articleIds" item="articleId" open="AND `id` IN (" close=")" separator=","
+                     nullable="true">
+                #{articleId}
+            </foreach>
+            <if test="query.title != null and query.title != ''">
+                AND MATCH(`article_title`) AGAINST(#{query.title} IN BOOLEAN MODE)
+            </if>
+        </where>
+    </select>
+
+    <select id="pagePublicArticleByKeywords" resultType="top.yinzsw.blog.model.po.ArticlePO">
+        SELECT `id`,
+        `article_title`,
+        SUBSTR(`article_content`, 1, 256) AS `article_content`,
+        `article_cover`,
+        `article_status`,
+        `create_time`
+        FROM `article`
+        WHERE (`article_status` = 1 OR (`article_status` = 2 AND `user_id` = #{userId})) AND `is_deleted` = 0
+        <if test="keywords != null and keywords != ''">
+            AND MATCH(`article_title`, `article_content`) AGAINST(#{keywords} IN BOOLEAN MODE)
+        </if>
+    </select>
+
+    <select id="listCategoryArticleCount" resultType="top.yinzsw.blog.model.dto.CategoryArticleNumDTO">
+        SELECT `category_id`, COUNT(`id`) AS `article_count`
+        FROM `article`
+        WHERE (`article_status` = 1 OR (`article_status` = 2 AND `user_id` = #{userId}))
+        <foreach collection="categoryIds" item="categoryId" open="AND `category_id` IN(" close=")" separator=",">
+            #{categoryId}
+        </foreach>
+        GROUP BY `category_id`
+    </select>
+</mapper>

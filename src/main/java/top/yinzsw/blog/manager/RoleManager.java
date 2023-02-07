@@ -1,6 +1,8 @@
 package top.yinzsw.blog.manager;
 
+import top.yinzsw.blog.extension.mybatisplus.CommonManager;
 import top.yinzsw.blog.model.dto.RoleMapsDTO;
+import top.yinzsw.blog.model.po.RolePO;
 
 import java.util.List;
 
@@ -11,7 +13,7 @@ import java.util.List;
  * @since 23/01/25
  */
 
-public interface RoleManager {
+public interface RoleManager extends CommonManager<RolePO> {
 
     /**
      * 获取未禁用的角色名列表
