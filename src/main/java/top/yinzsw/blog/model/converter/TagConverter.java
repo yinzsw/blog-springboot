@@ -17,6 +17,8 @@ import java.util.Map;
  */
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface TagConverter {
+    TagVO toTagVO(TagPO tagPO);
+
     List<TagVO> toTagVO(List<TagPO> tagPOList);
 
     List<TagBackgroundSearchVO> toTagSearchVO(List<TagPO> tagPOS, @Context Map<Long, Long> articleCountMap);

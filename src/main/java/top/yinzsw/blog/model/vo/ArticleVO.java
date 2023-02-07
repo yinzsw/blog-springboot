@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import top.yinzsw.blog.enums.ArticleStatusEnum;
 import top.yinzsw.blog.enums.ArticleTypeEnum;
 
 import java.time.LocalDateTime;
@@ -51,13 +52,19 @@ public class ArticleVO {
      * 文章点赞量
      */
     @Schema(title = "文章点赞量")
-    private Long likeCount;
+    private Long likesCount;
 
     /**
      * 文章浏览量
      */
     @Schema(title = "文章浏览量")
     private Long viewsCount;
+
+    /**
+     * 文章状态
+     */
+    @Schema(title = "文章状态")
+    private ArticleStatusEnum articleStatus;
 
     /**
      * 文章类型
@@ -96,6 +103,12 @@ public class ArticleVO {
     private String categoryName;
 
     /**
+     * 当日热度信息
+     */
+    @Schema(title = "当日热度信息")
+    private ArticleDayHotVO dayHot;
+
+    /**
      * 文章标签
      */
     @Schema(title = "文章标签")
@@ -112,16 +125,4 @@ public class ArticleVO {
      */
     @Schema(title = "下一篇文章")
     private ArticleOutlineVO nextArticle;
-
-    /**
-     * 最新文章推荐列表
-     */
-    @Schema(title = "最新文章推荐列表")
-    private List<ArticleOutlineVO> newestRecommendArticles;
-
-    /**
-     * 相关文章推荐列表
-     */
-    @Schema(title = "相关文章推荐列表")
-    private List<ArticleOutlineVO> relatedRecommendArticles;
 }

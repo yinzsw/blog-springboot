@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.yinzsw.blog.mapper.ArticleMtmTagMapper">
+    <cache-ref namespace="top.yinzsw.blog.mapper.ArticleMtmTagMapper"/>
+
+    <select id="listRelatedArticleIdsByTagIds" resultType="java.lang.Long">
+        SELECT `article_id`
+        FROM `article_mtm_tag`
+        WHERE `article_id` != #{excludeArticleId}
+        <foreach collection="tagIds" item="tagId" open="AND `tag_id` IN (" close=")" separator=",">
+            #{tagId}
+        </foreach>
+        GROUP BY `article_id`
+        ORDER BY COUNT(`article_id`) DESC
+        LIMIT 30;
+    </select>
+
+    <select id="listTagArticleCount" resultType="top.yinzsw.blog.model.dto.TagArticleNumDTO">
+        SELECT `tag_id`, COUNT(`article_id`) AS `article_count`
+        FROM `article_mtm_tag`
+        <where>
+            <foreach collection="tagIds" item="tagId" open="`tag_id` IN (" close=")" separator=",">
+                #{tagId}
+            </foreach>
+        </where>
+        GROUP BY `tag_id`
+    </select>
+</mapper>

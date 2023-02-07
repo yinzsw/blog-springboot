@@ -1,6 +1,7 @@
 package top.yinzsw.blog.model.request;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -42,7 +43,8 @@ public class PageReq {
     @Parameter(description = "条数")
     private Long size;
 
+    @JsonIgnore
     public <T> Page<T> getPager() {
-        return new Page<>((page - 1) * size, size);
+        return new Page<>(page, size);
     }
 }

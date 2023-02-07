@@ -58,12 +58,6 @@ public class FriendLinkPO implements Serializable {
     @TableField(insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
     private LocalDateTime updateTime;
 
-    /**
-     * FULL_TEXT_MATCH_SQL
-     */
-    @TableField(exist = false)
-    public static final String FULL_MATCH = "MATCH(link_name,link_intro) AGAINST({0} IN BOOLEAN MODE)";
-
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

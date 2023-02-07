@@ -1,25 +1,25 @@
 package top.yinzsw.blog.manager.impl;
 
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.Db;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.SetOperations;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import top.yinzsw.blog.client.IpClient;
+import top.yinzsw.blog.constant.MQConst;
+import top.yinzsw.blog.enums.RedisConstEnum;
 import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.manager.UserManager;
-import top.yinzsw.blog.model.dto.UserLikedDTO;
+import top.yinzsw.blog.mapper.UserMapper;
+import top.yinzsw.blog.model.dto.EmailCodeDTO;
+import top.yinzsw.blog.model.po.HistoryPO;
 import top.yinzsw.blog.model.po.UserPO;
-import top.yinzsw.blog.util.CommonUtils;
 import top.yinzsw.blog.util.VerifyUtils;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.List;
-import java.util.Optional;
+import java.util.UUID;
 
 /**
  * 用户通用业务处理层实现
@@ -29,20 +29,20 @@ import java.util.Optional;
  */
 @Service
 @RequiredArgsConstructor
-public class UserManagerImpl implements UserManager {
-    private final IpClient ipClient;
-
+public class UserManagerImpl extends ServiceImpl<UserMapper, UserPO> implements UserManager {
+    private final RabbitTemplate rabbitTemplate;
     private final StringRedisTemplate stringRedisTemplate;
+    private final IpClient ipClient;
 
     @Override
     public void saveEmailVerificationCode(String email, String code) {
-        String emailCodeKey = USER_EMAIL_CODE_PREFIX + email;
-        stringRedisTemplate.opsForValue().set(emailCodeKey, code, Duration.ofMinutes(USER_EMAIL_CODE_EXPIRE_TIME));
+        String emailCodeKey = RedisConstEnum.EMAIL_CODE.getKey(email);
+        stringRedisTemplate.opsForValue().set(emailCodeKey, code, USER_EMAIL_CODE_EXPIRE_TIME);
     }
 
     @Override
     public void checkEmailVerificationCode(String email, String code) throws BizException {
-        String emailCodeKey = USER_EMAIL_CODE_PREFIX + email;
+        String emailCodeKey = RedisConstEnum.EMAIL_CODE.getKey(email);
         String emailCode = stringRedisTemplate.opsForValue().get(emailCodeKey);
         if (!code.equalsIgnoreCase(emailCode)) {
             throw new BizException("邮箱验证码错误");
@@ -51,31 +51,11 @@ public class UserManagerImpl implements UserManager {
     }
 
     @Override
-    public UserLikedDTO getUserLikeInfo(Long userId) {
-        SetOperations<String, String> opsForSet = stringRedisTemplate.opsForSet();
-        List<Long> likedTalks = CommonUtils.toList(opsForSet.members(USER_LIKED_TALKS_PREFIX + userId), Long::valueOf);
-        List<Long> likedArticles = CommonUtils.toList(opsForSet.members(USER_LIKED_ARTICLES_PREFIX + userId), Long::valueOf);
-        List<Long> likedComments = CommonUtils.toList(opsForSet.members(USER_LIKED_COMMENTS_PREFIX + userId), Long::valueOf);
-
-        return new UserLikedDTO()
-                .setLikedTalkSet(likedTalks)
-                .setLikedArticleSet(likedArticles)
-                .setLikedCommentSet(likedComments);
-    }
-
-    @Override
-    public boolean isLikedArticle(Long uid, String articleId) {
-        return Boolean.TRUE.equals(stringRedisTemplate.opsForSet().isMember(USER_LIKED_ARTICLES_PREFIX + uid, articleId));
-    }
-
-    @Override
-    public void saveLikedArticle(Long uid, String articleId) {
-        stringRedisTemplate.opsForSet().add(USER_LIKED_ARTICLES_PREFIX + uid, articleId);
-    }
-
-    @Override
-    public void deleteLikedArticle(Long uid, String articleId) {
-        stringRedisTemplate.opsForSet().remove(USER_LIKED_ARTICLES_PREFIX + uid, articleId);
+    public String sendEmailCode(String email) {
+        String code = UUID.randomUUID().toString().substring(0, 6).toUpperCase();
+        EmailCodeDTO emailCodeDTO = new EmailCodeDTO(email, code, USER_EMAIL_CODE_EXPIRE_TIME.toMinutes());
+        rabbitTemplate.convertAndSend(MQConst.EMAIL_EXCHANGE, MQConst.EMAIL_CODE_KEY, emailCodeDTO);
+        return code;
     }
 
     @Override
@@ -104,13 +84,13 @@ public class UserManagerImpl implements UserManager {
 
     @Async
     @Override
-    public void updateUserLoginInfo(Long userId, String userIpAddress, LocalDateTime lastLoginTime) {
-        String ipAddress = Optional.ofNullable(userIpAddress).orElseThrow(() -> new BizException("无效的ip地址"));
-        String ipSource = ipClient.getIpInfo(ipAddress).getFirstLocation().orElse("");
-        LocalDateTime loginTime = Optional.ofNullable(lastLoginTime).orElse(LocalDateTime.now(ZoneOffset.ofHours(8)));
-
-        UserPO userPO = new UserPO().setIpAddress(ipAddress).setIpSource(ipSource).setLastLoginTime(loginTime);
-        Db.lambdaUpdate(UserPO.class).eq(UserPO::getId, userId).update(userPO);
+    public void saveUserLoginHistory(Long userId, String ipAddress, String userAgent) {
+        String ipLocation = ipClient.getIpInfo(ipAddress).getFirstLocation().orElse("");
+        HistoryPO historyPO = new HistoryPO()
+                .setUserId(userId)
+                .setIpAddress(ipAddress)
+                .setIpSource(ipLocation)
+                .setUserAgent(userAgent);
+        Db.save(historyPO);
     }
-
 }

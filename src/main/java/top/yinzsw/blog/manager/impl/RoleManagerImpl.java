@@ -1,10 +1,12 @@
 package top.yinzsw.blog.manager.impl;
 
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import top.yinzsw.blog.core.maps.DataMapBuilder;
 import top.yinzsw.blog.manager.RoleManager;
+import top.yinzsw.blog.mapper.RoleMapper;
 import top.yinzsw.blog.model.dto.RoleMapsDTO;
 import top.yinzsw.blog.model.po.RoleMtmMenuPO;
 import top.yinzsw.blog.model.po.RoleMtmResourcePO;
@@ -22,7 +24,7 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor
-public class RoleManagerImpl implements RoleManager {
+public class RoleManagerImpl extends ServiceImpl<RoleMapper, RolePO> implements RoleManager {
     private final DataMapBuilder dataMapBuilder;
 
     @Override

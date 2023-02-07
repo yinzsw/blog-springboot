@@ -20,7 +20,7 @@ public class ArticleHotIndexDTO {
     /**
      * 点赞量
      */
-    private Long likedCount;
+    private Long likesCount;
 
     /**
      * 浏览量

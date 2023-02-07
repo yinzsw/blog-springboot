@@ -1,8 +1,10 @@
 package top.yinzsw.blog.model.converter;
 
 import org.mapstruct.*;
+import top.yinzsw.blog.model.dto.QueryBackMessageDTO;
 import top.yinzsw.blog.model.po.MessagePO;
 import top.yinzsw.blog.model.po.UserPO;
+import top.yinzsw.blog.model.request.MessageQueryReq;
 import top.yinzsw.blog.model.vo.MessageBackgroundVO;
 import top.yinzsw.blog.model.vo.MessageVO;
 
@@ -20,6 +22,8 @@ public interface MessageConverter {
     List<MessageVO> toMessageVO(List<MessagePO> messagePOS, @Context Map<Long, UserPO> userMap);
 
     List<MessageBackgroundVO> toMessageBackgroundVO(List<MessagePO> messagePOList, @Context Map<Long, UserPO> userMap);
+
+    QueryBackMessageDTO toQueryBackMessageDTO(MessageQueryReq messageQueryReq);
 
     @SuppressWarnings("unchecked")
     @ObjectFactory

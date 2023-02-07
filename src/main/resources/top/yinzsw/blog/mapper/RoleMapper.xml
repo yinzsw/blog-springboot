@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.yinzsw.blog.mapper.RoleMapper">
+    <cache-ref namespace="top.yinzsw.blog.mapper.RoleMapper"/>
+
+    <select id="pageSearchRoles" resultType="top.yinzsw.blog.model.po.RolePO">
+        SELECT `id`, `role_name`, `role_label`, `is_disabled`, `create_time`
+        FROM `role`
+        <where>
+            <if test="keywords != null and keywords != ''">
+                MATCH(`role_name`, `role_label`) AGAINST(#{keywords} IN BOOLEAN MODE)
+            </if>
+        </where>
+    </select>
+</mapper>

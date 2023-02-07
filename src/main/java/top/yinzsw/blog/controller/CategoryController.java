@@ -47,9 +47,11 @@ public class CategoryController {
     }
 
     @Operation(summary = "添加或修改分类")
-    @PutMapping
-    public boolean saveOrUpdateCategory(@Valid @RequestBody CategoryReq categoryReq) {
-        return categoryService.saveOrUpdateCategory(categoryReq);
+    @PutMapping("{repeatable:true|false}")
+    public CategoryVO saveOrUpdateCategory(@Valid @RequestBody CategoryReq categoryReq,
+                                           @Parameter(description = "标签名可重复", required = true)
+                                           @PathVariable("repeatable") Boolean repeatable) {
+        return categoryService.saveOrUpdateCategory(categoryReq, repeatable);
     }
 
     @Operation(summary = "删除分类")

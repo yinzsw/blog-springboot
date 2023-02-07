@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.yinzsw.blog.mapper.CategoryMapper">
+    <cache-ref namespace="top.yinzsw.blog.mapper.CategoryMapper"/>
+
+    <select id="pageSearchCategories" resultType="top.yinzsw.blog.model.po.CategoryPO">
+        SELECT `id`, `category_name`, `create_time`
+        FROM `category`
+        <where>
+            <if test="name != null and name != ''">
+                MATCH(`category_name`) AGAINST(#{name} IN BOOLEAN MODE)
+            </if>
+        </where>
+    </select>
+</mapper>

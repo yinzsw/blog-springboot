@@ -32,10 +32,10 @@ public class TagController {
 
     @Operation(summary = "查询标签列表")
     @GetMapping("name/{name}")
-    public PageVO<TagVO> pageTags(@Valid PageReq pageReq,
-                                  @Parameter(description = "标签名关键词", required = true)
-                                  @PathVariable("name") String name) {
-        return tagService.pageTags(pageReq, name);
+    public PageVO<TagVO> pageSearchTags(@Valid PageReq pageReq,
+                                        @Parameter(description = "标签名关键词", required = true)
+                                        @PathVariable("name") String name) {
+        return tagService.pageSearchTags(pageReq, name);
     }
 
     @Operation(summary = "查询文章标签(后台)")
@@ -47,9 +47,11 @@ public class TagController {
     }
 
     @Operation(summary = "添加或修改标签")
-    @PutMapping
-    public boolean saveOrUpdateTag(@Valid @RequestBody TagReq tagReq) {
-        return tagService.saveOrUpdateTag(tagReq);
+    @PutMapping("{repeatable:true|false}")
+    public TagVO saveOrUpdateTag(@Valid @RequestBody TagReq tagReq,
+                                 @Parameter(description = "标签名可重复", required = true)
+                                 @PathVariable("repeatable") Boolean repeatable) {
+        return tagService.saveOrUpdateTag(tagReq, repeatable);
     }
 
     @Operation(summary = "删除标签")

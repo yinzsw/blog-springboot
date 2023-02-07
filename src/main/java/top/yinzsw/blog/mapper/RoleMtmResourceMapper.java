@@ -1,7 +1,7 @@
 package top.yinzsw.blog.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.CacheNamespace;
+import top.yinzsw.blog.extension.mybatisplus.CommonMapper;
 import top.yinzsw.blog.model.po.RoleMtmResourcePO;
 
 /**
@@ -11,7 +11,7 @@ import top.yinzsw.blog.model.po.RoleMtmResourcePO;
  * @Entity top.yinzsw.blog.model.po.RoleMtmResourcePO
  */
 @CacheNamespace(readWrite = false, blocking = true)
-public interface RoleMtmResourceMapper extends BaseMapper<RoleMtmResourcePO> {
+public interface RoleMtmResourceMapper extends CommonMapper<RoleMtmResourcePO> {
 
 }
 

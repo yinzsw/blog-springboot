@@ -1,6 +1,5 @@
 package top.yinzsw.blog.service.impl;
 
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.Db;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,7 +12,6 @@ import top.yinzsw.blog.core.upload.UploadProvider;
 import top.yinzsw.blog.enums.FilePathEnum;
 import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.manager.UserManager;
-import top.yinzsw.blog.mapper.UserMapper;
 import top.yinzsw.blog.model.converter.UserConverter;
 import top.yinzsw.blog.model.po.UserMtmRolePO;
 import top.yinzsw.blog.model.po.UserPO;
@@ -33,7 +31,7 @@ import java.util.Optional;
  */
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl extends ServiceImpl<UserMapper, UserPO> implements UserService {
+public class UserServiceImpl implements UserService {
     private final UserManager userManager;
     private final UserConverter userConverter;
     private final UploadProvider uploadProvider;
@@ -45,7 +43,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPO> implements 
         Long uid = CommonUtils.getCurrentContextDTO().map(JwtContextDTO::getUid)
                 .orElseThrow(() -> new PreAuthenticatedCredentialsNotFoundException("用户凭据未找到"));
 
-        lambdaUpdate().set(UserPO::getAvatar, avatarUrl).eq(UserPO::getId, uid).update();
+        userManager.updateById(new UserPO().setId(uid).setAvatar(avatarUrl));
         return avatarUrl;
     }
 
@@ -54,12 +52,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPO> implements 
         userManager.checkEmailVerificationCode(email, code);
         Long uid = CommonUtils.getCurrentContextDTO().map(JwtContextDTO::getUid)
                 .orElseThrow(() -> new PreAuthenticatedCredentialsNotFoundException("用户凭据未找到"));
-        return lambdaUpdate().set(UserPO::getEmail, email).eq(UserPO::getId, uid).update();
+
+        return userManager.updateById(new UserPO().setId(uid).setEmail(email));
     }
 
     @Override
     public boolean updateUserIsDisable(Long userId, Boolean isDisabled) {
-        return lambdaUpdate().set(UserPO::getIsDisabled, isDisabled).eq(UserPO::getId, userId).update();
+        return userManager.updateById(new UserPO().setId(userId).setIsDisabled(isDisabled));
     }
 
     @Override
@@ -77,28 +76,30 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPO> implements 
         Long uid = CommonUtils.getCurrentContextDTO().map(JwtContextDTO::getUid)
                 .orElseThrow(() -> new PreAuthenticatedCredentialsNotFoundException("用户凭据未找到"));
 
-        String oldPassword = lambdaQuery().select(UserPO::getPassword).eq(UserPO::getId, uid).one().getPassword();
+        String oldPassword = userManager.lambdaQuery().select(UserPO::getPassword).eq(UserPO::getId, uid).one().getPassword();
         if (!passwordEncoder.matches(password.getOldPassword(), oldPassword)) {
             throw new BizException("旧密码不正确");
         }
 
         String newPassword = passwordEncoder.encode(password.getNewPassword());
-        return lambdaUpdate().set(UserPO::getPassword, newPassword).eq(UserPO::getId, uid).update();
+        return userManager.lambdaUpdate().set(UserPO::getPassword, newPassword).eq(UserPO::getId, uid).update();
     }
 
     @Override
     public boolean updateUserInfo(UserInfoReq userInfoReq) {
         Long uid = CommonUtils.getCurrentContextDTO().map(JwtContextDTO::getUid)
                 .orElseThrow(() -> new PreAuthenticatedCredentialsNotFoundException("用户凭据未找到"));
-        UserPO userPO = userConverter.toUserPO(userInfoReq);
-        return lambdaUpdate().eq(UserPO::getId, uid).update(userPO);
+        UserPO userPO = userConverter.toUserPO(userInfoReq, uid);
+        return userManager.updateById(userPO);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updateUserRoles(Long userId, List<Long> roleIds) {
         Db.lambdaUpdate(UserMtmRolePO.class).eq(UserMtmRolePO::getUserId, userId).remove();
-        // TODO 尝试主动更新用户token
+        // TODO
+        //  尝试主动更新用户token
+        //  token 黑名单
         return Db.saveBatch(CommonUtils.toList(roleIds, roleId -> new UserMtmRolePO(userId, roleId)));
     }
 }

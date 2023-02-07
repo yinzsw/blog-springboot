@@ -1,7 +1,5 @@
 package top.yinzsw.blog.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
-import top.yinzsw.blog.model.po.TagPO;
 import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.request.TagReq;
 import top.yinzsw.blog.model.vo.PageVO;
@@ -15,7 +13,7 @@ import java.util.List;
  * @description 针对表【tag(标签表)】的数据库操作Service
  * @createDate 2023-01-12 22:11:32
  */
-public interface TagService extends IService<TagPO> {
+public interface TagService {
 
     /**
      * 根据关键词搜索文章标签
@@ -24,7 +22,7 @@ public interface TagService extends IService<TagPO> {
      * @param name    标签名关键词
      * @return 标签列表
      */
-    PageVO<TagVO> pageTags(PageReq pageReq, String name);
+    PageVO<TagVO> pageSearchTags(PageReq pageReq, String name);
 
     /**
      * 根据关键词搜索文章标签
@@ -38,10 +36,11 @@ public interface TagService extends IService<TagPO> {
     /**
      * 保存或更新标签
      *
-     * @param tagReq 标签信息
+     * @param tagReq     标签信息
+     * @param repeatable 可重复
      * @return 是否成功
      */
-    boolean saveOrUpdateTag(TagReq tagReq);
+    TagVO saveOrUpdateTag(TagReq tagReq, Boolean repeatable);
 
     /**
      * 删除标签

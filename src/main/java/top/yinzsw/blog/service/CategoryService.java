@@ -1,7 +1,5 @@
 package top.yinzsw.blog.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
-import top.yinzsw.blog.model.po.CategoryPO;
 import top.yinzsw.blog.model.request.CategoryReq;
 import top.yinzsw.blog.model.request.PageReq;
 import top.yinzsw.blog.model.vo.CategoryDetailVO;
@@ -15,7 +13,7 @@ import java.util.List;
  * @description 针对表【category(文章分类表)】的数据库操作Service
  * @createDate 2023-01-13 09:57:14
  */
-public interface CategoryService extends IService<CategoryPO> {
+public interface CategoryService {
 
     /**
      * 根据关键词查询分类信息
@@ -39,9 +37,10 @@ public interface CategoryService extends IService<CategoryPO> {
      * 保存或修改分类信息
      *
      * @param categoryReq 分类信息
+     * @param repeatable  是否可重复
      * @return 是否成功
      */
-    boolean saveOrUpdateCategory(CategoryReq categoryReq);
+    CategoryVO saveOrUpdateCategory(CategoryReq categoryReq, Boolean repeatable);
 
     /**
      * 删除违章分类

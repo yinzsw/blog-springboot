@@ -1,14 +1,17 @@
 package top.yinzsw.blog.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.baomidou.mybatisplus.extension.toolkit.Db;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
+import top.yinzsw.blog.core.security.jwt.JwtContextDTO;
 import top.yinzsw.blog.exception.BizException;
+import top.yinzsw.blog.manager.ArticleManager;
+import top.yinzsw.blog.manager.CategoryManager;
+import top.yinzsw.blog.mapper.ArticleMapper;
 import top.yinzsw.blog.mapper.CategoryMapper;
 import top.yinzsw.blog.model.converter.CategoryConverter;
+import top.yinzsw.blog.model.dto.CategoryArticleNumDTO;
 import top.yinzsw.blog.model.po.ArticlePO;
 import top.yinzsw.blog.model.po.CategoryPO;
 import top.yinzsw.blog.model.request.CategoryReq;
@@ -18,11 +21,12 @@ import top.yinzsw.blog.model.vo.CategoryVO;
 import top.yinzsw.blog.model.vo.PageVO;
 import top.yinzsw.blog.service.CategoryService;
 import top.yinzsw.blog.util.CommonUtils;
-import top.yinzsw.blog.util.MapQueryUtils;
 import top.yinzsw.blog.util.VerifyUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author yinzsW
@@ -31,15 +35,16 @@ import java.util.Map;
  */
 @Service
 @RequiredArgsConstructor
-public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, CategoryPO> implements CategoryService {
+public class CategoryServiceImpl implements CategoryService {
+    private final ArticleMapper articleMapper;
+    private final CategoryMapper categoryMapper;
+    private final ArticleManager articleManager;
+    private final CategoryManager categoryManager;
     private final CategoryConverter categoryConverter;
 
     @Override
     public PageVO<CategoryVO> pageSearchCategories(PageReq pageReq, String name) {
-        Page<CategoryPO> categoryPOPage = lambdaQuery()
-                .select(CategoryPO::getId, CategoryPO::getCategoryName)
-                .and(StringUtils.hasText(name), q -> q.apply(CategoryPO.FULL_MATCH, name))
-                .page(pageReq.getPager());
+        Page<CategoryPO> categoryPOPage = categoryMapper.pageSearchCategories(pageReq.getPager(), name);
 
         VerifyUtils.checkIPage(categoryPOPage);
 
@@ -49,39 +54,40 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, CategoryPO>
 
     @Override
     public PageVO<CategoryDetailVO> pageDetailCategories(PageReq pageReq, String name) {
-        Page<CategoryPO> categoryPOPage = lambdaQuery()
-                .select(CategoryPO::getId, CategoryPO::getCategoryName, CategoryPO::getCreateTime)
-                .and(StringUtils.hasText(name), q -> q.apply(CategoryPO.FULL_MATCH, name))
-                .page(pageReq.getPager());
+        Page<CategoryPO> categoryPOPage = categoryMapper.pageSearchCategories(pageReq.getPager(), name);
 
         VerifyUtils.checkIPage(categoryPOPage);
 
         List<CategoryPO> categoryPOList = categoryPOPage.getRecords();
-        List<Long> categoryIds = CommonUtils.toList(categoryPOList, CategoryPO::getId);
-        Map<Long, Long> articleCountMap = MapQueryUtils.create(ArticlePO::getCategoryId, categoryIds)
-                .queryWrapper(wrapper -> wrapper.groupBy(ArticlePO::getCategoryId))
-                .getKeyValueMap(ArticlePO::getArticleCount);
+        List<Long> categoryIds = CommonUtils.toDistinctList(categoryPOList, CategoryPO::getId);
+        Long uid = CommonUtils.getCurrentContextDTO().map(JwtContextDTO::getUid).orElse(null);
+        Map<Long, Long> articleCountMap = articleMapper.listCategoryArticleCount(categoryIds, uid).stream()
+                .collect(Collectors.toMap(CategoryArticleNumDTO::getCategoryId, CategoryArticleNumDTO::getArticleCount));
+
         List<CategoryDetailVO> categoryDetailVOList = categoryConverter.toCategoryDetailVO(categoryPOList, articleCountMap);
         return new PageVO<>(categoryDetailVOList, categoryPOPage.getTotal());
     }
 
     @Override
-    public boolean saveOrUpdateCategory(CategoryReq categoryReq) {
-        lambdaQuery().select(CategoryPO::getId).eq(CategoryPO::getCategoryName, categoryReq.getCategoryName()).oneOpt()
-                .ifPresent(categoryPO -> {
-                    throw new BizException("分类名已存在");
-                });
+    public CategoryVO saveOrUpdateCategory(CategoryReq categoryReq, Boolean repeatable) {
+        CategoryPO existCategoryPO = categoryManager.lambdaQuery()
+                .select(CategoryPO::getId, CategoryPO::getCategoryName)
+                .eq(CategoryPO::getCategoryName, categoryReq.getCategoryName())
+                .one();
+        if (Objects.nonNull(existCategoryPO)) {
+            return categoryConverter.toCategoryVO(existCategoryPO);
+        }
 
         CategoryPO categoryPO = categoryConverter.toCategoryPO(categoryReq);
-        return saveOrUpdate(categoryPO);
+        categoryManager.saveOrUpdate(categoryPO);
+        return categoryConverter.toCategoryVO(categoryPO);
     }
 
     @Override
     public boolean deleteCategories(List<Long> categoryIds) {
-        boolean isUsing = Db.lambdaQuery(ArticlePO.class).in(ArticlePO::getCategoryId, categoryIds).count() > 0L;
-        if (isUsing) {
+        if (articleManager.count(Wrappers.<ArticlePO>lambdaQuery().in(ArticlePO::getCategoryId, categoryIds)) > 0L) {
             throw new BizException("该分类下存在文章, 删除失败");
         }
-        return lambdaUpdate().in(CategoryPO::getId, categoryIds).remove();
+        return categoryManager.removeByIds(categoryIds);
     }
 }

@@ -22,7 +22,7 @@ public class UnifiedBinderString extends PropertyEditorSupport {
     }
 
     @Override
-    public void setAsText(String text) throws IllegalArgumentException {
+    public void setAsText(String text) {
         String value = Objects.isNull(text) ? null : text.strip();
         setValue(value);
     }

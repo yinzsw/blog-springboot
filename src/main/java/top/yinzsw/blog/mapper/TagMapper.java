@@ -1,7 +1,9 @@
 package top.yinzsw.blog.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.CacheNamespace;
+import org.apache.ibatis.annotations.Param;
+import top.yinzsw.blog.extension.mybatisplus.CommonMapper;
 import top.yinzsw.blog.model.po.TagPO;
 
 /**
@@ -11,8 +13,9 @@ import top.yinzsw.blog.model.po.TagPO;
  * @Entity top.yinzsw.blog.model.po.TagPO
  */
 @CacheNamespace(readWrite = false, blocking = true)
-public interface TagMapper extends BaseMapper<TagPO> {
+public interface TagMapper extends CommonMapper<TagPO> {
 
+    Page<TagPO> pageSearchTags(Page<TagPO> pager, @Param("name") String name);
 }
 
 

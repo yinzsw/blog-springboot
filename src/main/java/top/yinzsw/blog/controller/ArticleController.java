@@ -32,19 +32,6 @@ import java.util.List;
 public class ArticleController {
     private final ArticleService articleService;
 
-    @Operation(summary = "搜索相关文章")
-    @GetMapping("keywords/{keywords}")
-    public List<ArticleSearchVO> listSearchArticles(@Parameter(description = "搜索关键字", required = true)
-                                                    @PathVariable("keywords") String keywords) {
-        return articleService.listSearchArticles(keywords);
-    }
-
-    @Operation(summary = "查看文章归档")
-    @GetMapping("archives")
-    public PageVO<ArticleArchiveVO> pageArchivesArticles(@Valid PageReq pageReq) {
-        return articleService.pageArchivesArticles(pageReq);
-    }
-
     @Operation(summary = "查看文章详情")
     @GetMapping("{articleId:\\d+}")
     public ArticleVO getArticle(@Parameter(description = "文章id", required = true)
@@ -52,12 +39,33 @@ public class ArticleController {
         return articleService.getArticle(articleId);
     }
 
+    @Operation(summary = "查看文章详情(后台)")
+    @GetMapping("background/{articleId:\\d+}")
+    public ArticleBackgroundVO getBackgroundArticle(@Parameter(description = "文章id", required = true)
+                                                    @PathVariable("articleId") Long articleId) {
+        return articleService.getBackgroundArticle(articleId);
+    }
+
+    @Operation(summary = "查看相关文章列表(最多6篇)")
+    @GetMapping("related/{articleId:\\d+}")
+    public List<ArticleSummaryVO> listRelatedArticles(@Parameter(description = "文章id", required = true)
+                                                      @PathVariable("articleId") Long articleId) {
+        return articleService.listRelatedArticles(articleId);
+    }
+
     @Operation(summary = "查看文章列表")
-    @GetMapping("isTop/{isTop:true|false}")
+    @GetMapping("isOnlyTop/{isOnlyTop:true|false}")
     public PageVO<ArticleDigestVO> pageArticles(@Valid PageReq pageReq,
-                                                @Parameter(description = "是否置顶", required = true)
-                                                @PathVariable("isTop") Boolean isTop) {
-        return articleService.pageArticles(pageReq, isTop);
+                                                @Parameter(description = "是否仅查询置顶文章", required = true)
+                                                @PathVariable Boolean isOnlyTop) {
+        return articleService.pageArticles(pageReq, isOnlyTop);
+    }
+
+    @Operation(summary = "查看文章列表(后台)")
+    @GetMapping("background")
+    public PageVO<ArticleDigestBackgroundVO> pageBackgroundArticles(@Valid PageReq pageReq,
+                                                                    @Valid ArticleQueryReq articleQueryReq) {
+        return articleService.pageBackgroundArticles(pageReq, articleQueryReq);
     }
 
     @Operation(summary = "查看文章预览(分类ID)")
@@ -76,18 +84,18 @@ public class ArticleController {
         return articleService.pagePreviewArticles(pageReq, tagIds);
     }
 
-    @Operation(summary = "查看文章详情(后台)")
-    @GetMapping("background/{articleId:\\d+}")
-    public ArticleBackgroundVO getBackgroundArticle(@Parameter(description = "文章id", required = true)
-                                                    @PathVariable("articleId") Long articleId) {
-        return articleService.getBackgroundArticle(articleId);
+    @Operation(summary = "查看文章归档")
+    @GetMapping("archives")
+    public PageVO<ArticleArchiveVO> pageArchivesArticles(@Valid PageReq pageReq) {
+        return articleService.pageArchivesArticles(pageReq);
     }
 
-    @Operation(summary = "查看文章列表(后台)")
-    @GetMapping("background")
-    public PageVO<ArticleDigestBackgroundVO> pageBackgroundArticles(@Valid PageReq pageReq,
-                                                                    @Valid ArticleQueryReq articleQueryReq) {
-        return articleService.pageBackgroundArticles(pageReq, articleQueryReq);
+    @Operation(summary = "搜索文章")
+    @GetMapping("keywords/{keywords}")
+    public PageVO<ArticleSearchVO> pageSearchArticles(@Valid PageReq pageReq,
+                                                      @Parameter(description = "搜索关键字", required = true)
+                                                      @PathVariable("keywords") String keywords) {
+        return articleService.pageSearchArticles(pageReq, keywords);
     }
 
     @Operation(summary = "上传文章图片")
@@ -99,12 +107,12 @@ public class ArticleController {
     }
 
     @Operation(summary = "点赞文章")
-    @PatchMapping("{articleId:\\d+}/like/{like:true|false}")
-    public boolean likeArticle(@Parameter(description = "文章id", required = true)
-                               @PathVariable("articleId") Long articleId,
-                               @Parameter(description = "点赞状态", required = true)
-                               @PathVariable("like") Boolean like) {
-        return articleService.likeArticle(articleId, like);
+    @PatchMapping("{articleId:\\d+}/isLiked/{isLiked:true|false}")
+    public boolean updateArticleIsLiked(@Parameter(description = "文章id", required = true)
+                                        @PathVariable("articleId") Long articleId,
+                                        @Parameter(description = "点赞状态", required = true)
+                                        @PathVariable("isLiked") Boolean isLiked) {
+        return articleService.updateArticleIsLiked(articleId, isLiked);
     }
 
     @Operation(summary = "修改文章置顶状态")

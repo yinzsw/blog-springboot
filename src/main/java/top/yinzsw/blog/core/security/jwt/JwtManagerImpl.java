@@ -61,7 +61,7 @@ public class JwtManagerImpl implements JwtManager {
      */
     private String getSign() {
         String userAgent = httpContext.getUserAgent();
-        String userIpAddress = httpContext.getUserIpAddress();
+        String userIpAddress = httpContext.getUserIpAddress().orElse(userAgent.length() + "");
 
         byte[] dataBytes = String.join("", userAgent.concat(userIpAddress)).getBytes();
         byte[] keyBytes = Keys.hmacShaKeyFor(jwtAuthenticationConfig.getKey().getBytes()).getEncoded();
