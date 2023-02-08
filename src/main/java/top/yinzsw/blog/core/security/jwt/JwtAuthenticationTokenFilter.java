@@ -68,7 +68,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         JwtContextDTO jwtContextDTO = jwtManager.parseAndGetJwtContext(isRefreshUri);
 
         // 校验成功处理
-        var authenticationToken = UsernamePasswordAuthenticationToken
+        UsernamePasswordAuthenticationToken authenticationToken = UsernamePasswordAuthenticationToken
                 .authenticated(jwtContextDTO, null, jwtContextDTO.getAuthorities());
         authenticationToken.setDetails(resourceId);
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);

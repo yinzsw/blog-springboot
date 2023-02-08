@@ -106,6 +106,15 @@
             <scope>compile</scope>
         </dependency>
 
+        <!-- SDK -->
+        <!--qiniu-->
+        <dependency>
+            <groupId>com.qiniu</groupId>
+            <artifactId>qiniu-java-sdk</artifactId>
+            <version>7.12.1</version>
+        </dependency>
+
+
         <!--CLOUD-->
         <!--cloud openfeign-->
         <dependency>

@@ -35,7 +35,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public UserInfoVO login(String username, String password) {
-        var authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
+        UsernamePasswordAuthenticationToken authenticationToken = UsernamePasswordAuthenticationToken
+                .unauthenticated(username, password);
         Authentication authenticate = authenticationManager.authenticate(authenticationToken);
         UserDetailsDTO userDetailsDTO = (UserDetailsDTO) authenticate.getPrincipal();
 

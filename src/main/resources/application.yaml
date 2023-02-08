@@ -71,7 +71,7 @@ feign:
         connect-timeout: 5000
         logger-level: basic
 upload:
-  mode: local
+  mode: kodo
   bucket: ${UPLOAD.BUCKET}
   endpoint: ${UPLOAD.ENDPOINT}
   domain-url: ${UPLOAD.DOMAIN_URL}
