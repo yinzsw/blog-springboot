@@ -19,10 +19,9 @@ import java.util.List;
  */
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface UserConverter {
-    UserDetailsDTO toUserDetailDTO(UserPO userPO, List<String> roleList);
+    UserDetailsDTO toUserDetailDTO(UserPO userPO, List<Long> roleIds);
 
     UserInfoVO toUserInfoVO(UserDetailsDTO userDetailsDTO, TokenVO token);
-
 
     @Mapping(target = "username", ignore = true)
     @Mapping(target = "updateTime", ignore = true)

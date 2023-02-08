@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import top.yinzsw.blog.core.security.jwt.JwtContextDTO;
+import top.yinzsw.blog.core.security.jwt.JwtManager;
 import top.yinzsw.blog.core.task.RunnableTaskHandler;
 import top.yinzsw.blog.enums.ActionTypeEnum;
 import top.yinzsw.blog.enums.ArticleStatusEnum;
@@ -165,7 +166,7 @@ public class ArticleManagerImpl extends ServiceImpl<ArticleMapper, ArticlePO> im
     }
 
     private LambdaQueryChainWrapper<ArticlePO> getVisibleArticleWrapper() {
-        Long uid = CommonUtils.getCurrentContextDTO().map(JwtContextDTO::getUid).orElse(null);
+        Long uid = JwtManager.getCurrentContextDTO().map(JwtContextDTO::getUid).orElse(null);
         return lambdaQuery().and(w -> w.eq(ArticlePO::getArticleStatus, ArticleStatusEnum.PUBLIC)
                 .or(Objects.nonNull(uid), wr -> wr
                         .eq(ArticlePO::getArticleStatus, ArticleStatusEnum.SECRET)

@@ -19,17 +19,17 @@ public interface RoleService {
      * 根据用户id获取用户的角色列表
      *
      * @param userId 用户id
-     * @return 角色列表
+     * @return 角色id列表
      */
-    List<String> getRoleNamesByUserId(Long userId);
+    List<Long> getRoleIdsByUserId(Long userId);
 
     /**
      * 根据资源id获取角色列表
      *
      * @param resourceId 资源id
-     * @return 角色列表
+     * @return 角色id列表
      */
-    List<String> getRoleNamesByResourceId(Long resourceId);
+    List<Long> getRoleIdsByResourceId(Long resourceId);
 
     /**
      * 获取角色列表

@@ -28,14 +28,14 @@ public class RoleManagerImpl extends ServiceImpl<RoleMapper, RolePO> implements 
     private final DataMapBuilder dataMapBuilder;
 
     @Override
-    public List<String> getEnabledRoleNamesByIds(List<Long> roleIds) {
+    public List<Long> getEnabledRoleNamesByIds(List<Long> roleIds) {
         if (CollectionUtils.isEmpty(roleIds)) {
             return Collections.emptyList();
         }
 
         return MapQueryUtils.create(RolePO::getId, roleIds)
                 .queryWrapper(q -> q.eq(RolePO::getIsDisabled, false))
-                .getValues(RolePO::getRoleLabel);
+                .getValues(RolePO::getId);
     }
 
     @Override

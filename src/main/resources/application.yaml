@@ -79,8 +79,6 @@ upload:
   access-key-secret: ${UPLOAD.ACCESS_KEY_SECRET}
 jwt:
   key: ${JWT.KEY}
-  x-claim-name: "X"
-  token-name: "token"
   refresh-uri: "/auth"
   exclude-uris:
     - "/druid/**"

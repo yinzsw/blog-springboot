@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import top.yinzsw.blog.core.security.jwt.JwtContextDTO;
+import top.yinzsw.blog.core.security.jwt.JwtManager;
 import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.manager.ArticleManager;
 import top.yinzsw.blog.manager.CategoryManager;
@@ -60,7 +61,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         List<CategoryPO> categoryPOList = categoryPOPage.getRecords();
         List<Long> categoryIds = CommonUtils.toDistinctList(categoryPOList, CategoryPO::getId);
-        Long uid = CommonUtils.getCurrentContextDTO().map(JwtContextDTO::getUid).orElse(null);
+        Long uid = JwtManager.getCurrentContextDTO().map(JwtContextDTO::getUid).orElse(null);
         Map<Long, Long> articleCountMap = articleMapper.listCategoryArticleCount(categoryIds, uid).stream()
                 .collect(Collectors.toMap(CategoryArticleNumDTO::getCategoryId, CategoryArticleNumDTO::getArticleCount));
 

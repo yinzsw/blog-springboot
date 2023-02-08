@@ -1,9 +1,12 @@
 package top.yinzsw.blog.core.security.jwt;
 
+import io.jsonwebtoken.security.Keys;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 
+import java.security.Key;
 import java.util.List;
 
 /**
@@ -23,17 +26,7 @@ public class JwtAuthenticationConfig {
     private String key;
 
     /**
-     * JWT中存放自定义信息的字段名
-     */
-    private String XClaimName;
-
-    /**
-     * 存放token的RequestHeaderName
-     */
-    private String tokenName = "token";
-
-    /**
-     * 用户刷新token的Uri
+     * 用户刷新token的Uri 标识
      */
     private String refreshUri;
 
@@ -41,4 +34,12 @@ public class JwtAuthenticationConfig {
      * 不需要认证的资源
      */
     private List<String> excludeUris;
+
+    public boolean isRefreshUri(HttpMethod method, String uri) {
+        return method.equals(HttpMethod.PUT) && refreshUri.equalsIgnoreCase(uri);
+    }
+
+    public Key getSecurityKey() {
+        return Keys.hmacShaKeyFor(key.getBytes());
+    }
 }

@@ -3,6 +3,7 @@ package top.yinzsw.blog.core.context;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,7 @@ public class HttpContext {
     private final HttpServletRequest httpServletRequest;
     private final HttpServletResponse httpServletResponse;
     private final ObjectMapper objectMapper;
+    private static final String BEARER_PREFIX = "Bearer ";
 
     /**
      * <p>X-Forwarded-For: (client1,proxy1,proxy2)由Squid开发的字段, 只有在通过了HTTP代理或者负载均衡服务器时才会添加该项</p>
@@ -66,7 +68,19 @@ public class HttpContext {
      * @return UA字符串
      */
     public String getUserAgent() {
-        return httpServletRequest.getHeader("User-Agent");
+        return httpServletRequest.getHeader(HttpHeaders.USER_AGENT);
+    }
+
+    /**
+     * 获取{@link HttpHeaders#AUTHORIZATION}请求头的 Bearer token.
+     *
+     * @see <a href="https://tools.ietf.org/html/rfc6750">RFC 6750</a>
+     */
+    public Optional<String> getBearerToken() {
+        String bearerToken = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
+        return Optional.ofNullable(bearerToken)
+                .filter(bt -> bt.startsWith(BEARER_PREFIX))
+                .map(bt -> bt.replaceFirst(BEARER_PREFIX, ""));
     }
 
     /**
