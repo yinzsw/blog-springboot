@@ -47,7 +47,7 @@ public class AuthServiceImpl implements AuthService {
 
         String userAgent = httpContext.getUserAgent();
         String ipAddress = httpContext.getUserIpAddress().orElse("");
-        userManager.saveUserLoginHistory(userId, userAgent, ipAddress);
+        userManager.saveUserLoginHistory(userId, ipAddress, userAgent);
         return userConverter.toUserInfoVO(userDetailsDTO, tokenVO);
     }
 
