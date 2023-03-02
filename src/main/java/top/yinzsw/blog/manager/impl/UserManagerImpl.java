@@ -84,7 +84,7 @@ public class UserManagerImpl extends ServiceImpl<UserMapper, UserPO> implements 
 
     @Async
     @Override
-    public void saveUserLoginHistory(Long userId, String userAgent, String ipAddress) {
+    public void saveUserLoginHistory(Long userId, String ipAddress, String userAgent) {
         String ipLocation = ipClient.getIpInfo(ipAddress).getFirstLocation().orElse("");
         HistoryPO historyPO = new HistoryPO()
                 .setUserId(userId)
