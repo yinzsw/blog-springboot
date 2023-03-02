@@ -67,8 +67,8 @@ public interface UserManager extends CommonManager<UserPO> {
      * 保存用户登录历史
      *
      * @param userId    用户id
-     * @param userAgent 用户代理字符串
      * @param ipAddress ip地址
+     * @param userAgent 用户代理字符串
      */
-    void saveUserLoginHistory(Long userId, String userAgent, String ipAddress);
+    void saveUserLoginHistory(Long userId, String ipAddress, String userAgent);
 }

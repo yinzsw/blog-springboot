@@ -38,8 +38,8 @@ public class UserDetailsServiceImpl implements UserDetailsService, UserDetailsPa
 
         // 用户角色信息
         Long userId = userPO.getId();
-        List<String> roleList = roleService.getRoleNamesByUserId(userId);
-        return userConverter.toUserDetailDTO(userPO, roleList);
+        List<Long> roleIds = roleService.getRoleIdsByUserId(userId);
+        return userConverter.toUserDetailDTO(userPO, roleIds);
     }
 
     @Override

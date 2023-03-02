@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import top.yinzsw.blog.core.context.HttpContext;
 import top.yinzsw.blog.core.security.jwt.JwtContextDTO;
+import top.yinzsw.blog.core.security.jwt.JwtManager;
 import top.yinzsw.blog.core.upload.UploadProvider;
 import top.yinzsw.blog.enums.FilePathEnum;
 import top.yinzsw.blog.enums.TopicTypeEnum;
@@ -67,12 +68,12 @@ public class ArticleServiceImpl implements ArticleService {
         Optional.ofNullable(articlePO).orElseThrow(() -> new BizException(String.format("id为%d的文章不存在", articleId)));
 
         // 更新浏览量
-        String userIdentify = CommonUtils.getCurrentContextDTO().map(Objects::toString)
+        String userIdentify = JwtManager.getCurrentContextDTO().map(Objects::toString)
                 .or(httpContext::getUserIpAddress).orElse("unknown");
         articleManager.updateViewsInfo(articleId, userIdentify);
 
         // 查询上一篇和下一篇文章
-        Long userId = CommonUtils.getCurrentContextDTO().map(JwtContextDTO::getUid).orElse(null);
+        Long userId = JwtManager.getCurrentContextDTO().map(JwtContextDTO::getUid).orElse(null);
         ArticlePO prevArticlePO = articleMapper.getPrevOrNextArticle(articleId, userId, true);
         ArticlePO nextArticlePO = articleMapper.getPrevOrNextArticle(articleId, userId, false);
 
@@ -93,7 +94,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public List<ArticleSummaryVO> listRelatedArticles(Long articleId) {
-        Long userId = CommonUtils.getCurrentContextDTO().map(JwtContextDTO::getUid).orElse(null);
+        Long userId = JwtManager.getCurrentContextDTO().map(JwtContextDTO::getUid).orElse(null);
         List<Long> tagIds = MapQueryUtils.create(ArticleMtmTagPO::getArticleId, List.of(articleId)).getValues(ArticleMtmTagPO::getTagId);
         if (CollectionUtils.isEmpty(tagIds)) {
             return Collections.emptyList();
@@ -108,7 +109,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public PageVO<ArticleDigestVO> pageArticles(PageReq pageReq, Boolean isOnlyTop) {
-        Long userId = CommonUtils.getCurrentContextDTO().map(JwtContextDTO::getUid).orElse(null);
+        Long userId = JwtManager.getCurrentContextDTO().map(JwtContextDTO::getUid).orElse(null);
         Page<ArticlePO> articlePOPage = articleMapper.pageArticles(pageReq.getPager(), userId, isOnlyTop);
 
         VerifyUtils.checkIPage(articlePOPage);
@@ -168,7 +169,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public PageVO<ArticleSearchVO> pageSearchArticles(PageReq pageReq, String keywords) {
-        Long userId = CommonUtils.getCurrentContextDTO().map(JwtContextDTO::getUid).orElse(null);
+        Long userId = JwtManager.getCurrentContextDTO().map(JwtContextDTO::getUid).orElse(null);
         Page<ArticlePO> articlePOPage = articleMapper.pagePublicArticleByKeywords(pageReq.getPager(), keywords, userId);
 
         VerifyUtils.checkIPage(articlePOPage);
@@ -201,7 +202,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean saveOrUpdateArticle(ArticleReq articleReq) {
-        Long uid = CommonUtils.getCurrentContextDTO().map(JwtContextDTO::getUid)
+        Long uid = JwtManager.getCurrentContextDTO().map(JwtContextDTO::getUid)
                 .orElseThrow(() -> new PreAuthenticatedCredentialsNotFoundException("用户凭据未找到"));
 
         if (categoryManager.lambdaQuery().eq(CategoryPO::getId, articleReq.getCategoryId()).count() == 0) {

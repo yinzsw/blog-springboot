@@ -6,11 +6,13 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.stereotype.Component;
-import top.yinzsw.blog.core.security.jwt.JwtContextDTO;
+import top.yinzsw.blog.core.security.jwt.JwtManager;
 import top.yinzsw.blog.service.RoleService;
-import top.yinzsw.blog.util.CommonUtils;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 接口拦截器
@@ -22,14 +24,18 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class SecurityMetadataSourceImpl implements FilterInvocationSecurityMetadataSource {
     private final RoleService roleService;
-    private static final String[] PADDING_ROLE_NAMES = new String[]{"''"};
 
     @Override
     public Collection<ConfigAttribute> getAttributes(Object object) {
-        return CommonUtils.getCurrentContextDTO()
-                .map(JwtContextDTO::getRid)
-                .map(roleService::getRoleNamesByResourceId)
-                .map(roleNames -> roleNames.isEmpty() ? PADDING_ROLE_NAMES : roleNames.toArray(String[]::new))
+        long resourceId = JwtManager.getCurrentResourceId();
+        if (resourceId == 0L) {
+            return null;
+        }
+
+        List<Long> roleIds = roleService.getRoleIdsByResourceId(resourceId);
+        return Optional.ofNullable(roleIds)
+                .map(ids -> ids.isEmpty() ? List.of(0L) : ids)
+                .map(ids -> ids.stream().map(Objects::toString).toArray(String[]::new))
                 .map(SecurityConfig::createList)
                 .orElse(null);
     }

@@ -10,6 +10,7 @@ import top.yinzsw.blog.exception.BizException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -24,7 +25,7 @@ public abstract class AbstractUploadTemplate implements UploadProvider {
     @Override
     public String uploadFile(String path, MultipartFile file) {
         try (InputStream inputStream = file.getInputStream()) {
-            String fileName = getFileName(file.getOriginalFilename(), inputStream);
+            String fileName = getFileName(file);
             return uploadFile(path, fileName, inputStream);
         } catch (IOException e) {
             log.error("uploadFile :{}", e.getMessage());
@@ -37,7 +38,7 @@ public abstract class AbstractUploadTemplate implements UploadProvider {
         try (inputStream) {
             String filePath = UriComponentsBuilder.fromPath(path).path("/".concat(filename)).build().toUriString();
             if (!getIsExists(filePath)) {
-                upload(path, filename, inputStream);
+                upload(filePath, inputStream);
             }
             return getFileAccessUrl(filePath);
         } catch (Exception e) {
@@ -49,24 +50,32 @@ public abstract class AbstractUploadTemplate implements UploadProvider {
     /**
      * 获取文件名
      *
-     * @param filename    文件路径
-     * @param inputStream 文件流
-     * @return {@link String} 文件名
+     * @param file 文件信息
+     * @return 文件名
      */
-    public String getFileName(String filename, InputStream inputStream) throws IOException {
-        String md5HexValue = DigestUtils.md5DigestAsHex(inputStream);
-        String suffix = Optional.ofNullable(StringUtils.getFilenameExtension(filename))
-                .map("."::concat).orElse("");
-        return md5HexValue.concat(suffix);
+    public String getFileName(MultipartFile file) throws IOException {
+        String sizeHex = Long.toString(file.getSize(), 16);
+        String md5HexValue = DigestUtils.md5DigestAsHex(file.getInputStream());
+        String fileSuffix = Optional.of(file)
+                .map(MultipartFile::getOriginalFilename)
+                .map(StringUtils::getFilenameExtension)
+                .orElse("unknown");
+
+        return String.join(".", List.of(sizeHex, md5HexValue, fileSuffix));
     }
+
+    /**
+     * 上传功能 初始化
+     */
+    public abstract void init();
 
     /**
      * 判断文件是否存在
      *
      * @param filePath 文件路径
-     * @return {@link Boolean} 是否存在
+     * @return 是否存在
      */
-    public abstract Boolean getIsExists(String filePath);
+    public abstract boolean getIsExists(String filePath);
 
     /**
      * 获取文件访问url
@@ -79,10 +88,9 @@ public abstract class AbstractUploadTemplate implements UploadProvider {
     /**
      * 文件上传
      *
-     * @param path        路径
-     * @param filename    文件名
+     * @param filePath    文件路径
      * @param inputStream 输入流
      * @throws IOException io异常
      */
-    public abstract void upload(String path, String filename, InputStream inputStream) throws IOException;
+    public abstract void upload(String filePath, InputStream inputStream) throws IOException;
 }

@@ -19,9 +19,9 @@ public interface RoleManager extends CommonManager<RolePO> {
      * 获取未禁用的角色名列表
      *
      * @param roleIds 角色id
-     * @return 角色名列表
+     * @return 角色id列表
      */
-    List<String> getEnabledRoleNamesByIds(List<Long> roleIds);
+    List<Long> getEnabledRoleNamesByIds(List<Long> roleIds);
 
     ///////////////////////////////////////////////////MapsContext//////////////////////////////////////////////////////
 

@@ -71,7 +71,7 @@ feign:
         connect-timeout: 5000
         logger-level: basic
 upload:
-  mode: local
+  mode: kodo
   bucket: ${UPLOAD.BUCKET}
   endpoint: ${UPLOAD.ENDPOINT}
   domain-url: ${UPLOAD.DOMAIN_URL}
@@ -79,8 +79,6 @@ upload:
   access-key-secret: ${UPLOAD.ACCESS_KEY_SECRET}
 jwt:
   key: ${JWT.KEY}
-  x-claim-name: "X"
-  token-name: "token"
   refresh-uri: "/auth"
   exclude-uris:
     - "/druid/**"

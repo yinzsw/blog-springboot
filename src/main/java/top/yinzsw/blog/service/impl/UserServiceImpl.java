@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import top.yinzsw.blog.core.security.jwt.JwtContextDTO;
+import top.yinzsw.blog.core.security.jwt.JwtManager;
 import top.yinzsw.blog.core.upload.UploadProvider;
 import top.yinzsw.blog.enums.FilePathEnum;
 import top.yinzsw.blog.exception.BizException;
@@ -40,7 +41,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public String updateUserAvatar(MultipartFile avatar) {
         String avatarUrl = uploadProvider.uploadFile(FilePathEnum.AVATAR.getPath(), avatar);
-        Long uid = CommonUtils.getCurrentContextDTO().map(JwtContextDTO::getUid)
+        Long uid = JwtManager.getCurrentContextDTO().map(JwtContextDTO::getUid)
                 .orElseThrow(() -> new PreAuthenticatedCredentialsNotFoundException("用户凭据未找到"));
 
         userManager.updateById(new UserPO().setId(uid).setAvatar(avatarUrl));
@@ -50,7 +51,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean updateUserEmail(String email, String code) {
         userManager.checkEmailVerificationCode(email, code);
-        Long uid = CommonUtils.getCurrentContextDTO().map(JwtContextDTO::getUid)
+        Long uid = JwtManager.getCurrentContextDTO().map(JwtContextDTO::getUid)
                 .orElseThrow(() -> new PreAuthenticatedCredentialsNotFoundException("用户凭据未找到"));
 
         return userManager.updateById(new UserPO().setId(uid).setEmail(email));
@@ -73,7 +74,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean updateUserPassword(PasswordByOldReq password) {
-        Long uid = CommonUtils.getCurrentContextDTO().map(JwtContextDTO::getUid)
+        Long uid = JwtManager.getCurrentContextDTO().map(JwtContextDTO::getUid)
                 .orElseThrow(() -> new PreAuthenticatedCredentialsNotFoundException("用户凭据未找到"));
 
         String oldPassword = userManager.lambdaQuery().select(UserPO::getPassword).eq(UserPO::getId, uid).one().getPassword();
@@ -87,7 +88,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean updateUserInfo(UserInfoReq userInfoReq) {
-        Long uid = CommonUtils.getCurrentContextDTO().map(JwtContextDTO::getUid)
+        Long uid = JwtManager.getCurrentContextDTO().map(JwtContextDTO::getUid)
                 .orElseThrow(() -> new PreAuthenticatedCredentialsNotFoundException("用户凭据未找到"));
         UserPO userPO = userConverter.toUserPO(userInfoReq, uid);
         return userManager.updateById(userPO);

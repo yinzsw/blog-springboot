@@ -55,8 +55,9 @@ public class UnifiedException {
      * @return 接口异常信息
      */
     @ExceptionHandler(Throwable.class)
-    public ResponseVO<?> systemExceptionHandler() {
+    public ResponseVO<?> systemExceptionHandler(Throwable throwable) {
         httpContext.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+        throwable.printStackTrace();
         return ResponseVO.fail(ResponseCodeEnum.SYSTEM_ERROR);
     }
 

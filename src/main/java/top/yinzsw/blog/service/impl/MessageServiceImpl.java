@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import top.yinzsw.blog.client.IpClient;
 import top.yinzsw.blog.core.context.HttpContext;
 import top.yinzsw.blog.core.security.jwt.JwtContextDTO;
+import top.yinzsw.blog.core.security.jwt.JwtManager;
 import top.yinzsw.blog.manager.MessageManager;
 import top.yinzsw.blog.manager.WebConfigManager;
 import top.yinzsw.blog.model.converter.MessageConverter;
@@ -20,7 +21,6 @@ import top.yinzsw.blog.model.vo.MessageBackgroundVO;
 import top.yinzsw.blog.model.vo.MessageVO;
 import top.yinzsw.blog.model.vo.PageVO;
 import top.yinzsw.blog.service.MessageService;
-import top.yinzsw.blog.util.CommonUtils;
 import top.yinzsw.blog.util.MapQueryUtils;
 import top.yinzsw.blog.util.VerifyUtils;
 
@@ -64,7 +64,7 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public boolean saveMessage(MessageContentReq messageReq) {
-        Long uid = CommonUtils.getCurrentContextDTO().map(JwtContextDTO::getUid)
+        Long uid = JwtManager.getCurrentContextDTO().map(JwtContextDTO::getUid)
                 .orElseThrow(() -> new PreAuthenticatedCredentialsNotFoundException("用户凭据未找到"));
         String userIpAddress = httpContext.getUserIpAddress().orElse(null);
         String userIpLocation = ipClient.getIpInfo(userIpAddress).getFirstLocation().orElse(null);

@@ -9,6 +9,7 @@ import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedCredentialsNotFoundException;
 import org.springframework.stereotype.Service;
 import top.yinzsw.blog.core.security.jwt.JwtContextDTO;
+import top.yinzsw.blog.core.security.jwt.JwtManager;
 import top.yinzsw.blog.enums.ActionTypeEnum;
 import top.yinzsw.blog.enums.RedisConstEnum;
 import top.yinzsw.blog.enums.TopicTypeEnum;
@@ -16,7 +17,6 @@ import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.manager.LikeManager;
 import top.yinzsw.blog.mapper.LikeMapper;
 import top.yinzsw.blog.model.po.LikedPO;
-import top.yinzsw.blog.util.CommonUtils;
 
 import java.util.Objects;
 
@@ -33,7 +33,7 @@ public class LikeManagerImpl extends ServiceImpl<LikeMapper, LikedPO> implements
 
     @Override
     public void likeStrategy(TopicTypeEnum topicType, Long topicId, boolean like) {
-        Long userId = CommonUtils
+        Long userId = JwtManager
                 .getCurrentContextDTO()
                 .map(JwtContextDTO::getUid)
                 .orElseThrow(() -> new PreAuthenticatedCredentialsNotFoundException("用户凭据未找到"));

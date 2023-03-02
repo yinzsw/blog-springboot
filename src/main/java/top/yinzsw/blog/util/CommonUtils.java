@@ -3,14 +3,11 @@ package top.yinzsw.blog.util;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.SessionCallback;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.CollectionUtils;
-import top.yinzsw.blog.core.security.jwt.JwtContextDTO;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -43,17 +40,6 @@ public class CommonUtils {
         return CollectionUtils.isEmpty(collection) ?
                 Collections.emptyList() :
                 collection.stream().map(function).distinct().collect(Collectors.toList());
-    }
-
-    /**
-     * 得到当前用户认证信息上下文
-     *
-     * @return 用户认证信息上下文
-     */
-    public static Optional<JwtContextDTO> getCurrentContextDTO() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        JwtContextDTO jwtContextDTO = principal instanceof JwtContextDTO ? (JwtContextDTO) principal : null;
-        return Optional.ofNullable(jwtContextDTO);
     }
 
     public static <C1, C2> SessionCallback<Object> getSessionCallback(Consumer<RedisOperations<C1, C2>> consumer) {

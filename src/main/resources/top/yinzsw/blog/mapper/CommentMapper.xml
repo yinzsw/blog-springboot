@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.yinzsw.blog.mapper.CommentMapper">
+
+    <cache-ref namespace="top.yinzsw.blog.mapper.CommentMapper"/>
+
+    <resultMap id="groupCommentDTO" type="top.yinzsw.blog.model.dto.GroupCommentDTO">
+        <id property="mainCommentId" column="main_comment_id"/>
+        <result property="moreCommentCount" column="comment_count"/>
+        <collection property="comments" ofType="top.yinzsw.blog.model.po.CommentPO" autoMapping="true"/>
+    </resultMap>
+    <select id="getGroupCommentDTO" resultMap="groupCommentDTO">
+        SELECT `id`,
+        `user_id`,
+        `comment_content`,
+        `liked_count`,
+        `reply_user_id`,
+        `level`,
+        `is_top`,
+        `is_modified`,
+        `create_time`,
+        `id` AS `main_comment_id`,
+        (SELECT COUNT(*)
+        FROM `comment`
+        WHERE `reply_comment_ids` LIKE CONCAT(`c`.`id`, '%')
+        AND `is_reviewed` = TRUE
+        AND `is_deleted` = FALSE) AS `comment_count`
+        FROM `comment` `c`
+        <foreach collection="commentIds" item="commentId" open="WHERE `id` IN (" close=")" separator=",">
+            #{commentId}
+        </foreach>
+        <foreach collection="commentIds" item="commentId" open="UNION ALL" separator="UNION ALL">
+            (SELECT `id`,
+            `user_id`,
+            `comment_content`,
+            `liked_count`,
+            `reply_user_id`,
+            `level`,
+            `is_top`,
+            `is_modified`,
+            `create_time`,
+            #{commentId} AS `main_comment_id`,
+            NULL AS `comment_count`
+            FROM `comment`
+            WHERE `reply_comment_ids` LIKE CONCAT(#{commentId}, '%')
+            ORDER BY
+            <if test="orderType.value == 1">`liked_count` DESC</if>
+            <if test="orderType.value == 2">`create_time` DESC</if>
+            LIMIT 3)
+        </foreach>
+        ORDER BY
+        <if test="orderType.value == 1">`liked_count` DESC</if>
+        <if test="orderType.value == 2">`create_time` DESC</if>
+    </select>
+</mapper>

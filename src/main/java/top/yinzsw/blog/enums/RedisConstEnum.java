@@ -24,6 +24,13 @@ public enum RedisConstEnum {
     SITE_VIEWED_COUNT("blog:viewed:site:count"),
 
     /**
+     * 用户阻塞token <br/>
+     * 0: 用户token version id <br/>
+     * value: empty string
+     */
+    USER_BLOCK_TOKEN("blog:token:block:{0}"),
+
+    /**
      * 用户邮箱验证码<br/>
      * 0: 用户邮箱<br/>
      * value:　验证码
@@ -32,8 +39,8 @@ public enum RedisConstEnum {
 
     /**
      * 记录用户行为键 <br/>
-     * 0: 主题名 请参阅: {@link TopicTypeEnum} <br/>
-     * 1: 行为名 请参阅: {@link ActionTypeEnum} <br/>
+     * 0: 主题名 {@link TopicTypeEnum} <br/>
+     * 1: 行为名 {@link ActionTypeEnum} <br/>
      * 2: 用户标识 <br/>
      * values:　主题标志列表 <br/>
      */
@@ -41,8 +48,8 @@ public enum RedisConstEnum {
 
     /**
      * 记录主题行为键 <br/>
-     * 0: 主题名 请参阅: {@link TopicTypeEnum} <br/>
-     * 1: 行为名 请参阅: {@link ActionTypeEnum} <br/>
+     * 0: 主题名 {@link TopicTypeEnum} <br/>
+     * 1: 行为名 {@link ActionTypeEnum} <br/>
      * 2: 主题标志 <br/>
      * values:　用户标识列表 <br/>
      */
@@ -50,8 +57,8 @@ public enum RedisConstEnum {
 
     /**
      * 热度排行榜的键 <br/>
-     * 0: 主题名 请参阅: {@link TopicTypeEnum} <br/>
-     * values:　主题行为价值分 请参阅: {@link ActionTypeEnum}<br/>
+     * 0: 主题名 {@link TopicTypeEnum} <br/>
+     * values:　主题行为价值分 {@link ActionTypeEnum}<br/>
      */
     HEAT_TOPIC_RANKING("blog:heat:{0}");
 

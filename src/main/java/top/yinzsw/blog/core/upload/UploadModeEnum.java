@@ -8,5 +8,5 @@ package top.yinzsw.blog.core.upload;
  */
 
 public enum UploadModeEnum {
-    LOCAL
+    LOCAL, KODO
 }

@@ -41,14 +41,14 @@ public class RoleServiceImpl implements RoleService {
     private final RoleConverter roleConverter;
 
     @Override
-    public List<String> getRoleNamesByUserId(Long userId) {
+    public List<Long> getRoleIdsByUserId(Long userId) {
         List<Long> roleIds = MapQueryUtils.create(UserMtmRolePO::getUserId, List.of(userId))
                 .getValues(UserMtmRolePO::getRoleId);
         return roleManager.getEnabledRoleNamesByIds(roleIds);
     }
 
     @Override
-    public List<String> getRoleNamesByResourceId(Long resourceId) {
+    public List<Long> getRoleIdsByResourceId(Long resourceId) {
         List<Long> roleIds = MapQueryUtils.create(RoleMtmResourcePO::getResourceId, List.of(resourceId))
                 .getValues(RoleMtmResourcePO::getRoleId);
         return roleManager.getEnabledRoleNamesByIds(roleIds);

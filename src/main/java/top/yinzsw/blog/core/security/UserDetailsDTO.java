@@ -7,10 +7,10 @@ import lombok.experimental.Accessors;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import top.yinzsw.blog.util.CommonUtils;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 用户详细信息
@@ -72,11 +72,11 @@ public class UserDetailsDTO implements UserDetails {
     /**
      * 用户角色
      */
-    private List<String> roleList;
+    private List<Long> roleIds;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.roleList.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toSet());
+        return CommonUtils.toDistinctList(roleIds, id -> new SimpleGrantedAuthority(id.toString()));
     }
 
     @Override
@@ -106,6 +106,6 @@ public class UserDetailsDTO implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return roleList.size() > 0;
+        return !roleIds.isEmpty();
     }
 }

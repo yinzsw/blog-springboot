@@ -10,13 +10,11 @@ import top.yinzsw.blog.core.context.HttpContext;
 import top.yinzsw.blog.core.security.UserDetailsDTO;
 import top.yinzsw.blog.core.security.jwt.JwtContextDTO;
 import top.yinzsw.blog.core.security.jwt.JwtManager;
-import top.yinzsw.blog.exception.BizException;
 import top.yinzsw.blog.manager.UserManager;
 import top.yinzsw.blog.model.converter.UserConverter;
 import top.yinzsw.blog.model.vo.TokenVO;
 import top.yinzsw.blog.model.vo.UserInfoVO;
 import top.yinzsw.blog.service.AuthService;
-import top.yinzsw.blog.util.CommonUtils;
 
 import java.util.List;
 
@@ -37,24 +35,25 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public UserInfoVO login(String username, String password) {
-        var authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
+        UsernamePasswordAuthenticationToken authenticationToken = UsernamePasswordAuthenticationToken
+                .unauthenticated(username, password);
         Authentication authenticate = authenticationManager.authenticate(authenticationToken);
         UserDetailsDTO userDetailsDTO = (UserDetailsDTO) authenticate.getPrincipal();
 
         //创建JWT和用户信息模型
         Long userId = userDetailsDTO.getId();
-        List<String> roles = userDetailsDTO.getRoleList();
+        List<Long> roles = userDetailsDTO.getRoleIds();
         TokenVO tokenVO = jwtManager.createTokenVO(userId, roles);
 
         String userAgent = httpContext.getUserAgent();
         String ipAddress = httpContext.getUserIpAddress().orElse("");
-        userManager.saveUserLoginHistory(userId, userAgent, ipAddress);
+        userManager.saveUserLoginHistory(userId, ipAddress, userAgent);
         return userConverter.toUserInfoVO(userDetailsDTO, tokenVO);
     }
 
     @Override
     public TokenVO refreshToken() {
-        JwtContextDTO currentJwtContextDTO = CommonUtils.getCurrentContextDTO()
+        JwtContextDTO currentJwtContextDTO = JwtManager.getCurrentContextDTO()
                 .orElseThrow(() -> new PreAuthenticatedCredentialsNotFoundException("用户凭据未找到"));
 
         return jwtManager.createTokenVO(currentJwtContextDTO.getUid(), currentJwtContextDTO.getRoles());
@@ -62,7 +61,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public boolean logout() {
-        throw new BizException("暂未实现");
+        return jwtManager.blockUserToken();
     }
 
     @Override

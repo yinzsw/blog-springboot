@@ -2,11 +2,11 @@ package top.yinzsw.blog.core.security.jwt;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.server.PathContainer;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.pattern.PathPatternParser;
 import top.yinzsw.blog.model.po.ResourcePO;
@@ -33,7 +33,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     private final JwtManager jwtManager;
     private final JwtAuthenticationConfig jwtAuthenticationConfig;
 
-    private Long verifyAndGetResourceId(String uri, String method) {
+    private Long getResourceId(String uri, String method) {
         PathContainer askUriPathContainer = PathContainer.parsePath(uri);
         boolean isIgnoreUri = jwtAuthenticationConfig.getExcludeUris().stream()
                 .map(PathPatternParser.defaultInstance::parse)
@@ -46,6 +46,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         if (Objects.isNull(resourcePO) || resourcePO.getIsAnonymous()) {
             return null;
         }
+
         return resourcePO.getId();
     }
 
@@ -56,21 +57,20 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
         String uri = request.getRequestURI();
         String method = request.getMethod();
-        Long resourceId = verifyAndGetResourceId(uri, method);
+        Long resourceId = getResourceId(uri, method);
         if (Objects.isNull(resourceId)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-
         // 校验并获取token信息
-        String token = request.getHeader(jwtAuthenticationConfig.getTokenName());
-        boolean isRefreshUri = jwtAuthenticationConfig.getRefreshUri().equals(uri) && RequestMethod.PUT.name().equalsIgnoreCase(method);
-        JwtContextDTO jwtContextDTO = jwtManager.parseAndGetJwtContext(token, isRefreshUri);
-        jwtContextDTO.setRid(resourceId);
+        boolean isRefreshUri = jwtAuthenticationConfig.isRefreshUri(HttpMethod.valueOf(method), uri);
+        JwtContextDTO jwtContextDTO = jwtManager.parseAndGetJwtContext(isRefreshUri);
 
         // 校验成功处理
-        var authenticationToken = new UsernamePasswordAuthenticationToken(jwtContextDTO, null, jwtContextDTO.getAuthorities());
+        UsernamePasswordAuthenticationToken authenticationToken = UsernamePasswordAuthenticationToken
+                .authenticated(jwtContextDTO, null, jwtContextDTO.getAuthorities());
+        authenticationToken.setDetails(resourceId);
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         filterChain.doFilter(request, response);
     }
